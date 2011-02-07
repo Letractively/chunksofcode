@@ -1,0 +1,5 @@
+root@buenosaires ...ff/tmp/subversion-1.6/subversion-1.6.2 # unzip subversion-1.6.2.zip
+root@buenosaires ...ff/tmp/subversion-1.6/subversion-1.6.2 # unzip subversion-deps-1.6.2.zip
+root@buenosaires ...ff/tmp/subversion-1.6/subversion-1.6.2 # ./autogen.sh
+root@buenosaires ...ff/tmp/subversion-1.6/subversion-1.6.2 # ./configure --with-ssl --enable-javahl --with-jdk=/usr/lib/jvm/java-6-sun
+root@buenosaires ...ff/tmp/subversion-1.6/subversion-1.6.2 # make install

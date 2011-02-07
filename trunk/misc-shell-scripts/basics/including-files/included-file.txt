@@ -1,0 +1,12 @@
+SOMETHING="bla bla bla";
+
+SOME_ARRAY=(
+	"zero"
+	"one"
+	"two"
+);
+
+someFunction() {
+	echo "hello, $1 !";
+
+}

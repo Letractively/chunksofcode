@@ -1,0 +1,44 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:h="http://java.sun.com/jsf/html"
+	xmlns:f="http://java.sun.com/jsf/core"
+	xmlns:ui="http://java.sun.com/jsf/facelets">
+<h:head>
+	<title>View Issue #{issueView.issue.title}
+	(id:#{issueView.issue.id})</title>
+	<style type="text/css">
+		.even {background-color: lightgray;}
+		.odd {background-color: white;}
+		.headerStyle {
+			color: white;
+			background-color: black;
+			size: 12pt;
+		}
+	</style>
+</h:head>
+<h:body>
+	<h4>Issue ID #{issueView.issue.id} <br />
+		Project #{issueView.issue.project.name} </h4>
+	<h1>Title: #{issueView.issue.title}</h1>
+	<h:outputText value="Server time: #{issueView.serverTime}" />
+	<p />
+	<h:form>
+		<h:dataTable var="e" value="#{issueView.issue.entries}"
+				headerClass="headerStyle" rowClasses="even, odd">
+			<h:column>
+				<f:facet name="header">Issue Entries:</f:facet>
+				<h:outputText value="#{e}" />
+			</h:column>
+		</h:dataTable>
+		<br />
+		<h:inputTextarea style="width: 70%;" 
+				value="#{issueView.issue.newEntry}"/><br />
+		
+		<h:commandButton value="Add Entry"
+				action="#{issueView.issue.addEntry}" /><br />
+	</h:form>
+	<h:form>
+		<h:commandLink value="Back to issue list" action="backToList" />
+	</h:form>
+</h:body>
+</html>

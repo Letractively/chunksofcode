@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+
+     
+<configuration debug="true"> 
+  <appender name="STDOUT" class="ch.qos.logback.core.ConsoleAppender"> 
+  
+  
+    <!-- HOWTO:   http://logback.qos.ch/manual/layouts.html    -->
+    
+    <layout class="com.myapp.util.log.unixcolors.UnixTerminalColorizedPatternLayout">
+      <Pattern>
+%-25.25(%level{25})  |  %-8thread  |  %d{yyyy-MM-dd HH:mm:ss.SSS}  |  %-80.80(%class{30}:%line.%method{30}\(\))   |  %msg%n               
+      </Pattern>
+    </layout>
+    
+    
+  </appender>
+  <root level="trace">
+    <appender-ref ref="STDOUT" />
+  </root>
+</configuration>

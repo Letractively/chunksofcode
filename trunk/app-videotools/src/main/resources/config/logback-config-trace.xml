@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+
+     
+<configuration debug="true"> 
+
+<!-- http://logback.qos.ch/manual/configuration.html -->
+
+  <appender name="STDOUT" class="ch.qos.logback.core.ConsoleAppender"> 
+    <layout class="ch.qos.logback.classic.PatternLayout">
+      <Pattern>
+%-5.5(%-5level)  |  %-8thread  |  %d{yyyy-MM-dd HH:mm:ss.SSS}  |  %-65.65(%class{30}[%line].%method{25}\(\))   |  %msg%n
+      </Pattern>
+    </layout>
+  </appender>
+  <root level="trace">
+    <appender-ref ref="STDOUT" />
+  </root>
+</configuration>

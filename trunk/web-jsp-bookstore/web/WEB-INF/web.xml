@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<web-app version="2.4" xmlns="http://java.sun.com/xml/ns/j2ee"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://java.sun.com/xml/ns/j2ee 
+    http://java.sun.com/xml/ns/j2ee/web-app_2_4.xsd">
+
+
+    <servlet>
+        <servlet-name>BuchListe</servlet-name>
+        <servlet-class>
+            com.myapp.bookstore.jsp.servlets.BuchListeServlet
+        </servlet-class>
+    </servlet>
+
+    <servlet-mapping>
+        <servlet-name>BuchListe</servlet-name>
+        <url-pattern>/buchListe</url-pattern>
+    </servlet-mapping>
+
+
+
+
+    <servlet>
+        <servlet-name>BuchBearbeiten</servlet-name>
+        <servlet-class>
+            com.myapp.bookstore.jsp.servlets.BuchBearbeitenServlet
+        </servlet-class>
+    </servlet>
+
+    <servlet-mapping>
+        <servlet-name>BuchBearbeiten</servlet-name>
+        <url-pattern>/buchBearbeiten</url-pattern>
+    </servlet-mapping>
+
+
+
+</web-app>
