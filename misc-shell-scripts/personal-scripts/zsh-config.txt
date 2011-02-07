@@ -1,0 +1,11 @@
+echo '                                              
+
+# bind keys ctrl+left and ctrl+right to jump wordwise like vim:
+#     escape sequence for ctrl+left:   ^[[1;5D
+#     escape sequence for ctrl+right:  ^[[1;5C
+#        (use "cat" to find out escape sequences for desired key(s))
+bindkey "^[[1;5D" backward-word
+bindkey "^[[1;5C" forward-word
+
+' | sudo tee -a /etc/zsh/zshrc
+

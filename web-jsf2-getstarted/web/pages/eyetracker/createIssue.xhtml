@@ -1,0 +1,43 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:h="http://java.sun.com/jsf/html"
+	xmlns:f="http://java.sun.com/jsf/core"
+	xmlns:ui="http://java.sun.com/jsf/facelets">
+<h:head>
+	<title>Create New Issue</title>
+</h:head>
+<h:body>
+	<h1>Create New Issue</h1>
+	<h:outputText value="Server time: #{issueView.serverTime}" /><p />
+	<h:form>
+	<fieldset>
+		<legend>Select project, owner and title:</legend>
+		<table>
+		<tr>
+			<td>Project:</td>
+			<td><h:selectOneMenu value="#{issueView.issue.project}"
+					converter="com.myapp.web.jsf2.getstarted.eyetracker.impl.ProjectConverter">
+				<f:selectItems var="p" 
+						value="#{dataBase.allProjects}"
+						itemLabel="(id:#{p.id}) #{p.name}" />
+			</h:selectOneMenu></td>
+		</tr><tr>
+			<td>Owner:</td>
+			<td><h:selectOneMenu value="#{issueView.issue.owner}">
+				<f:selectItems var="u" 
+						value="#{dataBase.allUsers}"
+						itemLabel="(id:#{u.id}) #{u.name}" />
+			</h:selectOneMenu></td>
+		</tr><tr>
+			<td>Title:</td>
+			<td><h:inputText value="#{issueView.issue.title}" /></td>
+		</tr>
+		</table>
+		<h:commandButton action="#{issueView.commitNewIssue}" value="Save" />
+	</fieldset>
+	</h:form>
+	<h:form>
+		<h:commandLink value="Back to issue list" action="backToList" />
+	</h:form>
+</h:body>
+</html>
