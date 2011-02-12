@@ -30,11 +30,11 @@ BACKUP_ARGS="--archive --delete --verbose"
 
 
 	#
-	# if 0 or missing, the files will be copied to the backup destinantion:
-        # if set and not equal 0, a dry-run will be performed to
+	# 0 or 1; if 0, the files will be copied to the backup destinantion:
+        # if 1, a dry-run will be performed to
         # display what would have been done on syncing.
         #
-        # a logfile will be created also
+        # a logfile will be created in both cases
 	#
 DRY_RUN=1
 
@@ -58,16 +58,14 @@ LOGFILE="/media/disk/backup/logs/backup_$(date +%Y-%m-%d_%H-%M-%S).log"
 	#              backup root dir instead of the dir itself!
 	#
 BACKUP_SOURCE_DIRS=(
-	"/media/datadisk/games"
+	"/media/datadisk/personal"
+	"/media/datadisk/verena"
 	"/media/datadisk/software"
 	"/media/datadisk/sound"
-	"/media/datadisk/videos"
+	"/media/datadisk/books"
+	"/media/warez/games"
 	"/media/datadisk/vm"
-	"/media/personal/books"
-	"/media/personal/job"
-	"/media/personal/personal"
-	"/media/personal/porn"
-	"/media/personal/schule"
-	"/media/personal/system-backup"
-	"/media/personal/workspace"
+	"/media/datadisk/system-backup"
+	"/media/warez/videos"
+	"/media/warez/porn"
 )

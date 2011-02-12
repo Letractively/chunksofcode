@@ -21,18 +21,22 @@
 	#
 	##################################
 
+HERE="$(cd "`dirname "$0"`"; pwd)"
+echo "HERE='$HERE'"
 
-CONFIG_FILE="configuration.sh";
-
+CONFIG_FILE="$HERE/configuration.sh";
+echo "Using config file: ${CONFIG_FILE}"
 
 	#
 	# fail if CONFIG_FILE is not existing or not readable:
 	#
 if [ ! -f "$CONFIG_FILE" -o ! -r "$CONFIG_FILE" ] ; then
-	printItOut "#########";
-	printItOut "ERROR:";
-	printItOut "   ${CONFIG_FILE} is not existing or not readable!";
+	echo "#########";
+	echo "ERROR:";
+	echo "   ${CONFIG_FILE} is not existing or not readable!";
 	exit 567;
+else
+        echo "Using config file: ${CONFIG_FILE}" 
 fi;
 
 
@@ -68,16 +72,17 @@ fi;
 	#
 	##################################
 	
-FUNCTION_LIBRARY_FILE="functions.sh";
+FUNCTION_LIBRARY_FILE="$HERE/functions.sh";
+echo "Using library file: ${FUNCTION_LIBRARY_FILE}" 
 
 
 	#
 	# fail if FUNCTION_LIBRARY_FILE is not existing or not readable:
 	#
 if [ ! -f "$FUNCTION_LIBRARY_FILE" -o ! -r "$FUNCTION_LIBRARY_FILE" ] ; then
-	printItOut "#########";
-        printItOut "ERROR:";
-        printItOut "   ${FUNCTION_LIBRARY_FILE} is not existing or not readable!";
+	echo "#########";
+        echo "ERROR:";
+        echo "   ${FUNCTION_LIBRARY_FILE} is not existing or not readable!";
 	exit 133;
 fi;
 
@@ -85,7 +90,7 @@ fi;
 	#
 	# include library file:
 	#
-. "$FUNCTION_LIBRARY_FILE";
+. "$FUNCTION_LIBRARY_FILE"
 
 
 
