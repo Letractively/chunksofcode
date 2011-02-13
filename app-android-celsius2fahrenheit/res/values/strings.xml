@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <color  name="myColor"      >#3399CC</color>
+    
+    <string name="app_name"     >Celsius 2 Fahrenheit</string>
+    
+    <!-- see com.myapp.android.celsius2fahrenheit.TemperaturCalculatorActivity.buttonAction(View) -->
+    <string name="buttonHandler">buttonAction</string>
+    <string name="celsius"      >to Celsius</string>
+    <string name="fahrenheit"   >to Fahrenheit</string>
+    <string name="calc"         >Calculate</string>
+</resources>
