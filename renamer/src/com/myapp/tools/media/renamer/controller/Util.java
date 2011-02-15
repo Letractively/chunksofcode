@@ -234,7 +234,8 @@ public final class Util implements IConstants.ISysConstants {
      * @param dst the destination file
      * @throws IOException
      */
-    public static void copyFile(File src, File dst) throws IOException {
+    @SuppressWarnings("null")
+	public static void copyFile(File src, File dst) throws IOException {
         if ( ! dst.getParentFile().exists()) dst.getParentFile().mkdirs();
         
         dst.createNewFile();

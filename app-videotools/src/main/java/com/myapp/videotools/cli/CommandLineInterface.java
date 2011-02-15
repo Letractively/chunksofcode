@@ -23,7 +23,6 @@ import static com.myapp.videotools.cli.Parameters.PARAM_OUTPUT_FILE;
 import static com.myapp.videotools.cli.Parameters.PARAM_SERIES_COUNT;
 import static com.myapp.videotools.cli.Parameters.PARAM_VIDEO_ROOT_DIR;
 import static com.myapp.videotools.cli.Parameters.printParam;
-import static java.lang.System.exit;
 import static java.lang.System.out;
 
 import java.io.File;
