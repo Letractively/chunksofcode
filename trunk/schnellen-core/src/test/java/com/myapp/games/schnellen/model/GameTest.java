@@ -2,7 +2,6 @@ package com.myapp.games.schnellen.model;
 
 import static org.mockito.Mockito.*;
 
-import java.util.Collections;
 import java.util.List;
 
 import com.myapp.games.schnellen.frontend.IPlayerFrontend;

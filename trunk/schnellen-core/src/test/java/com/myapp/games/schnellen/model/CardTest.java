@@ -1,9 +1,18 @@
 package com.myapp.games.schnellen.model;
 
-import static com.myapp.games.schnellen.model.Card.Color.*;
-import static com.myapp.games.schnellen.model.Card.Value.*;
+import static com.myapp.games.schnellen.model.Card.Color.eichel;
+import static com.myapp.games.schnellen.model.Card.Color.herz;
+import static com.myapp.games.schnellen.model.Card.Color.laub;
+import static com.myapp.games.schnellen.model.Card.Color.schell;
+import static com.myapp.games.schnellen.model.Card.Value.acht;
+import static com.myapp.games.schnellen.model.Card.Value.koenig;
+import static com.myapp.games.schnellen.model.Card.Value.neun;
+import static com.myapp.games.schnellen.model.Card.Value.ober;
+import static com.myapp.games.schnellen.model.Card.Value.sau;
+import static com.myapp.games.schnellen.model.Card.Value.sieben;
+import static com.myapp.games.schnellen.model.Card.Value.unter;
+import static com.myapp.games.schnellen.model.Card.Value.zehn;
 
-import java.util.ArrayList;
 import java.util.List;
 
 import junit.framework.TestCase;

@@ -1,14 +1,14 @@
 package com.myapp.games.schnellen.model;
 
-import static org.mockito.Mockito.*;
+//import static org.mockito.Mockito.*;
 
-import static com.myapp.games.schnellen.model.Cards.*;
-
-import java.util.List;
-
-import com.myapp.games.schnellen.frontend.Bot;
-import com.myapp.games.schnellen.frontend.IPlayerFrontend;
-import com.myapp.games.schnellen.model.Card.Color;
+//import static com.myapp.games.schnellen.model.Cards.*;
+//
+//import java.util.List;
+//
+//import com.myapp.games.schnellen.frontend.Bot;
+//import com.myapp.games.schnellen.frontend.IPlayerFrontend;
+//import com.myapp.games.schnellen.model.Card.Color;
 
 import junit.framework.TestCase;
 
@@ -18,7 +18,7 @@ import junit.framework.TestCase;
 
 public class SchnellenTest extends TestCase {
 
-    private IPlayerFrontend a, b, c, x;
+//    private IPlayerFrontend a, b, c, x;
     
     @Override
     protected void setUp() {
@@ -34,10 +34,10 @@ public class SchnellenTest extends TestCase {
 //        when(b.wantToBeUntermHund()).thenReturn(true);
 //        when(c.wantToBeUntermHund()).thenReturn(true);
 //        when(x.wantToBeUntermHund()).thenReturn(true);
-        a = new Bot("a");
-        b = new Bot("b");
-        c = new Bot("c");
-        x = new Bot("x");
+//        a = new Bot("a");
+//        b = new Bot("b");
+//        c = new Bot("c");
+//        x = new Bot("x");
     }
 
     public void test1() throws Exception {
