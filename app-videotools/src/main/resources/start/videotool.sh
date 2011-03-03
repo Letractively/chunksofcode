@@ -1,52 +1,58 @@
 #!/bin/bash
 
+echo "************* START EXECUTION OF FILE $0 ****************************"
+echo
 
-SKRIPT_FILE="$0"
-BASE_DIR="$(dirname $SKRIPT_FILE)"
-JAR_FILE_NAME="${artifactId}-${version}.jar"
+echo this file will start video-tools java application.
+echo
 
+# the base dir (usually the "target" folder after build):
+# does NOT end with a '/':
+#   APP_BIN_DIR=${basedir}/target
+    APP_BIN_DIR="$(cd `dirname "$0"`; pwd)"
+    echo APP_BIN_DIR: $APP_BIN_DIR
+    echo
+
+
+# the name of the jar file:
+    JAR_FILE_NAME="${artifactId}-${version}.jar"
+    echo JAR_FILE_NAME: $JAR_FILE_NAME
+    echo
 
 
 # calculate the classpath needed to start application:
     # add jarfile
-    CLASSPATH="$BASE_DIR/$JAR_FILE_NAME"
+    CLASSPATH="$APP_BIN_DIR/$JAR_FILE_NAME"
+
+    ######## USEFUL WHEN DEBUGGING / DEVELOPING ############
+    # use classes instead of jarfile :
+    # CLASSPATH="$APP_BIN_DIR/classes"
+    ########################################################
     
-    # add configuration dir
-    CLASSPATH="${CLASSPATH}:$BASE_DIR/conf"
+    # add configuration dir:
+    CLASSPATH="${CLASSPATH}:$APP_BIN_DIR/conf"
     
-    # add jar files depending on
-    CLASSPATH="${CLASSPATH}:$BASE_DIR/lib/*"
+    # add libraries:
+    CLASSPATH="${CLASSPATH}:$APP_BIN_DIR/lib/*"
 
-    #######################################################
-    #        USEFUL WHEN DEBUGGING / DEVELOPING
-    #
-    # bind classes to path instead of jarfile :
-    #             (don't forget to unset jarfile above)
-    # CLASSPATH="$BASE_DIR/classes"
-    #
-    # maybe you want to use config files of source dir:
-    #             (don't forget to unset config dir above)
-    # BUILD_DIR="${basedir}/target"
-    # CLASSPATH="${CLASSPATH}:${BUILD_DIR}/src/main/resources/config"
-    #
-    #
-	########################################################
-
-
+    echo CLASSPATH: $CLASSPATH
+    echo
 
 
 # application entry point:
-MAINCLASS=com.myapp.videotools.cli.CommandLineInterface
-
+    MAINCLASS=${commandline.mainclass}
+    echo MAINCLASS: $MAINCLASS
+    echo 
 
 
 # print out what is being executed:
-    # echo SKRIPT_FILE: $SKRIPT_FILE
-    # echo BASE_DIR: $BASE_DIR
-    # echo CLASSPATH: $CLASSPATH
     echo will now execute:
     echo java -cp $CLASSPATH $MAINCLASS $@
     echo
 
+echo "************* END EXECUTION OF FILE $0 ****************************"
+echo
 
 java -cp "$CLASSPATH" $MAINCLASS "$@"
+
+

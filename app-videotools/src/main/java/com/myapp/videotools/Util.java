@@ -13,8 +13,7 @@ import com.myapp.util.log.unixcolors.LogFileSelector;
 
 public final class Util {
     
-    
-    
+
     public static final class DirsFirstAlphabeticFileComparator implements Comparator<File> {
         @Override
         public int compare(File o1, File o2) {
@@ -49,23 +48,40 @@ public final class Util {
     
     
  
-    
-    
+
+
     public static void setDefaultLogLevel() {
-        LogFileSelector.setLogConfig("logback-config-default.xml");
+        try {
+            LogFileSelector.setLogConfig("logback-config-default.xml");
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
     }
+
     public static void setDebugLogLevel() {
-        LogFileSelector.setLogConfig("logback-config-debug.xml");
+        try {
+            LogFileSelector.setLogConfig("logback-config-debug.xml");
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
     }
+
     public static void setTraceLogLevel() {
-        LogFileSelector.setLogConfig("logback-config-trace.xml");
+        try {
+            LogFileSelector.setLogConfig("logback-config-trace.xml");
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
     }
+
     public static void setUnixColoredTraceLogLevel() {
-        LogFileSelector.setLogConfig("logback-config-trace-unix-colored.xml");
+        try {
+            LogFileSelector.setLogConfig("logback-config-trace-unix-colored.xml");
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
     }
-    
-    
-    
+
     
     
     
@@ -74,7 +90,6 @@ public final class Util {
         String osVersion = System.getProperty("os.version");
         return "Operating System: '"+osName+"', Version: '"+osVersion+"'";
     }
-    
     
 
 
