@@ -12,6 +12,7 @@ import com.myapp.util.format.FileFormatUtil;
 import com.myapp.util.format.TimeFormatUtil;
 import com.myapp.util.process.ProcessTimeoutKiller;
 import com.myapp.videotools.AppStatistics;
+import com.myapp.videotools.Configuration;
 import com.myapp.videotools.IImageMerger;
 import com.myapp.videotools.Util;
 import com.myapp.videotools.VideoFile;
@@ -55,7 +56,10 @@ class ImageMagickImageMerger implements IImageMerger {
         }
 
         List<String> args = new ArrayList<String>();
-        args.add("montage"); 
+        
+        String cmd = Configuration.getInstance().getProperty(
+                                                FFMPEG.MONTAGE_COMMAND_PROPKEY);
+        args.add(cmd);
         
         if (videoFile != null) {
             // specify the files with their time labels according to the videofile:
@@ -103,8 +107,6 @@ class ImageMagickImageMerger implements IImageMerger {
             args.add("-title");
             args.add(titleBuilder.toString());
         }
-        
-
         
         // specify outputfile:
         //--------------------------------------

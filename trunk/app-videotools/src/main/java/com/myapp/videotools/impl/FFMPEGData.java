@@ -15,8 +15,9 @@ public class FFMPEGData {
     private static final Logger LOG = LoggerFactory.getLogger(FFMPEGData.class);
     private static final String NL = System.getProperty("line.separator");
     
-    
+
     private String ffmpegCommand;
+    private String montageCommand;
     private Map<String, String> supportedFileTypes = new TreeMap<String, String>();
     private Map<String, String> supportedCodecs = new TreeMap<String, String>();
     
@@ -113,6 +114,14 @@ public class FFMPEGData {
         }
         
         return sb.toString();
+    }
+
+    public String getMontageCommand() {
+        return montageCommand;
+    }
+
+    public void setMontageCommand(String property) {
+        montageCommand = property;        
     }
 
 }

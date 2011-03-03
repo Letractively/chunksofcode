@@ -2,8 +2,8 @@ package com.myapp.videotools.impl;
 
 import java.io.BufferedReader;
 import java.io.IOException;
-import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.io.StringReader;
 import java.lang.reflect.Constructor;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -30,12 +30,13 @@ public final class FFMPEG {
 
 
     public static final String FFMPEG_COMMAND_PROPKEY = "com.myapp.videotools.FFMPEG_CMD";
+    public static final String MONTAGE_COMMAND_PROPKEY = "com.myapp.videotools.MONTAGE_CMD";
+    
     public static final String FFMPEG_PARSER_IMPL_PROPKEY = "com.myapp.videotools.FFMPEG_PARSER_IMPL";
     public static final String THUMBNAILER_IMPL_PROPKEY = "com.myapp.videotools.THUMBNAILER_IMPL";
-    public static final String IMAGE_MERGER_IMPL_PROPKEY = "com.myapp.videotools.IMAGE_MERGER_IMPL_PROPKEY";
+    public static final String IMAGE_MERGER_IMPL_PROPKEY = "com.myapp.videotools.IMAGE_MERGER_IMPL";
     
     private static final Logger LOG = LoggerFactory.getLogger(FFMPEG.class);
-    private static final String FFMPEG_CONFIG_FILE_NAME = "ffmpeg.properties";
 
     
     private static FFMPEG instance = null;
@@ -60,7 +61,7 @@ public final class FFMPEG {
     
     private FFMPEG() {
         LOG.debug("will now create FFMPEG wrapper instance...");
-        initFfmpegProperties();
+        ffmpegProperties = Configuration.getInstance().getProperties();
         parseFfmpegMetaData();
         
         if (data.isNoCodecsLoaded()) 
@@ -76,116 +77,32 @@ public final class FFMPEG {
         LOG.debug("OK, FFMPEG wrapper instance created!");
     }
     
-    private void initFfmpegProperties() {                
-        ClassLoader cl = getClass().getClassLoader();
-        InputStream is = cl.getResourceAsStream(FFMPEG_CONFIG_FILE_NAME);
-        ffmpegProperties = new Properties();
-        
-        try { 
-            ffmpegProperties.load(is);
-            
-        } catch (Exception e) {
-            LOG.warn("  could not read config file " + FFMPEG_CONFIG_FILE_NAME, e);
-            throw new RuntimeException("can't live without ffmpeg command!", e);
-        }
-    
-    }
-
     private FFMPEGData parseFfmpegMetaData() {
         data = new FFMPEGData();
         
+        Configuration cfg = Configuration.getInstance();
+
         // determine how to execute ffmpeg:
         //-----
-        String osName = System.getProperty("os.name").toLowerCase();
+        String ffmpegCmd = cfg.getProperty(FFMPEG_COMMAND_PROPKEY);
+        String montageCmd = cfg.getProperty(MONTAGE_COMMAND_PROPKEY);
         
-        if (osName.contains("windows")) {
-            data.setFfmpegCommand(ffmpegProperties.getProperty(FFMPEG_COMMAND_PROPKEY));
-            
-        } else if (osName.contains("linux")) {
-            data.setFfmpegCommand("ffmpeg");
-        
-        } else {
-            throw new RuntimeException("unknown os name: " + osName);
-        }
-    
-        LOG.debug("  ffmpeg command is: {}", data.getFfmpegCommand());
-        
-        // call ffmpeg info and determine which fileformats and codecs are supported:
-        //-----
-        Map<String, String> fileFormats = new HashMap<String, String>();
-        Map<String, String> codecs = new HashMap<String, String>();
-        Matcher formatMatcher = 
-             Pattern.compile("\\s*([_,a-zA-Z0-9]{2,})\\s+(.+)").matcher("");
-        ProcessBuilder b = new ProcessBuilder()
-                                .redirectErrorStream(true)
-                                .command(data.getFfmpegCommand(), "-formats");
-        try {
-            Process proc = b.start();
-            BufferedReader input = new BufferedReader(
-                                   new InputStreamReader(proc.getInputStream()));
-            boolean listingFileFormats = false, listingCodecs = false;
-            
-            for (String line = null; (line = input.readLine()) != null;) {
-                String trimmed = line.trim();
+        data.setFfmpegCommand(ffmpegCmd);
+        data.setMontageCommand(montageCmd);
 
-                if (trimmed.length() == 0) {
-                    listingCodecs = false;
-                    listingFileFormats = false;
-                    
-                } else if (trimmed.equals("File formats:")) {
-                    listingCodecs = false;
-                    listingFileFormats = true;
-                    
-                } else if (trimmed.equals("Codecs:")) {
-                    listingCodecs = true;
-                    listingFileFormats = false;
-
-                } else if (listingCodecs) {
-                    String codec = line.substring(8).trim();
-                    String code = codec.substring(0, codec.indexOf(' ')).trim();
-                    String description = codec.substring(codec.indexOf(' ')).trim();
-                    codecs.put(code, description);
-                    // System.out.println(
-                    // "FFMPEG.parseFfmpegMetaData()  CODEC:  " +
-                    // "code='"+code+"',               " +
-                    // "description='"+description+"'");
-
-                } else if (listingFileFormats) {
-                    String fmt = line.substring(4);
-                    formatMatcher.reset(fmt);
-                    
-                    if ( ! formatMatcher.matches()) {
-                        LOG.error("  pattern '{}' did not match for format '{}'",formatMatcher, fmt);
-                        continue;
-                    }
-                    
-                    String fmtKey = formatMatcher.group(1);
-                    String description = formatMatcher.group(2);
-                    fileFormats.put(fmtKey, description);
-                    // System.out.println(
-                    // "FFMPEG.parseFfmpegMetaData()  FILE FORMAT:  " +
-                    // "fmtKey='"+fmtKey+"',               " +
-                    // "description='"+description+"'");
-                }
-            }
-            
-        } catch (IOException e) {
-            LOG.error(  "while determining ffmpeg supported types. this could mean that ffmpeg cannot be started by this program.", e);
-        }
+        LOG.debug("  ffmpeg  command is: {}", data.getFfmpegCommand());
+        LOG.debug("  montage command is: {}", data.getMontageCommand());
         
-        data.setSupportedCodecs(codecs);
-        data.setSupportedFileTypes(fileFormats);
+        parseMetadataOsSpecific(data);
         traceSupportedCodecsAndFileTypes();
         
         if (data.isNoCodecsLoaded()) 
-            LOG.warn("  no codecs loaded, is ffmpeg program available?");
-        else
-            LOG.debug("  {} codecs available", data.getSupportedCodecs().size());
+             LOG.warn("  no codecs loaded, is ffmpeg program available?");
+        else LOG.debug("  {} codecs available", data.getSupportedCodecs().size());
         
         if (data.isNoSupportedFileTypesLoaded()) 
-            LOG.warn("  no formats loaded, is ffmpeg program available?");
-        else
-            LOG.debug("  {} filetypes available", data.getSupportedFileTypes().size());
+             LOG.warn("  no formats loaded, is ffmpeg program available?");
+        else LOG.debug("  {} filetypes available", data.getSupportedFileTypes().size());
         
         return data;
     }
@@ -251,6 +168,136 @@ public final class FFMPEG {
         }
         
         return o;
+    }
+    
+    private static void parseMetadataOsSpecific(FFMPEGData data) {        
+        String osName = System.getProperty("os.name").toLowerCase();
+        
+        // call ffmpeg info and determine which fileformats and codecs are supported:
+        //-----
+        Map<String, String> types, codecs;
+        ProcessBuilder pb = new ProcessBuilder().redirectErrorStream(true).command(
+            data.getFfmpegCommand(), 
+            "-formats"
+        );
+        Process p = null;
+        BufferedReader r = null;
+
+        try {
+            if (osName.contains("linux")) {
+                StringBuilder temp = new StringBuilder();
+                p = pb.start();
+                r = new BufferedReader(new InputStreamReader(p.getInputStream()));
+                
+                for (String l = null; (l = r.readLine()) != null;) {
+                    temp.append(l);
+                    temp.append("\n");
+                }
+                
+                String out = temp.toString();
+                types = parseFileTypes(new BufferedReader(new StringReader(out)));
+                codecs = parseCodecs(new BufferedReader(new StringReader(out)));
+                
+            } else if (osName.contains("windows")) {
+                p = pb.start();
+                r = new BufferedReader(new InputStreamReader(p.getInputStream()));
+                types = parseFileTypes(r);
+                
+                // need to call ffmpeg twice with different arguments:
+                
+                pb = new ProcessBuilder().redirectErrorStream(true).command(
+                    data.getFfmpegCommand(),
+                    "-codecs"
+                );
+                p = pb.start();
+                r = new BufferedReader(new InputStreamReader(p.getInputStream()));
+                codecs = parseCodecs(r);
+            } else {
+                throw new RuntimeException("unknown os name: " + osName);
+            }
+            
+        } catch (IOException e) {
+            LOG.error("  while determining ffmpeg supported types. this could mean that ffmpeg cannot be started by this program.", e);
+            throw new RuntimeException(e);
+        }
+        
+        data.setSupportedCodecs(codecs);
+        data.setSupportedFileTypes(types);
+    }
+
+    private static Map<String, String> parseFileTypes(BufferedReader input) throws IOException  {
+        Map<String, String> fileFormats = new HashMap<String, String>();
+        Matcher formatMatcher = Pattern.compile(
+            // ' DE alaw            PCM A-law format'
+            // '  E avm2            Flash 9 (AVM2) format'
+            // ' D  mov,mp4,m4a,3gp,3g2,mj2 QuickTime/MPEG-4/Motion JPEG 2000 format'
+             "^ .{4} \\s* ([_,a-zA-Z0-9]{2,}) \\s+ (.+?) \\s* $",
+             Pattern.COMMENTS
+        ).matcher("foo");
+        boolean parse = false;
+        
+        for(String l = null; (l = input.readLine()) != null;) {
+            if (l.trim().startsWith("File formats:")) {
+                parse = true;
+                continue;
+            }
+            if (l.trim().startsWith("Codecs:")) {
+                parse = false;
+                continue;
+            }
+            if ( ! parse)
+                continue;
+            
+            if ( ! formatMatcher.reset(l).matches()) {
+                LOG.trace("  SKIP line : '{}'", l);
+                continue;
+            }
+
+            String fmtKey = formatMatcher.group(1);
+            String description = formatMatcher.group(2);
+            // System.out.println("fileFormats parsed: "+fmtKey+" = " + description);
+            fileFormats.put(fmtKey, description);
+        }
+        
+        return fileFormats;
+    }
+    
+    private static Map<String, String> parseCodecs(BufferedReader input) throws IOException {
+        Map<String, String> codecs = new HashMap<String, String>();
+        Matcher codecMatcher = Pattern.compile(
+            // 'D V D  vmdvideo        Sierra VMD video'
+            // 'D V    vmnc            VMware Screen Codec / VMware Video'
+            // 'D VSDT mpegvideo_xvmc  MPEG-1/2 video XvMC (X-Video Motion Compensation)'
+            // 'D A    adpcm_ea_maxis_xa ADPCM Electronic Arts Maxis CDROM XA'
+            "^ .{7} \\s* ([_,a-zA-Z0-9]{2,}) \\s+ (.+?) \\s* $",
+            Pattern.COMMENTS
+        ).matcher("foo");
+        boolean parse = false;
+        
+        for (String l = null; (l = input.readLine()) != null;) {
+            if (l.trim().startsWith("File formats:")) {
+                parse = false;
+                continue;
+            }
+            if (l.trim().startsWith("Codecs:")) {
+                parse = true;
+                continue;
+            }
+            if ( ! parse)
+                continue;
+            
+            if ( ! codecMatcher.reset(l).matches()) {
+                LOG.trace("  SKIP line : '{}'", l);
+                continue;
+            }
+            
+            String cdcKey = codecMatcher.group(1);
+            String description = codecMatcher.group(2);
+            // System.out.println("codec parsed: "+cdcKey+" = " + description);
+            codecs.put(cdcKey, description);
+        }
+        
+        return codecs;
     }
     
     
