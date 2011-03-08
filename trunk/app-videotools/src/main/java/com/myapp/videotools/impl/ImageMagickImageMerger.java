@@ -42,12 +42,12 @@ class ImageMagickImageMerger implements IImageMerger {
     
     
     public void mergeImages(int rows,
-                     int cols,
-                     File out,
-                     int tileWidth,
-                     int tileHeight,
-                     List<File> imageList,
-                     VideoFile videoFile) throws IOException  {
+                            int cols,
+                            File out,
+                            int tileWidth,
+                            int tileHeight,
+                            List<File> imageList,
+                            VideoFile videoFile) throws IOException  {
         final int elementCount = imageList == null ? 0 : imageList.size();
         log.info("        merging {} pictures ...", elementCount);
         
@@ -99,11 +99,11 @@ class ImageMagickImageMerger implements IImageMerger {
             //--------------------------------------
             StringBuilder titleBuilder = new StringBuilder();
             titleBuilder.append(Util.squeezeFileName(videoFile.getName()));
-            titleBuilder.append(" (size: ");
+            titleBuilder.append(" [");
             titleBuilder.append(FileFormatUtil.getHumanReadableFileSize(videoFile.getFile()));
-            titleBuilder.append(") (length: ");
+            titleBuilder.append(" ");
             titleBuilder.append(TimeFormatUtil.getTimeLabel(videoFile.getLengthSeconds()));
-            titleBuilder.append(")");
+            titleBuilder.append("]");
             args.add("-title");
             args.add(titleBuilder.toString());
         }
