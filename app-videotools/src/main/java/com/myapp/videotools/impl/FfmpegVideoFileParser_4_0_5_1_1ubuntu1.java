@@ -128,7 +128,7 @@ Package files
     * libswscale0_0.5.1-1ubuntu1_ia64.deb (126.7 KiB)
     * libswscale0_0.5.1-1ubuntu1_sparc.deb (144.1 KiB)
 </pre>*/
-final class FfmpegVideoFileParser_4_0_5_1_1ubuntu1 extends AbstractVideoFileParser {
+class FfmpegVideoFileParser_4_0_5_1_1ubuntu1 extends AbstractVideoFileParser {
     
     private static final String NL;
     public static final Pattern LINE_OF_INTEREST_PATTERN;     

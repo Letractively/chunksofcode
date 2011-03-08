@@ -96,14 +96,6 @@ public final class FFMPEG {
         parseMetadataOsSpecific(data);
         traceSupportedCodecsAndFileTypes();
         
-        if (data.isNoCodecsLoaded()) 
-             LOG.warn("  no codecs loaded, is ffmpeg program available?");
-        else LOG.debug("  {} codecs available", data.getSupportedCodecs().size());
-        
-        if (data.isNoSupportedFileTypesLoaded()) 
-             LOG.warn("  no formats loaded, is ffmpeg program available?");
-        else LOG.debug("  {} filetypes available", data.getSupportedFileTypes().size());
-        
         return data;
     }
     
@@ -302,7 +294,7 @@ public final class FFMPEG {
     
     
     public void printFfmpegDebugInfo() {
-        LOG.info("******************* FFMPEG INFO: **************************");
+        LOG.trace("******************* FFMPEG INFO: **************************");
         String[] infoCmd = new String[]{data.getFfmpegCommand(), "-version"};
         
         Process p = null;
@@ -323,20 +315,20 @@ public final class FFMPEG {
                 er = new BufferedReader(new InputStreamReader(p.getErrorStream()));
                 String line = null;
     
-                LOG.debug("******* STD-OUT *********");
+                LOG.trace("******* STD-OUT *********");
                 while ((line = or.readLine()) != null)
-                    LOG.debug("*    {}", line);
+                    LOG.trace("*    {}", line);
     
-                LOG.debug("******* STD-ERR *********");
+                LOG.trace("******* STD-ERR *********");
                 while ((line = er.readLine()) != null)
-                    LOG.debug("*    {}", line);
+                    LOG.trace("*    {}", line);
             }
             
         } catch (IOException e) {
             LOG.error("error while reading from process "+Arrays.toString(infoCmd), e);
         }
         
-        LOG.debug("******************* FFMPEG INFO ***************************");
+        LOG.trace("******************* FFMPEG INFO ***************************");
     }
 
     

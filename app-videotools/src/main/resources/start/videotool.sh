@@ -50,9 +50,9 @@ echo
     echo java -cp $CLASSPATH $MAINCLASS $@
     echo
 
-echo "************* END EXECUTION OF FILE $0 ****************************"
-echo
 
 java -cp "$CLASSPATH" $MAINCLASS "$@"
 
 
+echo
+echo "************* END EXECUTION OF FILE $0 ****************************"

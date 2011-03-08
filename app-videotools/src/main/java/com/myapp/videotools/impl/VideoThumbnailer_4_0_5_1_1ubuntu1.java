@@ -22,7 +22,7 @@ import com.myapp.videotools.Util;
 
 
 
-final class VideoThumbnailer_4_0_5_1_1ubuntu1 extends AbstractVideoThumbnailer {
+class VideoThumbnailer_4_0_5_1_1ubuntu1 extends AbstractVideoThumbnailer {
 
 
     public VideoThumbnailer_4_0_5_1_1ubuntu1() { super(); }

@@ -24,7 +24,7 @@ import com.myapp.videotools.Util.DirsFirstAlphabeticFileComparator;
 
 public abstract class AbstractVideoThumbnailer implements IVideoThumbnailer {
 
-    protected static final Logger LOG = LoggerFactory.getLogger(AbstractVideoThumbnailer.class);
+    protected final Logger LOG = LoggerFactory.getLogger(getClass());
     protected static final String TMP_DIR = System.getProperty("java.io.tmpdir");
     protected static final String FILE_SEP = System.getProperty("file.separator");
     protected static final DirsFirstAlphabeticFileComparator FILE_CMP = new DirsFirstAlphabeticFileComparator();
