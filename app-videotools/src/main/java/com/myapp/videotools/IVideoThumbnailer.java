@@ -10,9 +10,9 @@ import java.util.List;
 
 public interface IVideoThumbnailer {
 
-    public static final int DEFAULT_THUMB_WIDTH = 200;
-    public static final int DEFAULT_THUMB_HEIGHT = DEFAULT_THUMB_WIDTH;
-    public static final int DEFAULT_BIG_PIC_COLS = 6;
+    public static final int DEFAULT_THUMB_WIDTH = 270;
+    public static final int DEFAULT_THUMB_HEIGHT = 220;
+    public static final int DEFAULT_BIG_PIC_COLS = 3;
     public static final int DEFAULT_BIG_PIC_ROWS = 4;
 
     public abstract void createBigPictureRecursively(String folder);
