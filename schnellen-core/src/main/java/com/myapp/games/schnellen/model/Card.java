@@ -1,5 +1,6 @@
 package com.myapp.games.schnellen.model;
 
+import java.io.Serializable;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.LinkedList;
@@ -7,16 +8,16 @@ import java.util.List;
 
 
 /**
- * a card used in the schnellen game. cards are immutable and have a value and a
- * color.
+ * a card used in the schnellen game. cards have a value and a color.
  *
  *
  * @author andre
  *
  */
-public final class Card implements Comparable<Card> {
+public final class Card implements Comparable<Card>, Serializable {
 
-    
+    private static final long serialVersionUID = 8201108060679292234L;
+
     /**
      * a list of type card that performs several card-game specific
      * consistency checks on structural modification operations.
@@ -161,11 +162,117 @@ public final class Card implements Comparable<Card> {
         DECK_PROTOTYPE = Collections.unmodifiableList(prototype);
     }
 
+
+    private IConfig config;
+    private transient int _hashCode = -1;
+    private transient String _toString = null;
+    
+    private final Color color;
+    private final boolean isPictureCard;
+    private final Value value;
+    private final int gridIndex;
+
+    private Card(Color color, Value value, int gridIndex) {
+        this.color = color;
+        this.value = value;
+        this.gridIndex = gridIndex;
+        
+        isPictureCard = (color == null && value == null) 
+                        ? false // WELI
+                        : isPictureValue(value);
+    }
+    
+    private Card(Card original, IConfig config) {
+        this.color = original.color;
+        this.value = original.value;
+        this.gridIndex = original.gridIndex;
+        this.isPictureCard = original.isPictureCard;
+        this.config = config;
+    }
+
+    public Color getColor() {
+        return color;
+    }
+
+    public Value getValue() {
+        return value;
+    }
+
+    public boolean isPictureCard() {
+        return isPictureCard;
+    }
+
+    public boolean isSpecialCard() {
+        if (this.equals(PAPA))
+            return config.isPapaHighest();
+
+        if (this.equals(WELI))
+            return true;
+
+        return false;
+    }
+    
     @Override
     public int compareTo(Card o) {
         return (gridIndex == o.gridIndex) ? 0 : (gridIndex > o.gridIndex ? 1 : -1);
     }
+
+    @Override
+    public boolean equals(Object obj) {
+        if (this == obj) return true;
+        if (obj == null) return false;
+        if (getClass() != obj.getClass()) return false;
+        
+        Card other = (Card) obj;
+        if (color != other.color) return false;
+        if (value != other.value) return false;
+        
+        return true;
+    }
     
+    @Override
+    public int hashCode() {
+        if (_hashCode == -1) {
+            final int prime = 31;
+            int result = 1;
+            result = prime * result + ((color == null) ? 0 : color.hashCode());
+            result = prime * result + ((value == null) ? 0 : value.hashCode());
+            _hashCode = result;
+        }
+        return _hashCode;
+    }
+
+
+    @Override
+    public String toString() {
+        if (_toString == null) {
+            if (this.equals(WELI)) {
+                _toString = "WELI";
+                return _toString;
+            }
+
+            if (this.equals(PAPA) && config.isPapaHighest())
+                return "PAPA";// won't be cached, depends on config
+
+            StringBuilder sb = new StringBuilder();
+            String name = color.name();
+            sb.append(name.substring(0, 1).toUpperCase());
+            sb.append(name.substring(1, name.length()).toLowerCase());
+            sb.append("-");
+            sb.append(isPictureCard ? value.toString().toLowerCase()
+                                    : Integer.toString(value.intValue()));
+
+            if (this.equals(PAPA))
+                return sb.toString(); // won't be cached, depends on config
+
+            _toString = sb.toString();
+        }
+        return _toString;
+    }
+    
+    
+
+
     /**address calculation:
      * <pre>
      * multiply relative value to lowest card's value (7)...
@@ -202,13 +309,17 @@ public final class Card implements Comparable<Card> {
     }
 
 
-    public static List<Card> newCardDeck() {
-        return new CardList(DECK_PROTOTYPE);
-    }
-    static boolean isNumberValue(Value value) {
-        return ! isPictureValue(value);
-    }
+    public static List<Card> newCardDeck(IConfig config) {
+        List<Card> deck = new CardList(DECK_PROTOTYPE.size());
 
+        for (Card c : DECK_PROTOTYPE) {
+            Card c2 = new Card(c, config);
+            deck.add(c2);
+        }
+        
+        return deck;
+    }
+    
     static boolean isPictureValue(Value value) {
         switch (value) {
             case koenig:
@@ -216,104 +327,7 @@ public final class Card implements Comparable<Card> {
             case sau:
             case unter:
                 return true;
-            default:
-                return false;
         }
-    }
-    
-    
-    private int _hashCode = -1;
-    private String _toString = null;
-    private final Color color;
-    private final boolean isPictureCard;
-    private final Value value;
-    private final int gridIndex;
-
-    private Card(Color color, Value value, int gridIndex) {
-        this.color = color;
-        this.value = value;
-        this.gridIndex = gridIndex;
-        
-        isPictureCard = (color == null && value == null) 
-                        ? false 
-                        : isPictureValue(value);
-    }
-
-    @Override
-    public boolean equals(Object obj) {
-        if (this == obj)
-            return true;
-        if (obj == null)
-            return false;
-        if (getClass() != obj.getClass())
-            return false;
-        Card other = (Card) obj;
-        if (color != other.color)
-            return false;
-        if (value != other.value)
-            return false;
-        return true;
-    }
-
-    public Color getColor() {
-        return color;
-    }
-
-    public Value getValue() {
-        return value;
-    }
-
-    @Override
-    public int hashCode() {
-        if (_hashCode == -1) {
-            final int prime = 31;
-            int result = 1;
-            result = prime * result + ((color == null) ? 0 : color.hashCode());
-            result = prime * result + ((value == null) ? 0 : value.hashCode());
-            _hashCode = result;
-        }
-        return _hashCode;
-    }
-
-    public boolean isPictureCard() {
-        return isPictureCard;
-    }
-
-    public boolean isSpecialCard() {
-        if (Card.Color.herz == color && Card.Value.koenig == value)
-            return Config.getInstance().isPapaHighest();
-
-        if (Card.WELI.color == color && Card.WELI.value == value)
-            return true;
-
         return false;
-    }
-
-
-    @Override
-    public String toString() {
-        if (_toString == null) {
-            if (this == WELI) {
-                _toString = "WELI";
-                return _toString;
-            }
-
-            if (this == PAPA && Config.getInstance().isPapaHighest())
-                return "PAPA";// won't be cached, depends on config
-
-            StringBuilder sb = new StringBuilder();
-            String name = color.name();
-            sb.append(name.substring(0, 1).toUpperCase());
-            sb.append(name.substring(1, name.length()).toLowerCase());
-            sb.append("-");
-            sb.append(isPictureCard ? value.toString().toLowerCase()
-                                    : Integer.toString(value.intValue()));
-
-            if (this == PAPA)
-                return sb.toString(); // won't be cached, depends on config
-
-            _toString = sb.toString();
-        }
-        return _toString;
     }
 }

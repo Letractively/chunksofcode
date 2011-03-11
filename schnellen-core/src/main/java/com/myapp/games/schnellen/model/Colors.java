@@ -5,7 +5,6 @@ import java.util.List;
 import java.util.Set;
 
 import com.myapp.games.schnellen.frontend.IPlayerFrontend.Event;
-import com.myapp.games.schnellen.model.Card.Color;
 
 /**
  * selects the trump suit for the next round.
@@ -17,9 +16,11 @@ import com.myapp.games.schnellen.model.Card.Color;
  */
 public final class Colors implements IColors {
 
+    private static final long serialVersionUID = -6671751228975127346L;
+
     private final Game context;
 
-    private Color trump = null;
+    private Card.Color trump = null;
     private String colorChooser = null;
     private int promise = -1;
     private Card uncoveredCard = null;
@@ -36,7 +37,7 @@ public final class Colors implements IColors {
      * @return the trump suit of the current round
      */
     @Override
-    public Color getTrumpSuit() {
+    public Card.Color getTrumpSuit() {
         return trump;
     }
 
@@ -52,8 +53,8 @@ public final class Colors implements IColors {
     public int getMinimumOfferValue(String p) {
         if (promise < 2)
             return 2;
-        if (p.equals(context.round().getDealer())
-                     && Config.getInstance().dealerMaySayBeiMir())
+        if (p.equals(context.round().getDealer()) 
+                && context.config().dealerMaySayBeiMir())
             return promise;
         return promise + 1;
     }
@@ -117,11 +118,11 @@ public final class Colors implements IColors {
      *
      * @return the announced color, or null, if no one said a number.
      */
-    Color determineColor() {
+    Card.Color determineColor() {
         initForNewRound();
-        Color c = null;
+        Card.Color c = null;
 
-        if (Config.getInstance().isTrumpDeterminedByPunchOffering())
+        if (context.config().isTrumpDeterminedByPunchOffering())
             c = determineColorByPunchOffering();
         else
             c = determineColorByNextCard();
@@ -157,7 +158,7 @@ public final class Colors implements IColors {
             if (! p.equals(colorChooser)) // player chose to skip
                 left.remove(p);
 
-            if (5 < promise)
+            if (5 <= promise) // max value
                 break;
         }
 
@@ -190,7 +191,7 @@ public final class Colors implements IColors {
         trump = null;
     }
     
-    final void setTrump(Color trump) {
+    final void setTrump(Card.Color trump) {
         this.trump = trump;
 
         if (this.trump == null)

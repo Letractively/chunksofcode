@@ -1,9 +1,10 @@
 package com.myapp.games.schnellen.model;
 
+import java.io.Serializable;
 import java.util.List;
 
 
-public interface IRound {
+public interface IRound extends Serializable {
 
     /**
      * determine if a player skips this round.

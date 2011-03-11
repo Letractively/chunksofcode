@@ -14,9 +14,12 @@ import java.util.Map.Entry;
 import com.myapp.games.schnellen.frontend.IPlayerFrontend.Event;
 
 
+
 final class Scorings implements IScorings {
     
+    private static final long serialVersionUID = 879400423717881541L;
     private static final String NL = System.getProperty("line.separator");
+    
     
     private final Game context;
     private Collection<String> winners = new HashSet<String>(4);

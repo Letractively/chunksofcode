@@ -17,7 +17,6 @@ import java.util.Random;
 
 import com.myapp.games.schnellen.frontend.IPlayerFrontend;
 import com.myapp.games.schnellen.frontend.IPlayerFrontend.Event;
-import com.myapp.games.schnellen.model.Card.Color;
 
 
 
@@ -31,11 +30,14 @@ import com.myapp.games.schnellen.model.Card.Color;
  */
 final class Game implements IGameContext {
 
+    private static final long serialVersionUID = -3074440089109573501L;
+
     static final Comparator<Entry<String, Integer>> CMP = new Utilities.EntriesByValueComparator();
     static final String NL = System.getProperty("line.separator");
     static final Random RANDOM = new Random(0L);
 
 
+    private IConfig config;
     private final Round round;
     private final Scorings scorings;
     private final Colors colorSelector;
@@ -48,20 +50,27 @@ final class Game implements IGameContext {
 
     
     /**
-     * creates a game with no players initially.
+     * creates a game with no players initially using a custom configuration.
      */
-    Game() {
+    Game(IConfig config) {
+        this.config = config;
         round = new Round(this);
         scorings = new Scorings(this);
         colorSelector = new Colors(this);
         players = new LinkedList<String>();
         playersUnmodifiable = unmodifiableList(players);
-        deck = new Card.CardList(Card.newCardDeck());
+        deck = Card.newCardDeck(config);
         frontends = new HashMap<String, IPlayerFrontend>();
         backends = new HashMap<String,PlayerBackend>();
     }
     
-    
+
+    /**
+     * creates a game with no players initially using a default configuration.
+     */
+    Game() {
+        this(new Config());
+    }
     
     
     ///////////////// public interface methods /////////////////////
@@ -86,8 +95,8 @@ final class Game implements IGameContext {
     }
     
     @Override
-    public Config config() {
-        return Config.getInstance(); // TODO
+    public IConfig config() {
+        return config; // TODO
     }
     
     @Override
@@ -242,10 +251,10 @@ final class Game implements IGameContext {
         String lucky = players.get(1);
         List<Card> hand = handReadOnly(lucky);
     
-        if (hand.size() > 0 && ! ( hand.contains(Card.PAPA) &&
-                                      Config.getInstance().isPapaHighest() ) )
+        // the hand may only contain the papa card here (when special) here:
+        if (hand.size() > 0 && !(hand.contains(Card.PAPA) && config.isPapaHighest()))
             throw new IllegalStateException(""+hand);
-    
+        
         IPlayerFrontend plucky = frontend(lucky);
         int choice = plucky.askSplitDeckAt(deck.size());
         List<Card> lifted = new Card.CardList(deck.size());
@@ -255,7 +264,7 @@ final class Game implements IGameContext {
             Card card = i.previous();
             i.remove();
     
-            if (first && card == Card.WELI) { // jipiie
+            if (first && card.equals(Card.WELI)) { // jipiie
                 foundWeli = true;
                 handReadWrite(lucky).add(card);
                 round.weliHitAtSplit(lucky);
@@ -302,7 +311,7 @@ final class Game implements IGameContext {
      * @see Game#isTechnicallyUntermHund(String)
      */
     void handleUntermHund() {
-        if (! Config.getInstance().isUntermHundEnabled())
+        if (! config.isUntermHundEnabled())
             return;
 
         boolean untermHund;
@@ -329,7 +338,7 @@ final class Game implements IGameContext {
                 allCardsToDeck(true);
                 shuffle(deck);
                 dealCards();
-                if (Config.getInstance().doublePointsWhenUntermHund())
+                if (config.doubleScoreWhenUntermHund())
                     scorings.setScoreFactor(scorings.getScoreFactor() * 2);
 
                 continue;
@@ -376,20 +385,19 @@ final class Game implements IGameContext {
     
         } while (announcedColor == null);
     
-        boolean doubleScore = announcedColor == Color.herz
-                                  && Config.getInstance().isHeartRoundsDouble();
-        if (doubleScore) {
+        boolean doubleScore = announcedColor == Card.Color.herz 
+                              && config.isHeartRoundsDouble();
+        
+        if (doubleScore)
             scorings.setScoreFactor(scorings.getScoreFactor() * 2);
-        }
     }
 
     /**
      * queries all players if they want to stay or skip this round.
      */
     void handleCowards() {
-        Config cfg = Config.getInstance();
-        if (colorSelector.getTrumpSuit() == Color.schell 
-                                           && cfg.isCannotLeaveShellRounds()) {
+        if (colorSelector.getTrumpSuit() == Card.Color.schell 
+                                           && config.isCannotLeaveShellRounds()) {
             fireGlobalEvent(Event.SHELL_ROUND_CANNOT_LEAVE_ROUND);
             return;
         }
@@ -399,7 +407,7 @@ final class Game implements IGameContext {
     
         for (IPlayerFrontend p : frontends.values()) {
             String name = p.getName();
-            if (name.equals(dealer) && ! cfg.isTrumpSpellerQuitAllowed())
+            if (name.equals(dealer) && ! config.isTrumpSpellerQuitAllowed())
                 continue; // trump speller must not quit
     
             if (p.askForSkipRound()) {
@@ -410,7 +418,7 @@ final class Game implements IGameContext {
         }
     
         if (players.size() - skipped <= 1) { // less than 2 players left
-            if (cfg.isDoublePointsAfterAllGone())
+            if (config.isDoublePointsAfterAllGone())
                 scorings.setScoreFactor(scorings.getScoreFactor() * 2);
             allCardsToDeck(false);
             shuffle(deck);
@@ -427,14 +435,13 @@ final class Game implements IGameContext {
      *         {@link IPlayerFrontend#askDropOneOfSixCards()}
      */
     void exchangeCards() {
-        Config cfg = Config.getInstance();
-        int max = cfg.getMaxCardsChange();
+        int max = config.getMaxCardsChange();
     
         // TODO: calculate how much cards left in deck for exchanging!
     
         if (max <= 0) return;
     
-        boolean deal6 = (max == 5 && cfg.isDealSixOnChange5());
+        boolean deal6 = (max == 5 && config.isDealSixOnChange5());
     
         for (String p : players(1)) {
             final List<Card> markedForXcng = frontend(p).askCardsForExchange();

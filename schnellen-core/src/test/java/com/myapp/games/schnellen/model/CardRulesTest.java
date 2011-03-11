@@ -1,12 +1,14 @@
 package com.myapp.games.schnellen.model;
 
+import com.myapp.games.schnellen.model.Card;
 import com.myapp.games.schnellen.model.Card.Color;
+
 import java.util.*;
 import junit.framework.TestCase;
 
+import static com.myapp.games.schnellen.model.Cards.*;
 import static com.myapp.games.schnellen.model.Card.Color.*;
 import static com.myapp.games.schnellen.model.Card.Value.*;
-import static com.myapp.games.schnellen.model.Cards.*;
 import static com.myapp.games.schnellen.model.CardRules.*;
 
 
@@ -293,7 +295,7 @@ public class CardRulesTest extends TestCase {
         Arrays.sort(exceptions);
         List<Card> fails = null;
         
-        for (Card c : Card.newCardDeck()) {
+        for (Card c : cards) {
             if (played.contains(c)) {
                 continue;
             }
@@ -316,11 +318,12 @@ public class CardRulesTest extends TestCase {
         
         assertNull("color="+trump+", fails="+fails, fails);
     }
+    
     static void assertPunchedByEverything(List<Card> played, Color trump, Card... exceptions) {
         Arrays.sort(exceptions);
         List<Card> fails = null;
         
-        for (Card c : Card.newCardDeck()) {
+        for (Card c : cards) {
             if (played.contains(c)) {
                 continue;
             }

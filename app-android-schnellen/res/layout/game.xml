@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+        android:layout_width="fill_parent"
+        android:layout_height="fill_parent"
+        android:orientation="vertical">
+        
+    <LinearLayout android:id="@+id/game_status_area_container"
+            android:layout_width="fill_parent"
+            android:layout_height="fill_parent"
+            android:layout_weight="1.0" 
+            android:layout_marginTop="5dip"
+            android:layout_marginLeft="5dip"
+            android:layout_marginRight="5dip" > 
+        <TableLayout android:id="@+id/game_players_list"
+                android:stretchColumns="1"
+                android:layout_width="wrap_content"
+                android:layout_height="fill_parent">
+        </TableLayout>
+    </LinearLayout>
+            
+    <LinearLayout android:id="@+id/game_playedcards_container"
+            android:layout_width="fill_parent"
+            android:layout_height="fill_parent"
+            android:layout_weight="1.0"
+            android:layout_marginTop="5dip"
+            android:layout_marginLeft="5dip"
+            android:layout_marginRight="5dip"
+            android:layout_marginBottom="5dip" >
+            
+    </LinearLayout>
+            
+    <LinearLayout android:id="@+id/game_hand_container"
+            android:layout_width="fill_parent"
+            android:layout_height="fill_parent"
+            android:layout_weight="1.0"
+            android:layout_marginLeft="5dip"
+            android:layout_marginRight="5dip"
+            android:layout_marginBottom="5dip" />
+</LinearLayout>

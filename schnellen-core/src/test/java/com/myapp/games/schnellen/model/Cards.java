@@ -1,9 +1,17 @@
 package com.myapp.games.schnellen.model;
 
+import java.util.Collections;
 import java.util.List;
 
+import com.myapp.games.schnellen.model.Card;
+import com.myapp.games.schnellen.model.Config;
+import com.myapp.games.schnellen.model.IConfig;
+
 public class Cards {
-    private static final List<Card> cards = Card.newCardDeck();
+    
+    private static IConfig dummyConfig = new Config();
+    
+    static final List<Card> cards = Collections.unmodifiableList(Card.newCardDeck(dummyConfig));
     
     static final Card siebenEichel   = cards.get(0);
     static final Card siebenHerz     = cards.get(1);

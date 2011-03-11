@@ -1,10 +1,11 @@
 package com.myapp.games.schnellen.model;
 
-import com.myapp.games.schnellen.model.Card.Color;
+import java.io.Serializable;
 
 
 
-public interface IColors {
+
+public interface IColors extends Serializable {
 
     /**
      * cards of the trump suit are higher than other cards (except special
@@ -12,7 +13,7 @@ public interface IColors {
      * 
      * @return the trump suit of the current round
      */
-    public abstract Color getTrumpSuit();
+    public abstract Card.Color getTrumpSuit();
 
     /**
      * calculates the minimum offer number for that player to be the trump

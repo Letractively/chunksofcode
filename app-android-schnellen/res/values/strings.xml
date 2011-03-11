@@ -1,5 +1,41 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <string name="hello">Hello World, StartActivity!</string>
+
+    <!-- general -->
+
     <string name="app_name">Schnellen</string>
+    <string name="TODO">This feature is not yet implemented, sorry!</string>
+    
+    
+    <!-- start -->
+    
+    <string name="start_header_text">Welcome to Schnellen!</string>
+    <string name="start_welcome_text">Please select one of the following options:</string>
+    <string name="start_button_new_text">New Game</string>
+    <string name="start_button_options_text">Options</string>
+    <string name="start_button_quit_text">Quit</string>
+    
+    
+    <!-- new game -->
+    
+    <string name="new_game_header">Start new game</string>
+    <string name="new_game_description">
+                You can now set the parameters of the game to be started.
+                Click "Continue" to proceed.
+    </string>
+    <string name="new_game_type_prompt">* Select the type of game:</string>
+    <string name="new_game_type_single">Local game (singleplayer)</string>
+    <string name="new_game_type_network_host">Host new network game</string>
+    <string name="new_game_type_network_join">Join existing network game</string>
+    <string name="new_game_playername_prompt">* Enter your name:</string>
+    <string name="new_game_playername_default">Player-One</string>
+    <string name="new_game_playercount_prompt">* Select the number of players: (2-4)</string>
+    <string name="new_game_playercount_default">3</string>
+    <string name="new_game_go2game">Continue to game</string>
+    <string name="new_game_error_invalid_name">
+                Your names length must be greater than 1.
+                And the allowed characters are: [-._a-zA-Z0-9]
+    </string>
+    <string name="new_game_error_invalid_number">
+                The number of players must be &gt;= 2 and &lt;= 4 </string>
 </resources>

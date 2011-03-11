@@ -11,11 +11,11 @@ import java.util.Map.Entry;
 import java.util.Random;
 
 import com.myapp.games.schnellen.model.Card;
-import com.myapp.games.schnellen.model.Card.Color;
 import com.myapp.games.schnellen.model.CardRules;
-import com.myapp.games.schnellen.model.Config;
 import com.myapp.games.schnellen.model.IColors;
+import com.myapp.games.schnellen.model.IConfig;
 import com.myapp.games.schnellen.model.IRound;
+import com.myapp.games.schnellen.model.Card.Color;
 
 public class CommandLinePlayer extends HumanPlayerFrontend {
 
@@ -30,7 +30,7 @@ public class CommandLinePlayer extends HumanPlayerFrontend {
 
     @Override
     public List<Card> askCardsForExchange() {
-        Config cfg = game().config();
+        IConfig cfg = game().config();
         int max = cfg.getMaxCardsChange();
         Color trump = game().colors().getTrumpSuit();
         boolean deal6 = (max == 5 && cfg.isDealSixOnChange5());
@@ -150,9 +150,12 @@ public class CommandLinePlayer extends HumanPlayerFrontend {
             break;
         }
         case SHELL_ROUND_CANNOT_LEAVE_ROUND : { // TODO
-            throw new UnsupportedOperationException("not yet implemented");
+            IO.println(NL+"Nobody can leave the game when the color is schell!");
+            break;
         }
-        default: throw new RuntimeException(id+"");
+        default : {
+            throw new RuntimeException(id+"");
+        }
         }
     }
 

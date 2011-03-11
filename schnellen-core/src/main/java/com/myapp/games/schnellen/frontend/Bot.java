@@ -8,12 +8,12 @@ import java.util.Random;
 
 import com.myapp.games.schnellen.model.AbstractPlayerFrontend;
 import com.myapp.games.schnellen.model.Card;
-import com.myapp.games.schnellen.model.Card.Color;
 import com.myapp.games.schnellen.model.CardRules;
-import com.myapp.games.schnellen.model.Config;
 import com.myapp.games.schnellen.model.IColors;
+import com.myapp.games.schnellen.model.IConfig;
 import com.myapp.games.schnellen.model.IRound;
 import com.myapp.games.schnellen.model.Utilities;
+import com.myapp.games.schnellen.model.Card.Color;
 
 
 /**
@@ -36,7 +36,7 @@ public class Bot extends AbstractPlayerFrontend {
 
     @Override
     public List<Card> askCardsForExchange() {
-        Config cfg = game().config();
+        IConfig cfg = game().config();
         int max = cfg.getMaxCardsChange();
 
         if (max < 1) {
