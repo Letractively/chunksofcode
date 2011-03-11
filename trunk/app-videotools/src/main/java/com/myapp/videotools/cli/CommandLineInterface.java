@@ -1,6 +1,6 @@
 package com.myapp.videotools.cli;
 
-import static com.myapp.videotools.IVideoThumbnailer.DEFAULT_BIG_PIC_COLS;
+import static com.myapp.videotools.IVideoThumbnailer.DEFAULT_BIG_PIC_COLS;/*{{{*/
 import static com.myapp.videotools.IVideoThumbnailer.DEFAULT_BIG_PIC_ROWS;
 import static com.myapp.videotools.IVideoThumbnailer.DEFAULT_THUMB_HEIGHT;
 import static com.myapp.videotools.IVideoThumbnailer.DEFAULT_THUMB_WIDTH;
@@ -39,8 +39,7 @@ import com.myapp.videotools.IVideoFileParser;
 import com.myapp.videotools.IVideoThumbnailer;
 import com.myapp.videotools.Util;
 import com.myapp.videotools.VideoFile;
-import com.myapp.videotools.impl.FFMPEG;
-
+import com.myapp.videotools.impl.FFMPEG;/*}}}*/
 
 
 
@@ -249,24 +248,25 @@ public final class CommandLineInterface {
     private static void printUsage(PrintStream pOut) {
         String usage =
 "USAGE of VideoCommandLineTool: "+NL+
-NL+
-"*** CREATE A SINGLE FRAME SNAPSHOT IMAGE OF A VIDEOFILE: "+NL+//TODO offset parameter
-"    command: "+printParam(CMD_CAPTURE_FRAME)+NL+
-"      "+printParam(PARAM_INPUT_FILE)+       "          <file>  path of the videofile where we want to get a snapshot"+NL+
-"      "+printParam(PARAM_OUTPUT_FILE)+       "         <file>  name of the file where the captured image will be written to"+NL+
-"     ("+printParam(PARAM_IMAGE_HEIGTH)+ "              <pixel> height of the captured image, default: "+DEFAULT_THUMB_HEIGHT+" )"+NL+
-"     ("+printParam(PARAM_IMAGE_WIDTH)+ "               <pixel> width  of the captured image, default: "+DEFAULT_THUMB_WIDTH+" )"+NL+
-NL+
-NL+
-"*** CREATE A SERIES OF THUMBNAIL IMAGES OF A VIDEOFILE: "+NL+
-"    command: "+printParam(CMD_CREATE_THUMB_SERIES)+NL+
-"      "+printParam(PARAM_INPUT_FILE)+       "          <file>  path of the videofile where we want to get thumbs"+NL+
-"      "+printParam(PARAM_OUTPUT_FILE)+       "         <dir>   name of the directory where the thumbnails will be stored"+NL+
-"      "+printParam(PARAM_SERIES_COUNT)+"               <int>   number of thumbnail pictures to create. the program will"+NL+
-                      "                                         try to create thumbs in equal time periods."+NL+
-"     ("+printParam(PARAM_IMAGE_HEIGTH)+ "              <pixel> height of the thumbnails, default: "+DEFAULT_THUMB_HEIGHT+" )"+NL+
-"     ("+printParam(PARAM_IMAGE_WIDTH)+ "               <pixel> width of the thumbnails, default: "+DEFAULT_THUMB_WIDTH+" )"+NL+
-NL+
+// TODO: implement!
+//NL+
+//"*** CREATE A SINGLE FRAME SNAPSHOT IMAGE OF A VIDEOFILE: "+NL+//TODO offset parameter
+//"    command: "+printParam(CMD_CAPTURE_FRAME)+NL+
+//"      "+printParam(PARAM_INPUT_FILE)+       "          <file>  path of the videofile where we want to get a snapshot"+NL+
+//"      "+printParam(PARAM_OUTPUT_FILE)+       "         <file>  name of the file where the captured image will be written to"+NL+
+//"     ("+printParam(PARAM_IMAGE_HEIGTH)+ "              <pixel> height of the captured image, default: "+DEFAULT_THUMB_HEIGHT+" )"+NL+
+//"     ("+printParam(PARAM_IMAGE_WIDTH)+ "               <pixel> width  of the captured image, default: "+DEFAULT_THUMB_WIDTH+" )"+NL+
+//NL+
+//NL+
+//"*** CREATE A SERIES OF THUMBNAIL IMAGES OF A VIDEOFILE: "+NL+
+//"    command: "+printParam(CMD_CREATE_THUMB_SERIES)+NL+
+//"      "+printParam(PARAM_INPUT_FILE)+       "          <file>  path of the videofile where we want to get thumbs"+NL+
+//"      "+printParam(PARAM_OUTPUT_FILE)+       "         <dir>   name of the directory where the thumbnails will be stored"+NL+
+//"      "+printParam(PARAM_SERIES_COUNT)+"               <int>   number of thumbnail pictures to create. the program will"+NL+
+//                      "                                         try to create thumbs in equal time periods."+NL+
+//"     ("+printParam(PARAM_IMAGE_HEIGTH)+ "              <pixel> height of the thumbnails, default: "+DEFAULT_THUMB_HEIGHT+" )"+NL+
+//"     ("+printParam(PARAM_IMAGE_WIDTH)+ "               <pixel> width of the thumbnails, default: "+DEFAULT_THUMB_WIDTH+" )"+NL+
+//NL+
 NL+
 "*** CREATE A BIG PICTURE OF THUMBNAILS FOR A VIDEO FILE:"+NL+
 "    command: "+printParam(CMD_CREATE_BIG_PICTURE)+""+NL+
