@@ -1,106 +1,144 @@
 package com.myapp.games.schnellen.model;
 
 /**
- * there are some game variants, this config helds the corresponding attributes.
+ * there are some game variants, this config backs the corresponding attributes.
  *
  * @author andre
  *
  */
-public class Config {
+public class Config implements IConfig {
 
-    private static Config instance = null;
-
-    static Config getInstance() {
-        if (instance == null)
-            synchronized (Config.class) {
-                if (instance == null)
-                    instance = new Config();
-            }
-        return instance;
-    }
-
-
+    private static final long serialVersionUID = 6266348684322480280L;
+    
     private boolean cannotLeaveShellRounds = true;
     private boolean dealerMaySayBeiMir = true;
-    private boolean dealSixCardsOnChangeFive = true;
+    private boolean dealSixCardsOnChange5 = true;
     private boolean doublePointsAfterAllGone = true;
-    private boolean doublePointsAfterUnderTheDog = true;
+    private boolean doubleScoreWhenUntermHund = true;
     private boolean heartRoundsDoublePoints = true;
-    private int maxCardsChange = 5;
     private boolean papaIsHighest = true;
     private boolean trumpDeterminedByPunchOffering = true;
     private boolean trumpSpellerQuitAllowed = false;
-    private boolean underTheDogEnabled = true;
-    private int scoreToWinGame = 15;
+    private boolean untermHundEnabled = true;
+    private int maxCardsChange = 5;
+    private int scoreGoal = 15;
+
 
     Config() {}
 
+    
+    @Override
     public int getScoreGoal() {
-        return scoreToWinGame;
+        return scoreGoal;
     }
     
+    @Override
     public boolean dealerMaySayBeiMir() {
         return dealerMaySayBeiMir ;
     }
 
-    /**
-     * @return the doublePointsAfterUnderTheDog
-     */
-    public boolean doublePointsWhenUntermHund() {
-        return doublePointsAfterUnderTheDog;
+    @Override
+    public boolean doubleScoreWhenUntermHund() {
+        return doubleScoreWhenUntermHund;
     }
 
-    /**
-     * @return the maxCardsChange
-     */
+    @Override
     public int getMaxCardsChange() {
         return maxCardsChange;
     }
 
-    /**
-     * @return the cannotLeaveShellRounds
-     */
+    @Override
+    public boolean isDealSixOnChange5() {
+        return dealSixCardsOnChange5;
+    }
+
+    @Override
     public boolean isCannotLeaveShellRounds() {
         return cannotLeaveShellRounds;
     }
 
-    /**
-     * @return the dealSixCardsOnChangeFive
-     */
-    public boolean isDealSixOnChange5() {
-        return dealSixCardsOnChangeFive;
-    }
-
+    @Override
     public boolean isDoublePointsAfterAllGone() {
         return doublePointsAfterAllGone;
     }
 
-    /**
-     * @return the heartRoundsDoublePoints
-     */
+    @Override
     public boolean isHeartRoundsDouble() {
         return heartRoundsDoublePoints;
     }
 
-    /**
-     * @return the papaIsHighest
-     */
+    @Override
     public boolean isPapaHighest() {
         return papaIsHighest;
     }
 
+    @Override
     public boolean isTrumpDeterminedByPunchOffering() {
         return trumpDeterminedByPunchOffering ;
     }
 
+    @Override
     public boolean isTrumpSpellerQuitAllowed() {
         return trumpSpellerQuitAllowed;
     }
 
-    /**
-     * @return the underTheDogEnabled
-     */
+    @Override
     public boolean isUntermHundEnabled() {
-        return underTheDogEnabled;
+        return untermHundEnabled;
     }
+
+    
+    
+    
+    
+    
+    public void setCannotLeaveShellRounds(boolean cannotLeaveShellRounds) {
+        this.cannotLeaveShellRounds = cannotLeaveShellRounds;
+    }
+
+    public void setDealerMaySayBeiMir(boolean dealerMaySayBeiMir) {
+        this.dealerMaySayBeiMir = dealerMaySayBeiMir;
+    }
+
+    public void setDealSixCardsOnChange5(boolean dealSixCardsOnChange5) {
+        this.dealSixCardsOnChange5 = dealSixCardsOnChange5;
+    }
+
+    public void setDoublePointsAfterAllGone(boolean doublePointsAfterAllGone) {
+        this.doublePointsAfterAllGone = doublePointsAfterAllGone;
+    }
+
+    public void setDoubleScoreWhenUntermHund(boolean doubleScoreWhenUntermHund) {
+        this.doubleScoreWhenUntermHund = doubleScoreWhenUntermHund;
+    }
+
+    public void setHeartRoundsDoublePoints(boolean heartRoundsDoublePoints) {
+        this.heartRoundsDoublePoints = heartRoundsDoublePoints;
+    }
+
+    public void setPapaIsHighest(boolean papaIsHighest) {
+        this.papaIsHighest = papaIsHighest;
+    }
+
+    public void setTrumpDeterminedByPunchOffering(boolean trumpDeterminedByPunchOffering) {
+        this.trumpDeterminedByPunchOffering = trumpDeterminedByPunchOffering;
+    }
+
+    public void setTrumpSpellerQuitAllowed(boolean trumpSpellerQuitAllowed) {
+        this.trumpSpellerQuitAllowed = trumpSpellerQuitAllowed;
+    }
+
+    public void setUntermHundEnabled(boolean untermHundEnabled) {
+        this.untermHundEnabled = untermHundEnabled;
+    }
+
+    public void setMaxCardsChange(int maxCardsChange) {
+        this.maxCardsChange = maxCardsChange;
+    }
+
+    public void setScoreGoal(int scoreGoal) {
+        this.scoreGoal = scoreGoal;
+    }
+    
+    
 }

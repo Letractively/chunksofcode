@@ -1,10 +1,11 @@
 package com.myapp.games.schnellen.model;
 
+import java.io.Serializable;
 import java.util.List;
 
 
 
-public interface IGameContext {
+public interface IGameContext extends Serializable {
 
     /**
      * helds the state of the current round. when the round was finished, the
@@ -33,7 +34,7 @@ public interface IGameContext {
     /**
      * @return the current game's configuration
      */
-    public abstract Config config();
+    public abstract IConfig config();
 
     /**
      * answers the number of cards in the deck stack

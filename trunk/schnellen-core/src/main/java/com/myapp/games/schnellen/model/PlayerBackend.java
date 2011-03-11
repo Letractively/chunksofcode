@@ -2,6 +2,7 @@ package com.myapp.games.schnellen.model;
 
 import static java.util.Collections.unmodifiableList;
 
+import java.io.Serializable;
 import java.util.List;
 
 /**
@@ -12,7 +13,9 @@ import java.util.List;
  *
  * @author andre
  */
-final class PlayerBackend {
+final class PlayerBackend implements Serializable {
+    
+    private static final long serialVersionUID = -1991419409670811236L;
     
     private final String name;
     private final List<Card> hand, handReadOnly;

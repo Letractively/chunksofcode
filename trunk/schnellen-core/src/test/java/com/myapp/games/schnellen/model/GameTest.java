@@ -5,6 +5,11 @@ import static org.mockito.Mockito.*;
 import java.util.List;
 
 import com.myapp.games.schnellen.frontend.IPlayerFrontend;
+import com.myapp.games.schnellen.model.Game;
+import com.myapp.games.schnellen.model.IColors;
+import com.myapp.games.schnellen.model.IGameContext;
+import com.myapp.games.schnellen.model.Round;
+import com.myapp.games.schnellen.model.Scorings;
 
 import junit.framework.TestCase;
 

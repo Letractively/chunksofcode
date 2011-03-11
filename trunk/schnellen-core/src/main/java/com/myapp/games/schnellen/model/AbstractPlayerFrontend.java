@@ -14,9 +14,9 @@ import com.myapp.games.schnellen.frontend.IPlayerFrontend;
 public abstract class AbstractPlayerFrontend implements IPlayerFrontend {
 
     private Game context;
-
     protected final String name;
 
+    
     protected AbstractPlayerFrontend(String name) {
         String trim = name.trim();
         int length = trim.length();
@@ -70,6 +70,8 @@ public abstract class AbstractPlayerFrontend implements IPlayerFrontend {
     }
 
     /**
+     * answers a readonly view of this player's hand
+     * 
      * @return a readonly view of this player's hand
      */
     protected final List<Card> hand() {

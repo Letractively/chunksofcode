@@ -1,5 +1,6 @@
 package com.myapp.games.schnellen.model;
 
+import java.io.Serializable;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map.Entry;
@@ -8,8 +9,14 @@ import com.myapp.games.schnellen.frontend.IPlayerFrontend;
 
 
 
-public interface IScorings {
+public interface IScorings extends Serializable {
 
+    /**
+     * answers the number of games that were won by a specific player
+     * 
+     * @param player
+     * @return
+     */
     public abstract int getGamesWon(String player);
 
     /**

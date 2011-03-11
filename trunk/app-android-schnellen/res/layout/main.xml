@@ -1,11 +1,43 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout
-  xmlns:android="http://schemas.android.com/apk/res/android"
-  android:orientation="vertical"
-  android:layout_width="fill_parent"
-  android:layout_height="fill_parent">
-  <TextView
-    android:layout_width="fill_parent"
-    android:layout_height="wrap_content"
-    android:text="@string/hello" />
+
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+        android:orientation="vertical"
+        android:layout_width="fill_parent"
+        android:layout_height="fill_parent">
+    
+    <TextView android:text="@string/start_header_text" style="@style/headerText" />
+    <TextView android:text="@string/start_welcome_text" style="@style/defaultText" />
+        
+    <TableLayout android:stretchColumns="1"
+            android:layout_width="fill_parent"
+            android:layout_height="fill_parent">
+            
+        <!-- new game -->
+        
+        <TableRow>
+            <ImageView android:src="@drawable/todo" style="@style/main_buttonimg" />
+            <Button android:id="@+id/start_newButton"
+                    android:onClick="buttonAction"
+                    android:text="@string/start_button_new_text"
+                    style="@style/main_button" />
+        </TableRow>
+        
+        <!-- options -->
+        
+        <TableRow>
+            <ImageView android:src="@drawable/todo" style="@style/main_buttonimg" />
+            <Button android:id="@+id/start_options_button"
+                    android:text="@string/start_button_options_text"
+                    style="@style/main_button" />
+        </TableRow>
+        
+        <!-- quit -->
+        
+        <TableRow>
+            <ImageView android:src="@drawable/todo" style="@style/main_buttonimg" />
+            <Button android:id="@+id/start_quitButton"
+                    android:text="@string/start_button_quit_text"
+                    style="@style/main_button" />
+        </TableRow>
+    </TableLayout>
 </LinearLayout>

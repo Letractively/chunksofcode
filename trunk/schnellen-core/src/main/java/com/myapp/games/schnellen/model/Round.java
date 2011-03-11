@@ -1,13 +1,11 @@
 package com.myapp.games.schnellen.model;
 
-import static com.myapp.games.schnellen.model.CardRules.calcPossibleCards;
 import static java.util.Collections.unmodifiableList;
 
 import java.util.Collection;
 import java.util.List;
 
 import com.myapp.games.schnellen.frontend.IPlayerFrontend.Event;
-import com.myapp.games.schnellen.model.Card.Color;
 
 /**
  * backs the state of a round in a schnellen game: the played cards, the trump
@@ -17,6 +15,8 @@ import com.myapp.games.schnellen.model.Card.Color;
  *
  */
 final class Round implements IRound {
+
+    private static final long serialVersionUID = -1668848341041899562L;
 
 
     private static final String NL = System.getProperty("line.separator");
@@ -65,7 +65,7 @@ final class Round implements IRound {
     private void checkCardBeforeAdd(Card c, String player) { //TODO tidy up
         String m = "c='"+c+"', players='"+context.players()+"', player='"+player+"', state='"+this+"'";
 
-        Color trump = context.colors().getTrumpSuit();
+        Card.Color trump = context.colors().getTrumpSuit();
         assert trump != null : m;
         assert context.players() != null && ! context.players().isEmpty() : m;
         assert ! cardsPlayedUnmod.contains(c) && ! context.handReadOnly(player).contains(c) : m;
@@ -75,7 +75,7 @@ final class Round implements IRound {
 
         List<Card> possible = new Card.CardList(context.handReadOnly(player));
         possible.add(c); // this card was already removed from player
-        possible = calcPossibleCards(cardsPlayedUnmod, possible, trump);
+        possible = CardRules.calcPossibleCards(cardsPlayedUnmod, possible, trump);
         if ( ! possible.contains(c))
              throw new RuntimeException("Player not allowed to play card! "+m+", possible='"+possible+"'");
     }

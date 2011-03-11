@@ -1,0 +1,5 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="game_offerpunch_skip">do not offer</string>
+    <string name="game_offerpunch_beimir">"bei mir"</string>
+</resources>

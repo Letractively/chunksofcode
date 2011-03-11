@@ -2,14 +2,13 @@ package com.myapp.games.schnellen.model;
 
 import static java.util.Collections.disjoint;
 
+import java.io.Serializable;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
-import com.myapp.games.schnellen.model.Card.Color;
-import com.myapp.games.schnellen.model.Card.Value;
 
 /**
  * responsible for comparisons of cards during gameplay. cardrules decide which
@@ -41,10 +40,10 @@ import com.myapp.games.schnellen.model.Card.Value;
  * 
  * @author andre
  */
-public final class CardRules {
-
-
-
+public final class CardRules implements Serializable {
+    
+    private static final long serialVersionUID = 6331091364260984152L;
+    
     private List<Card> playedCards = new Card.CardList();
     private Card.Color trumpSuit = null;
 
@@ -143,7 +142,7 @@ public final class CardRules {
         for (Card c : cards) {
             Card.Color key = c.getColor();
 
-            if (c == Card.WELI) {
+            if (c.equals(Card.WELI)) {
                 assert key == null : key;
                 continue;
             }
@@ -170,7 +169,7 @@ public final class CardRules {
 
         for (Card c : cards) {
             Card.Value key = c.getValue();
-            if (c == Card.WELI)
+            if (c.equals(Card.WELI))
                 continue;
             Integer cnt = spread.get(key);
             spread.put(key, cnt == null ? 1 : (1 + cnt));
@@ -211,14 +210,14 @@ public final class CardRules {
 
         Card first = played.get(0);
 
-        if (first == Card.WELI)
+        if (first.equals(Card.WELI))
             return hand; // all possible
 
-        Color firstColor = first.getColor();
+        Card.Color firstColor = first.getColor();
         List<Card> possible = null;
 
         for (Card c : hand)
-            if (c.getColor() == firstColor || c == Card.WELI) {
+            if (c.getColor() == firstColor || c.equals(Card.WELI)) {
                 if (possible == null)
                     possible = new Card.CardList();
                 possible.add(c);
@@ -232,7 +231,7 @@ public final class CardRules {
         return possible;
     }
     
-    private static boolean contains(Collection<Card> coll, Color c, Value v) {
+    private static boolean contains(Collection<Card> coll, Card.Color c, Card.Value v) {
         for (Iterator<Card> itr = coll.iterator(); itr.hasNext();) {
             Card card = itr.next();
             if (card.getColor() == c && card.getValue() == v)
@@ -246,7 +245,7 @@ public final class CardRules {
         Map<Card.Color, Integer> ppc = new HashMap<Card.Color, Integer>();
 
         for (Card c : cards) {
-            if (c == Card.WELI)
+            if (c.equals(Card.WELI))
                 continue;
 
             Card.Color key = c.getColor();
@@ -278,7 +277,7 @@ public final class CardRules {
      */
     public static boolean punches(final List<Card> played,
                                   final Card card,
-                                  final Color trumpSuit) {
+                                  final Card.Color trumpSuit) {
         if (played == null || played.isEmpty())
             return true;
 
@@ -287,29 +286,31 @@ public final class CardRules {
 
         //////////////////// special cases: ////////////////////////////
         // only sau in trump suit (and papa, if enabled) punches weli
-        final Color cardCol = card.getColor();
-        final Value val = card.getValue();
+        final Card.Color cardCol = card.getColor();
+        final Card.Value val = card.getValue();
 
         // nobody can beat papa
-        if (card == Card.PAPA && Config.getInstance().isPapaHighest())
+        if (card.equals(Card.PAPA) && card.isSpecialCard())
             return true;
-        if (played.contains(Card.PAPA) && Config.getInstance().isPapaHighest())
+        
+        int papaIndex = played.indexOf(Card.PAPA);
+        if (papaIndex >= 0 && played.get(papaIndex).isSpecialCard())
             return false;
         
         if (played.contains(Card.WELI))
-            return val == Value.sau && cardCol == trumpSuit;
-        if (card == Card.WELI)
-            return ! contains(played, trumpSuit, Value.sau);
+            return val == Card.Value.sau && cardCol == trumpSuit;
+        if (card.equals(Card.WELI))
+            return ! contains(played, trumpSuit, Card.Value.sau);
 
         //////////////////// regular comparison: ////////////////////////////
         Card first = played.get(0);
-        final Color firstCol = first.getColor();
+        final Card.Color firstCol = first.getColor();
         
         if (cardCol != firstCol && cardCol != trumpSuit)
             return false; // color punch: card different than 1st and not trump
 
         for (Card ithCard : played) {
-            Color ithColor = ithCard.getColor();
+            Card.Color ithColor = ithCard.getColor();
 
             // color punches:
             if (cardCol != trumpSuit) {
@@ -333,7 +334,7 @@ public final class CardRules {
         Map<Card.Color, Integer> score = new HashMap<Card.Color, Integer>();
 
         for (Card c : hand) {
-            if (c == Card.WELI)
+            if (c.equals(Card.WELI))
                 continue;
 
             Card.Color color = c.getColor();

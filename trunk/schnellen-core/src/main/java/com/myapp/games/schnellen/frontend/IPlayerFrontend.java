@@ -1,5 +1,6 @@
 package com.myapp.games.schnellen.frontend;
 
+import java.util.Arrays;
 import java.util.List;
 
 import com.myapp.games.schnellen.model.Card;
@@ -20,19 +21,31 @@ public interface IPlayerFrontend {
      *
      */
     enum Event {
-        CARD_EXCHANGE_COMPLETED, 
-        CARD_WAS_PLAYED, 
-        CARDS_DROPPED, 
-        CARDS_RECEIVED, 
-        HAS_WELI, 
-        ROUND_FINISHED, 
-        SCORE_CHANGED, 
-        SCORE_FACTOR_CHANGED, 
-        SHELL_ROUND_CANNOT_LEAVE_ROUND, 
-        SMASH_CARD_PLAYED, 
-        TRUMP_SUIT_DETERMINED, 
-        WELI_HIT_AT_DECKSPLIT, 
-        UNTERM_HUND
+        
+        CARD_EXCHANGE_COMPLETED        /* (0)  */  ,
+        CARD_WAS_PLAYED                /* (1)  */  ,
+        CARDS_DROPPED                  /* (2)  */  ,
+        CARDS_RECEIVED                 /* (3)  */  ,
+        HAS_WELI                       /* (4)  */  ,
+        ROUND_FINISHED                 /* (5)  */  ,
+        SCORE_CHANGED                  /* (6)  */  ,
+        SCORE_FACTOR_CHANGED           /* (7)  */  ,
+        SHELL_ROUND_CANNOT_LEAVE_ROUND /* (8)  */  ,
+        SMASH_CARD_PLAYED              /* (9)  */  ,
+        TRUMP_SUIT_DETERMINED          /* (10) */  ,
+        WELI_HIT_AT_DECKSPLIT          /* (11) */  ,
+        UNTERM_HUND                    /* (12) */  ;
+            
+        private static Event[] VALUES = values();
+        
+        public static Event getEvent(int id) {
+            return VALUES[id];
+        }
+        
+        public static int getId(Event event) {
+            assert event != null;
+            return Arrays.binarySearch(VALUES, event);
+        }
     };
 
     /**

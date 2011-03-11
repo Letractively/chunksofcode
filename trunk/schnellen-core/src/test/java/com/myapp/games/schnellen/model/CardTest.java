@@ -1,5 +1,6 @@
 package com.myapp.games.schnellen.model;
 
+import static com.myapp.games.schnellen.model.Cards.cards;
 import static com.myapp.games.schnellen.model.Card.Color.eichel;
 import static com.myapp.games.schnellen.model.Card.Color.herz;
 import static com.myapp.games.schnellen.model.Card.Color.laub;
@@ -13,14 +14,14 @@ import static com.myapp.games.schnellen.model.Card.Value.sieben;
 import static com.myapp.games.schnellen.model.Card.Value.unter;
 import static com.myapp.games.schnellen.model.Card.Value.zehn;
 
-import java.util.List;
+import com.myapp.games.schnellen.model.Card;
 
 import junit.framework.TestCase;
 
 public class CardTest extends TestCase {
 
 
-    private static List<Card> cards = Card.newCardDeck();
+//    private static List<Card> cards = Card.newCardDeck(Config.getInstance());
     
     
     public void testCardsHardcoded() throws Exception {
@@ -40,7 +41,7 @@ public class CardTest extends TestCase {
 ////       "assertEquals(c+\"\", c.getValue(), "+val+");\n"
 //
 ////       "static final Card "+ (
-////           c == Card.WELI 
+////           c.equals(Card.WELI) 
 ////           ? "weli" 
 ////           : valStr.toLowerCase()+
 ////             colStr.substring(0, 1).toUpperCase()+

@@ -43,7 +43,7 @@ public final class Utilities {
         public int compare(Card o1, Card o2) {
             int special = SPECIAL_CARD_COMPARATOR.compare(o1, o2);
             if (special != 0)
-                return special;
+                return special; 
 
             Color c1 = o1.getColor();
             Color c2 = o2.getColor();
@@ -104,9 +104,9 @@ public final class Utilities {
                 return 1;
 
             if (o1Special && o2Special) {
-                assert    (o1 == Card.PAPA && o2 == Card.WELI)
-                       || (o1 == Card.WELI && o2 == Card.PAPA) : o1 + " " + o2;
-                return o1 == Card.PAPA ? 1 : 0;
+                assert    (o1.equals(Card.PAPA) && o2.equals(Card.WELI))
+                       || (o1.equals(Card.WELI) && o2.equals(Card.PAPA)) : o1 + " " + o2;
+                return o1.equals(Card.PAPA) ? 1 : 0;
             }
 
             return 0; // no special cards
