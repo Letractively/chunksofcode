@@ -59,8 +59,11 @@ public class TimeFormatUtil {
     }
     
     public static String getTimeLabel(double seconds) {
+        return getTimeLabel(seconds, true);
+    }
+    
+    public static String getTimeLabel(double seconds, boolean longFormat) {
         int secs = new Double(Math.floor(seconds)).intValue();
-        int hundreths = Double.valueOf((seconds - secs) * 100).intValue();
         
         int hours = secs / 3600;
         secs = secs % 3600;
@@ -75,23 +78,27 @@ public class TimeFormatUtil {
                 b.append(0);
 
             b.append(hours);
-            b.append("h ");
+            b.append(longFormat ? "h " : ":");
         }
         
         if (minutes < 10)
             b.append(0);
         
         b.append(minutes);
-        b.append("m ");
+        b.append(longFormat ? "m " : ":");
         
         if (secs < 10)
             b.append(0);
         
         b.append(secs);
-        b.append(".");
-        b.append(hundreths);
-        b.append("s");
-        
+
+        if (longFormat) {
+            int hundreths = Double.valueOf((seconds - secs) * 100).intValue();
+            b.append(".");
+            b.append(hundreths);
+            b.append("s");
+        }
+            
         return b.toString();
     }
     
