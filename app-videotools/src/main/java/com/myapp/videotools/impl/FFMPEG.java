@@ -1,10 +1,12 @@
 package com.myapp.videotools.impl;
 
 import java.io.BufferedReader;
+import java.io.File;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.StringReader;
 import java.lang.reflect.Constructor;
+import java.net.URL;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
@@ -14,6 +16,8 @@ import java.util.regex.Pattern;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import sun.security.krb5.Config;
 
 import com.myapp.videotools.Configuration;
 import com.myapp.videotools.IImageMerger;
@@ -27,8 +31,7 @@ import com.myapp.videotools.IVideoThumbnailer;
  *
  */
 public final class FFMPEG {
-
-
+    
     public static final String FFMPEG_COMMAND_PROPKEY = "com.myapp.videotools.FFMPEG_CMD";
     public static final String MONTAGE_COMMAND_PROPKEY = "com.myapp.videotools.MONTAGE_CMD";
     
@@ -185,7 +188,6 @@ public final class FFMPEG {
         StringBuilder temp = new StringBuilder();
         
         try {
-            
             process = pb.start();
             reader = new BufferedReader(new InputStreamReader(
                                                  process.getInputStream()));
@@ -200,11 +202,23 @@ public final class FFMPEG {
             codecs = parseCodecs(new BufferedReader(new StringReader(out)));
             
         } catch (IOException e) {
-            throw new RuntimeException("Are you sure program '"+data.getFfmpegCommand()+"' is available?", e);
+            throw ffmpegNotAvailableException(e);
         }
         
         data.setSupportedCodecs(codecs);
         data.setSupportedFileTypes(types);
+    }
+    
+    private RuntimeException ffmpegNotAvailableException(IOException e) {
+        URL url = FFMPEG.class.getClassLoader().getResource(Configuration.propertiesFileName);
+        File configFile = new File(url.getFile());
+        
+        return new RuntimeException(
+            "Are you sure program '"+data.getFfmpegCommand()+"' is available?" +
+            "Make sure that FFMPEG is properly installed. (for more details see:"+
+            configFile.getAbsolutePath()+")", 
+            e
+        );
     }
     
     private void parseWindows() {
@@ -231,7 +245,7 @@ public final class FFMPEG {
             codecs = parseCodecs(r);
             
         } catch (IOException e) {
-            throw new RuntimeException("Are you sure program '"+data.getFfmpegCommand()+"' is available?", e);
+            throw ffmpegNotAvailableException(e);
         }
         
         data.setSupportedCodecs(codecs);
