@@ -13,11 +13,12 @@ import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import com.myapp.util.format.TimeFormatUtil;
+
 class Hasher {
     
     private File searchroot;
     private File target;
-    private BashQuoter2 quoter = new BashQuoter2();
     private File unsortedHashes;
     private File unsortedSizes;
     private File sortedBySize;
@@ -45,32 +46,53 @@ class Hasher {
      * @throws IOException 
      * @throws InterruptedException 
      */
-    public synchronized void createHashFile(File hashFileTarget, PrintStream logOut) throws IOException, InterruptedException {
+    public synchronized void createHashFile(File hashFileTarget, 
+                                            PrintStream logOut) throws IOException, InterruptedException {
+        System.err.println("Hasher.createHashFile() entering");
+        final long start = System.currentTimeMillis();
+        
         target = hashFileTarget;
+        final String targetParent = target.getParent();
+        
         Matcher m = Pattern.compile("(|[.]\\w{1,5})$").matcher(target.getName());
         
         String name = m.reset().replaceFirst(".withsize-out-of-order$1");  // out of order
-        unsortedSizes = new File(target.getParent(), name);
+        unsortedSizes = new File(targetParent, name);
         
         name = m.reset().replaceFirst(".withsize-sorted-by-size$1");  // in order
-        sortedBySize = new File(target.getParent(), name);
+        sortedBySize = new File(targetParent, name);
         
-        determineSizes(logOut);
-        sort(logOut, unsortedSizes, sortedBySize, true);
-
         name = m.reset().replaceFirst(".files-with-size-sibling$1");
-        filesWithSizeSibling = new File(target.getParent(), name);
-        
-        determineHashesForEqualSizedFiles(logOut);
+        filesWithSizeSibling = new File(targetParent, name);
         
         name = m.reset().replaceFirst(".byhash-out-of-order$1");  // out of order
-        unsortedHashes = new File(hashFileTarget.getParent(), name);
+        unsortedHashes = new File(targetParent, name);
+        
+        
+        // collect sizes of all files to unsortedSizes file:
+        lookupFileSizes(logOut, searchroot, unsortedSizes, verbose);
+        
+        // sort by size numerically:
+        sort(logOut, unsortedSizes, sortedBySize, true);
+        
+        // write each file that has another file matching in size
+        // to file filesWithSizeSibling:
+        collectSizeSiblings(logOut, sortedBySize, filesWithSizeSibling);
 
-        hash(logOut);
+        // determines the sha1sum of each file listed in filesWithSizeSibling
+        hash(logOut, filesWithSizeSibling, unsortedHashes, verbose);
+
+        // sort by hash code numerically:
         sort(logOut, unsortedHashes, target, false);
+        
+        logOut.println("Hasher.createHashFile() exiting. duration: "+ TimeFormatUtil.getTimeLabel(System.currentTimeMillis() - start));
     }
     
-    private void determineSizes(PrintStream logOut) throws IOException, InterruptedException {
+    private static void lookupFileSizes(PrintStream logOut, File searchroot, File unsortedSizes, boolean verbose) throws IOException, InterruptedException {
+        System.err.println("Hasher.determineSizes() entering");
+        final long start = System.currentTimeMillis();
+        
+        BashQuoter2 quoter = new BashQuoter2();
         String b = "find "+ quoter.quoteForBash(searchroot.getAbsolutePath())+
                    " -type f -exec ls -l {} \";\" "+
                    "| cut -d\" \" -f 5,8-  "+
@@ -85,43 +107,50 @@ class Hasher {
         logOut.println("# will now execute: \n# bash -c "+b);
         ProcessBuilder pb = new ProcessBuilder();
         pb.command(commands);
-        logOut.println("# start: "+Cruncher.now());
         Process lookupSizes = pb.start();
         
         if (verbose) {
-            final long start = System.currentTimeMillis();
-            long last1000done = start;
+            long lastN = start;
             BufferedReader rdr = new BufferedReader(new InputStreamReader(
                                                  lookupSizes.getInputStream()));
-
-            int i = 0;
+            int count = 0;
+            final int n = 1000;
             
-            for (; null != (rdr.readLine()); i++) {
-                if (i % 1000 == 0 && i > 0) {
+            for (; null != (rdr.readLine()); count++) {
+                if (count % n == 0 && count > 0) {
                     long soFar = System.currentTimeMillis();
-                    logOut.println("file sizes determided: "+i);
-                    logOut.println("    total:    | "+msPerFile(start, i, soFar)+" "+filesPerSec(start, i, soFar)+")");
-                    logOut.println("    last 1000:| "+msPerFile(last1000done, 1000, soFar)+" "+filesPerSec(last1000done, 1000, soFar)+")");
-                    last1000done = soFar;
+                    logOut.println(
+                    "file sizes determided: "+count+" (speed: " +
+                    "last "+n+" = "+filesPerSec(lastN, n, soFar)+", " +
+                    "total avg = "+filesPerSec(start, count, soFar)+" [files/sec] )"
+                    );
+                    lastN = soFar;
                 }
             }
             
             long soFar = System.currentTimeMillis();
-            logOut.println("DONE! TOTAL FILE SIZES DETERMINED: "+i+". seconds: "+((soFar - start)/1000L));
-            logOut.println("average: "+msPerFile(start, i, soFar)+" "+filesPerSec(start, i, soFar));
+            logOut.println("DONE! TOTAL FILE SIZES DETERMINED: "+count+". seconds: "+((soFar - start)/1000L));
+            logOut.println("average speed: "+filesPerSec(start, count, soFar));
         }
         
         lookupSizes.waitFor();
-        logOut.println("# end:   "+Cruncher.now());
+        logOut.println("Hasher.determineSizes() exiting. duration: "+ TimeFormatUtil.getTimeLabel(System.currentTimeMillis() - start));
     }
     
-    @SuppressWarnings("unused")
-    private void determineHashesForEqualSizedFiles(PrintStream logOut) throws IOException, InterruptedException {
-        /* how the sorted input file looks like:
-        82 /media/datadisk/sound/classic_collection/rock/goth-emo/Hellogoodbye/._02 Here (In Your Arms).m4a
-        23416 /media/datadisk/sound/classic_collection/rock/goth-emo/Hellogoodbye/._03 All Time Lows.m4a
-        44344 /media/datadisk/sound/classic_collection/rock/goth-emo/Hellogoodbye/._04 Stuck To You.m4a
-         */
+
+    /** how "sortedBySize" looks like:
+    <pre>
+    82 /media/datadisk/sound/classic_collection/rock/goth-emo/Hellogoodbye/._02 Here (In Your Arms).m4a
+    23416 /media/datadisk/sound/classic_collection/rock/goth-emo/Hellogoodbye/._03 All Time Lows.m4a
+    44344 /media/datadisk/sound/classic_collection/rock/goth-emo/Hellogoodbye/._04 Stuck To You.m4a
+    </pre>
+     */
+    private static void collectSizeSiblings(PrintStream logOut, 
+                                            File sortedBySize, 
+                                            File filesWithSizeSibling) throws IOException, InterruptedException {
+        logOut.println("Hasher.collectSizeSiblings() entering");
+        final long start = System.currentTimeMillis();
+        
         FileInputStream fis = new FileInputStream(sortedBySize);
         BufferedReader br = new BufferedReader(new InputStreamReader(fis));
         Collection<String> currentGroup = new HashSet<String>();
@@ -164,9 +193,17 @@ class Hasher {
         buddyOut.flush();
         buddyOut.close();
         br.close();
+        logOut.println("Hasher.collectSizeSiblings() exiting duration: "+ TimeFormatUtil.getTimeLabel(System.currentTimeMillis() - start));
     }
     
-    private void hash(PrintStream logOut) throws IOException, InterruptedException {
+    private static void hash(PrintStream logOut, 
+                             File filesWithSizeSibling, 
+                             File unsortedHashes,
+                             boolean verbose) throws IOException, InterruptedException {
+        logOut.println("Hasher.hash() entering");
+        final long start = System.currentTimeMillis();
+        
+        BashQuoter2 quoter = new BashQuoter2();
         StringBuilder b = new StringBuilder();
         b.append("cat "+quoter.quoteForBash(filesWithSizeSibling.getAbsolutePath()));
         b.append(" | while read f; do sha1sum \"$f\"; done ");
@@ -180,48 +217,69 @@ class Hasher {
         logOut.println("# creating hash sums for files in "+filesWithSizeSibling);
         logOut.println("# will now execute: \n# bash -c "+b.toString());
         logOut.println("# this may take a long time.");
-        logOut.println("# start: "+Cruncher.now());
         
         ProcessBuilder pb = new ProcessBuilder();
         pb.command(commands);
         Process hash = pb.start();
+        final int n = 1000;
         
         if (verbose) {
             final int count = linesOfFile(filesWithSizeSibling);
-            
-            final long start = System.currentTimeMillis();
-            long last250done = start;
+            long lastN = start;
             BufferedReader rdr = new BufferedReader(new InputStreamReader(hash.getInputStream()));
 
             int i = 0;
             for (/*String line = null*/; null != (/*line = */rdr.readLine()); i++) {
                 // logOut.println(line);
-                if (i % 250 == 0 && i > 0) {
+                if (i % n == 0 && i > 0) {
                     long soFar = System.currentTimeMillis();
-                    logOut.println("files hashed: "+i+" / "+count);
-                    logOut.println("    average:  | "+msPerFile(start, i, soFar)+" "+filesPerSec(start, i, soFar)+")");
-                    logOut.println("    last 250: | "+msPerFile(last250done, 250, soFar)+" "+filesPerSec(last250done, 250, soFar)+")");
-                    last250done = soFar;
+                    logOut.println(
+                    "files hashed: "+i+" / "+count+" (speed: " +
+            		"last "+n+" = "+filesPerSec(lastN, n, soFar)+", " +
+            		"total avg = "+filesPerSec(start, i, soFar)+" [files/sec] )"
+                    );
+                    lastN = soFar;
                 }
             }
             
             long soFar = System.currentTimeMillis();
             logOut.println("DONE! TOTAL hashed: "+i+". seconds: "+((soFar - start)/1000L));
-            logOut.println("    average:"+msPerFile(start, i, soFar)+" "+filesPerSec(start, i, soFar)+")");
+            logOut.println("average speed: "+filesPerSec(start, i, soFar)+")");
         }
         
         hash.waitFor();
-        logOut.println("# end:   "+Cruncher.now());
+        logOut.println("Hasher.hash() exiting duration: "+ TimeFormatUtil.getTimeLabel(System.currentTimeMillis() - start));
     }
     
-    private String msPerFile(long start, int i, long end) {
-        double ms = end - start;
-        return "ms/file: "+Double.toString(ms / i).replaceAll("(?<=[.]\\d\\d)\\d*", "");
-    }
-    
-    private String filesPerSec(long start, int i, long end) {
-        double secs = (end - start) / 1000d;
-        return "files/sec: "+Double.toString(i / secs).replaceAll("(?<=[.]\\d\\d)\\d*", "");
+    private static void sort(PrintStream logOut, File unsorted, File sorted, boolean numeric) throws InterruptedException, IOException {
+        logOut.println("Hasher.sort() entering");
+        final long start = System.currentTimeMillis();
+        BashQuoter2 quoter = new BashQuoter2();
+        StringBuilder b = new StringBuilder();
+        b.append("cat ");
+        b.append(quoter.quoteForBash(unsorted.getAbsolutePath()));
+
+        b.append(" | sort");
+        
+        if (numeric) 
+            b.append(" -n");
+        
+        // write to file:
+        b.append(" > "+quoter.quoteForBash(sorted.getAbsolutePath()));
+
+        List<String> commands = new ArrayList<String>();
+        commands.add("bash");
+        commands.add("-c");
+        commands.add(b.toString());
+
+        logOut.println("# sorting file: "+unsorted);
+        logOut.println("# will now execute: \n# bash -c "+b);
+        
+        ProcessBuilder pb = new ProcessBuilder();
+        pb.command(commands);
+        Process sort = pb.start();
+        sort.waitFor();
+        logOut.println("Hasher.sort() exiting duration: "+ TimeFormatUtil.getTimeLabel(System.currentTimeMillis() - start));
     }
     
     static int linesOfFile(File f) throws InterruptedException, IOException {
@@ -254,33 +312,13 @@ class Hasher {
         return lineCount;
     }
     
-    private static void sort(PrintStream logOut, File unsorted, File sorted, boolean numeric) throws InterruptedException, IOException {
-        BashQuoter2 quoter = new BashQuoter2();
-        StringBuilder b = new StringBuilder();
-        b.append("cat ");
-        b.append(quoter.quoteForBash(unsorted.getAbsolutePath()));
-
-        b.append(" | sort");
-        
-        if (numeric) 
-            b.append(" -n");
-        
-        // write to file:
-        b.append(" > "+quoter.quoteForBash(sorted.getAbsolutePath()));
-
-        List<String> commands = new ArrayList<String>();
-        commands.add("bash");
-        commands.add("-c");
-        commands.add(b.toString());
-
-        logOut.println("# sorting file: "+unsorted);
-        logOut.println("# will now execute: \n# bash -c "+b);
-        
-        ProcessBuilder pb = new ProcessBuilder();
-        pb.command(commands);
-        logOut.println("# start: "+Cruncher.now());
-        Process sort = pb.start();
-        sort.waitFor();
-        logOut.println("# end:   "+Cruncher.now());
+    static String msPerFile(long start, int i, long end) {
+        double ms = end - start;
+        return "ms/file: "+Double.toString(ms / i).replaceAll("(?<=[.]\\d\\d)\\d*", "");
+    }
+    
+    static String filesPerSec(long start, int i, long end) {
+        double secs = (end - start) / 1000d;
+        return Double.toString(i / secs).replaceAll("(?<=[.]\\d\\d)\\d*", "");
     }
 }
