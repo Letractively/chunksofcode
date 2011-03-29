@@ -93,7 +93,7 @@ public final class FFMPEG {
         LOG.debug("  ffmpeg  command is: {}", data.getFfmpegCommand());
         LOG.debug("  montage command is: {}", data.getMontageCommand());
         
-        parseMetadataOsSpecific(data);
+        parseMetadataOsSpecific();
         traceSupportedCodecsAndFileTypes();
         
         return data;
@@ -148,7 +148,7 @@ public final class FFMPEG {
             }
         
         if (defaultConstructor == null)
-            throw new RuntimeException("no no-args constructor for class :"+classname+" !");
+            throw new RuntimeException("no default constructor for :"+classname+" !");
         
         Object o = null;
 
@@ -156,61 +156,82 @@ public final class FFMPEG {
             o = defaultConstructor.newInstance();
             
         } catch (Exception e) {
-            throw new RuntimeException("could not create an instance of "+classname+" !", e);
+            throw new RuntimeException("could not create "+classname+" !", e);
         }
         
         return o;
     }
     
-    private static void parseMetadataOsSpecific(FFMPEGData data) {        
+    private void parseMetadataOsSpecific() {        
         String osName = System.getProperty("os.name").toLowerCase();
-        
-        // call ffmpeg info and determine which fileformats and codecs are supported:
-        //-----
+
+        if (osName.contains("linux")) {
+            parseLinux();
+        } else if (osName.contains("windows")) {
+            parseWindows();
+        } else {
+            throw new RuntimeException("unknown operating system: " + osName);
+        }
+    }
+    
+    private void parseLinux() {
         Map<String, String> types, codecs;
         ProcessBuilder pb = new ProcessBuilder().redirectErrorStream(true).command(
             data.getFfmpegCommand(), 
             "-formats"
         );
-        Process p = null;
-        BufferedReader r = null;
-
+        Process process = null;
+        BufferedReader reader = null;
+        StringBuilder temp = new StringBuilder();
+        
         try {
-            if (osName.contains("linux")) {
-                StringBuilder temp = new StringBuilder();
-                p = pb.start();
-                r = new BufferedReader(new InputStreamReader(p.getInputStream()));
-                
-                for (String l = null; (l = r.readLine()) != null;) {
-                    temp.append(l);
-                    temp.append("\n");
-                }
-                
-                String out = temp.toString();
-                types = parseFileTypes(new BufferedReader(new StringReader(out)));
-                codecs = parseCodecs(new BufferedReader(new StringReader(out)));
-                
-            } else if (osName.contains("windows")) {
-                p = pb.start();
-                r = new BufferedReader(new InputStreamReader(p.getInputStream()));
-                types = parseFileTypes(r);
-                
-                // need to call ffmpeg twice with different arguments:
-                
-                pb = new ProcessBuilder().redirectErrorStream(true).command(
-                    data.getFfmpegCommand(),
-                    "-codecs"
-                );
-                p = pb.start();
-                r = new BufferedReader(new InputStreamReader(p.getInputStream()));
-                codecs = parseCodecs(r);
-            } else {
-                throw new RuntimeException("unknown os name: " + osName);
+            
+            process = pb.start();
+            reader = new BufferedReader(new InputStreamReader(
+                                                 process.getInputStream()));
+            
+            for (String l = null; (l = reader.readLine()) != null;) {
+                temp.append(l);
+                temp.append("\n");
             }
             
+            String out = temp.toString();
+            types = parseFileTypes(new BufferedReader(new StringReader(out)));
+            codecs = parseCodecs(new BufferedReader(new StringReader(out)));
+            
         } catch (IOException e) {
-            LOG.error("  while determining ffmpeg supported types. this could mean that ffmpeg cannot be started by this program.", e);
-            throw new RuntimeException(e);
+            throw new RuntimeException("Are you sure program '"+data.getFfmpegCommand()+"' is available?", e);
+        }
+        
+        data.setSupportedCodecs(codecs);
+        data.setSupportedFileTypes(types);
+    }
+    
+    private void parseWindows() {
+        Map<String, String> types, codecs;
+        ProcessBuilder pb = new ProcessBuilder().redirectErrorStream(true).command(
+            data.getFfmpegCommand(), 
+            "-formats"
+        );
+
+        try {
+            Process p = pb.start();
+            BufferedReader r = new BufferedReader(new InputStreamReader(
+                                                           p.getInputStream()));
+            types = parseFileTypes(r);
+        
+            // need to call ffmpeg twice with different arguments:
+            pb = new ProcessBuilder().redirectErrorStream(true).command(
+                data.getFfmpegCommand(),
+                "-codecs"
+            );
+        
+            p = pb.start();
+            r = new BufferedReader(new InputStreamReader(p.getInputStream()));
+            codecs = parseCodecs(r);
+            
+        } catch (IOException e) {
+            throw new RuntimeException("Are you sure program '"+data.getFfmpegCommand()+"' is available?", e);
         }
         
         data.setSupportedCodecs(codecs);
