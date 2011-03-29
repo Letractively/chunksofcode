@@ -25,54 +25,43 @@ class ScriptGenerator {
         files = parseHashFile(hashFile);
     }
     
-    public void generateCrunchScriptOLD(File scriptOutput, PrintStream logOut) throws IOException {
-        logOut.println("# will now GENERATE crunch script to file "+scriptOutput);
-        logOut.println("# start: "+Cruncher.now());
-        PrintWriter out = new PrintWriter(scriptOutput);
-        
-        StringBuilder b = new StringBuilder("#!/bin/bash\n\n");
-        b.append("function krach() {\n");
-        b.append("    echo \"$@\"\n");
-        b.append("    exit 1\n");
-        b.append("}\n");
-        b.append("\n");
-
-        int count = 0;
-        final int totalSize = files.size();
-        
-        for (String[] group : files) {
-            b.append("######### handling "+(group.length-1)+" files sharing same hashcode (group "+(count+1)+" / "+totalSize+") #########\n\n");
-            handleFileGroup2(b, group);
-            
-            if (count ++ % 100 == 0) {
-                b.append("\n\necho \"files done: "+count+" / "+totalSize+" " + "("+ new Double((double) count / (double) totalSize  * 100d).toString()+" % )\" >&2 ;\n\n");
-                out.print(b.toString());
-                out.flush();
-                b.setLength(0);
-            }
-        }
-
-        b.append("\necho \"files done TOTAL: "+count+"\"  >&2 ;\n");
-        out.print(b.toString());
-        out.flush();
-        out.close();
-        
-        logOut.println("# number of items to check for hash collisions: "+count);
-        logOut.println("# end:   "+Cruncher.now());
-        logOut.println("# done with GENERATING crunch script.");
-    }
-    
     public void generateCrunchScript(File scriptOutput, PrintStream logOut) throws IOException, InterruptedException {
         logOut.println("# will now GENERATE crunch script to file "+scriptOutput);
         logOut.println("# start: "+Cruncher.now());
         PrintWriter out = new PrintWriter(scriptOutput);
         
         StringBuilder b = new StringBuilder("#!/bin/bash\n\n");
-        b.append("function krach() {\n");
-        b.append("    echo \"$@\"\n");
-        b.append("    exit 1\n");
-        b.append("}\n");
-        b.append("\n");
+        b.append(
+            "SHA1=''                                                        \n"+
+            "                                                               \n"+
+            "function krach() {                                             \n"+
+            "    echo \"$@\"                                                \n"+
+            "    exit 1                                                     \n"+
+            "}                                                              \n"+
+            "                                                               \n"+
+            "function handleGroup() {                                       \n"+
+            "    for f in \"$@\" ; do                                       \n"+
+            "        if [ ! -f \"$f\" ] ; then                              \n"+
+            "            krach \"not a regular file: $f. hashcode: $SHA1\"  \n"+
+            "        fi                                                     \n"+
+            "                                                               \n"+
+            "        # nothing to do with first file                        \n"+
+            "        if [ \"$1\" == \"$f\" ] ; then                         \n"+
+            "            continue;                                          \n"+
+            "        fi                                                     \n"+
+            "                                                               \n"+
+            "        # compare file with first file                         \n"+
+            "        if ( ! diff -q \"$1\" \"$f\" > /dev/null) ; then       \n"+
+            "             echo HASHCOLLISION $SHA1 \"$1\" \"$f\"            \n"+
+            "        else                                                   \n"+
+            "             # replace file with hardlink                      \n"+
+            "             rm -v \"$f\" || krach \"rm $f at $SHA1\"          \n"+
+            "             ln -v \"$1\" \"$f\" || krach \"ln $1 $f at $SHA1\"\n"+
+            "        fi                                                     \n"+
+            "    done                                                       \n"+
+            "}                                                              \n"+
+            "                                                               \n"
+        );
 
         final int lines = Hasher.linesOfFile(hashFile); 
         BufferedReader reader = new BufferedReader(new InputStreamReader(new FileInputStream(hashFile)));
@@ -103,8 +92,7 @@ class ScriptGenerator {
             
             if (count > 2) {
                 String[] group = currentPaths.toArray(new String[count]);
-                b.append("######### handling "+(group.length-1)+" files sharing same hashcode (group "+(count+1)+" / "+lines+") #########\n\n");
-                handleFileGroup2(b, group);
+                handleFileGroup3(b, group);
                 groups++;
                 
                 if (count ++ % 100 == 0) {
@@ -137,7 +125,7 @@ class ScriptGenerator {
     }
     
     
-    private void handleFileGroup2(StringBuilder b, String[] group) {
+    private void handleFileGroup3(StringBuilder b, String[] group) {
         int len = group.length;
         String currentHash = group[0]; 
         List<String> quoted = new ArrayList<String>(len);
@@ -152,33 +140,15 @@ class ScriptGenerator {
             b.append("FILE_" + i + "=" + quoted.get(i) + "\n");
 
 
-        b.append("\n");
-        b.append("if [ ");
+        b.append("handleGroup ");
         int i = 0;
         
         for (Iterator<String> itr = quoted.iterator(); itr.hasNext(); i++) {
-            b.append("! -f \"$FILE_").append(i).append("\"");
+            b.append("\"$FILE_").append(i).append("\" ");
             itr.next();
-            if (itr.hasNext()) b.append(" -o ");
         }
         
-        b.append(" ] ; then\n     krach one or more elements is not a regular file. hashcode: $SHA1\nfi\n\n");
-        
-        final String firstFile = "$FILE_0", vrbs = verbose ? "-v" : "";
-        String iThFile;
-        
-        i = 1;
-        for (int n = quoted.size(); i < n; i++) {
-            iThFile = "$FILE_"+i;
-            b.append("if ( ! diff -q \""+firstFile+"\" \""+iThFile+"\" > /dev/null) ; then\n");
-            b.append("     echo HASHCOLLISION $SHA1 \""+firstFile+"\" \""+iThFile+"\"\n");
-            b.append("else rm "+vrbs+" \""+iThFile+"\" || krach ERROR WITH rm FILE_"+i+" at $SHA1\n");
-            b.append("     ln "+vrbs+" \""+firstFile+"\" \""+iThFile+"\" " +
-            		            "|| krach ERROR WITH ln FILE_"+i+" at $SHA1\n");
-            b.append("fi\n");
-        }
-        
-        b.append("\n\n");
+        b.append("|| krach \"error during $SHA1\"\n\n");
     }
     
     

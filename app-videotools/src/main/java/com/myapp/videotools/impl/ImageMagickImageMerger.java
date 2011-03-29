@@ -102,7 +102,7 @@ class ImageMagickImageMerger implements IImageMerger {
             titleBuilder.append(" [");
             titleBuilder.append(FileFormatUtil.getHumanReadableFileSize(videoFile.getFile()));
             titleBuilder.append(" ");
-            titleBuilder.append(TimeFormatUtil.getTimeLabel(videoFile.getLengthSeconds()));
+            titleBuilder.append(TimeFormatUtil.getTimeLabel(videoFile.getLengthSeconds(), false));
             titleBuilder.append("]");
             args.add("-title");
             args.add(titleBuilder.toString());

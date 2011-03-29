@@ -35,7 +35,7 @@ public final class Util {
     
     
     public static String squeezeFileName(String fileName) {
-        if (fileName.length() < 55)
+        if (fileName.length() < 50)
             return fileName;
         
         int lastDotIndex = fileName.lastIndexOf(".");
