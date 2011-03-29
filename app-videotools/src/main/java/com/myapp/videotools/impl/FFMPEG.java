@@ -17,12 +17,11 @@ import java.util.regex.Pattern;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import sun.security.krb5.Config;
-
 import com.myapp.videotools.Configuration;
 import com.myapp.videotools.IImageMerger;
 import com.myapp.videotools.IVideoFileParser;
 import com.myapp.videotools.IVideoThumbnailer;
+import com.myapp.videotools.cli.Parameters;
 
 
 
@@ -215,8 +214,9 @@ public final class FFMPEG {
         
         return new RuntimeException(
             "Are you sure program '"+data.getFfmpegCommand()+"' is available? " +
-            "Make sure that FFMPEG is properly installed. (for more details see: "+
-            configFile.getAbsolutePath()+")"
+            "Make sure that FFMPEG is properly installed. " +
+            "(for more details see: "+ configFile.getAbsolutePath()+
+    		" or call videotool with"+Parameters.FLAG_DEBUG_OUTPUT+") " 
             , cause
         );
     }
