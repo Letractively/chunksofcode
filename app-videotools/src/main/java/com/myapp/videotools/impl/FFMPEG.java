@@ -209,15 +209,15 @@ public final class FFMPEG {
         data.setSupportedFileTypes(types);
     }
     
-    private RuntimeException ffmpegNotAvailableException(IOException e) {
+    private RuntimeException ffmpegNotAvailableException(Throwable cause) {
         URL url = FFMPEG.class.getClassLoader().getResource(Configuration.propertiesFileName);
         File configFile = new File(url.getFile());
         
         return new RuntimeException(
-            "Are you sure program '"+data.getFfmpegCommand()+"' is available?" +
-            "Make sure that FFMPEG is properly installed. (for more details see:"+
-            configFile.getAbsolutePath()+")", 
-            e
+            "Are you sure program '"+data.getFfmpegCommand()+"' is available? " +
+            "Make sure that FFMPEG is properly installed. (for more details see: "+
+            configFile.getAbsolutePath()+")"
+            , cause
         );
     }
     
