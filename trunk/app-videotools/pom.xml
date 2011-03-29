@@ -32,8 +32,12 @@
           <os><family>windows</family></os>
         </activation>
         <properties>
+            <!-- 
             <ffmpeg.cmd>C:\Program Files\ffmpeg-r26400-swscale-r32676-mingw32-static\bin\ffmpeg.exe</ffmpeg.cmd>
             <montage.cmd>C:\Program Files\ImageMagick-6.6.7-Q8\montage.exe</montage.cmd>
+            -->
+            <ffmpeg.cmd>C:\Program Files\ffmpeg\bin\ffmpeg.exe</ffmpeg.cmd>
+            <montage.cmd>C:\Program Files\ImageMagick\montage.exe</montage.cmd>
             <impl.ffmpegparser>com.myapp.videotools.impl.FfmpegVideoFileParser_Win7</impl.ffmpegparser>
             <impl.thumbnailer>com.myapp.videotools.impl.VideoThumbnailer_Win7</impl.thumbnailer>
         </properties>

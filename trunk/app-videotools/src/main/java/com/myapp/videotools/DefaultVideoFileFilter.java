@@ -23,10 +23,10 @@ public class DefaultVideoFileFilter implements FileFilter {
 
     public void readConfigFile() {
         String excludies = Configuration.getInstance().getProperty(EXCLUDED_FILE_SUFFIXES_PROPKEY);
-        String[] splatter = excludies.split(",");
+        String[] excl = excludies.split(",");
         
-        for (int i = 0; i < splatter.length; i++) {
-            String s = splatter[i].toLowerCase();
+        for (int i = 0; i < excl.length; i++) {
+            String s = excl[i].toLowerCase();
             excludedExtensions.add(s);
         }
         
