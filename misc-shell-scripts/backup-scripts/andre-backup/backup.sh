@@ -22,10 +22,9 @@
 	##################################
 
 HERE="$(cd "`dirname "$0"`"; pwd)"
-echo "HERE='$HERE'"
+echo DEBUG "HERE='$HERE'"
 
 CONFIG_FILE="$HERE/configuration.sh";
-echo "Using config file: ${CONFIG_FILE}"
 
 	#
 	# fail if CONFIG_FILE is not existing or not readable:
@@ -36,7 +35,7 @@ if [ ! -f "$CONFIG_FILE" -o ! -r "$CONFIG_FILE" ] ; then
 	echo "   ${CONFIG_FILE} is not existing or not readable!";
 	exit 567;
 else
-        echo "Using config file: ${CONFIG_FILE}" 
+    echo "DEBUG Using config file: ${CONFIG_FILE}"
 fi;
 
 
@@ -45,7 +44,7 @@ fi;
 	#
 . "$CONFIG_FILE";
 	
-	
+echo DEBUG config file included. BACKUP_ROOT=$BACKUP_ROOT	
 	
     #
     # check if a dry run should be executed
@@ -73,7 +72,6 @@ fi;
 	##################################
 	
 FUNCTION_LIBRARY_FILE="$HERE/functions.sh";
-echo "Using library file: ${FUNCTION_LIBRARY_FILE}" 
 
 
 	#
@@ -84,6 +82,8 @@ if [ ! -f "$FUNCTION_LIBRARY_FILE" -o ! -r "$FUNCTION_LIBRARY_FILE" ] ; then
         echo "ERROR:";
         echo "   ${FUNCTION_LIBRARY_FILE} is not existing or not readable!";
 	exit 133;
+else
+    echo "DEBUG Using library file: ${FUNCTION_LIBRARY_FILE}" 
 fi;
 
 
