@@ -9,8 +9,8 @@
 	#
 	##################################
 
-
-BACKUP_ROOT="/media/disk/backup"
+HERE="$(cd "`dirname "$0"`"; pwd)"
+BACKUP_ROOT="$HERE/.."
 
 	#
 	#
@@ -44,7 +44,7 @@ DRY_RUN=1
 	# a logfile where all activities will be logged:
 	# each run will be logged in a new file.
 	#
-LOGFILE="/media/disk/backup/logs/backup_$(date +%Y-%m-%d_%H-%M-%S).log"
+LOGFILE="${BACKUP_ROOT}/logs/backup_$(date +%Y-%m-%d_%H-%M-%S).log"
 
 
 	#
@@ -59,6 +59,7 @@ LOGFILE="/media/disk/backup/logs/backup_$(date +%Y-%m-%d_%H-%M-%S).log"
 	#
 BACKUP_SOURCE_DIRS=(
 	"/media/datadisk/personal"
+        "/home/andre/workspace"
 	"/media/datadisk/verena"
 	"/media/datadisk/software"
 	"/media/datadisk/sound"
