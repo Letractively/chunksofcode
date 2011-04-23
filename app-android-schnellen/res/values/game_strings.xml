@@ -1,5 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="game_offerpunch_skip">do not offer</string>
-    <string name="game_offerpunch_beimir">"bei mir"</string>
+    <string name="game_offerpunch_beimir">"bei mir" (%d)</string>
+    <string name="game_offerpunch_minimum">minimum (%d)</string>
+    <string name="game_hand_container_label">Your hand:</string>
+    <string name="game_playedcards_container_label">Played cards:</string>
+    <string name="game_status_area_container_label">Game status:</string>
 </resources>

@@ -7,7 +7,12 @@ import java.util.List;
 
 import android.app.Activity;
 import android.app.Dialog;
+import android.content.Context;
 import android.os.Bundle;
+import android.util.Log;
+import android.view.KeyEvent;
+import android.view.View;
+import android.view.View.OnClickListener;
 import android.widget.Toast;
 
 import com.myapp.games.schnellen.frontend.IPlayerFrontend;
@@ -18,11 +23,15 @@ import com.myapp.games.schnellen.model.IColors;
 import com.myapp.games.schnellen.model.IGameContext;
 import com.myapp.games.schnellen.model.IRound;
 import static com.myapp.games.schnellen.SchnellenApplication.GAME_FRONTEND;
-
+import static android.view.ViewGroup.LayoutParams.*;
 
 
 
 public final class GameActivity extends Activity implements IPlayerFrontend {
+    
+	private static final String TAG = "GameActivity";
+    
+    private Gui gui;
 
     /**
      * this frontend was registered to the game.
@@ -35,26 +44,61 @@ public final class GameActivity extends Activity implements IPlayerFrontend {
      */
     @Override
     public void onCreate(Bundle savedInstanceState) {
+        Log.d(TAG, "onCreate() ENTERING");
         super.onCreate(savedInstanceState);
         setContentView(R.layout.game);
-        
+        gui = new Gui(this);
         SchnellenApplication app = (SchnellenApplication) getApplication();
         frontend = (PlayerFrontendWrapper) app.getAttribute(GAME_FRONTEND);
-        frontend.setDelegate(this);
-        Toast.makeText(this, 
-                       "GameActivity.onCreate() game received! players: "+game().players(),
-                       Toast.LENGTH_LONG).show();
-        GuiHelper.setupGui(this);
+        Log.d(TAG, "onCreate() EXITING");
+    }
+    
+    OnClickListener getStartGameCallBack() {
+        return new OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                startGame();
+            }
+        };
+    }
+    
+    void startGame() {
+        Thread t = new Thread(new Runnable() {
+            @Override
+            public void run() {
+                try {
+                    Thread.sleep(2000);
+                    game().playGame();
+                } catch (Exception e) {
+                    Log.e("GameActivity",Log.getStackTraceString(e));
+                    e.printStackTrace();
+                    throw new RuntimeException(e);
+                }
+            }
+        });
         
-        game().playGame();
+        t.start();
     }
     
     @Override
-    protected Dialog onCreateDialog(int id) {
-        switch (Event.getEvent(id)) {
-        case WELI_HIT_AT_DECKSPLIT :
+    public boolean onKeyDown(int keyCode, KeyEvent event) {
+    	return super.onKeyDown(keyCode, event);
+    }
+    
+    protected void onStart() {
+        Log.d(TAG, "onStart() ENTERING");
+        try {
+            frontend.setDelegate(this);
+            IGameContext game = game();
+            Log.d(TAG, "onStart() game received! players: "+game.players());
+            gui.start();
+            
+        } catch (Throwable t) {
+            Log.e("NewGameActivity", Log.getStackTraceString(t));
+            throw new RuntimeException("error during onCreate", t);
         }
-        return super.onCreateDialog(id);
+        super.onStart();
+        Log.d(TAG, "onStart() EXITING");
     }
     
     IGameContext game() {
@@ -63,6 +107,10 @@ public final class GameActivity extends Activity implements IPlayerFrontend {
     
     List<Card> hand() {
         return frontend.getHand();
+    }
+    
+    PlayerFrontendWrapper frontend() {
+        return frontend;
     }
     
     
@@ -88,9 +136,9 @@ public final class GameActivity extends Activity implements IPlayerFrontend {
         // dealer may say bei mir:
         itemList.add(Integer.toString(minimumOffer));
         
-        
         final CharSequence[] items = itemList.toArray(new CharSequence[0]);
-        throw new UnsupportedOperationException("not yet implemented: int offerPunch()");//TODO
+        int punchesOffered = gui.showOfferPunchMenu();
+        return punchesOffered;
     }  
 
     public void fireGameEvent(Event id) {
@@ -101,7 +149,6 @@ public final class GameActivity extends Activity implements IPlayerFrontend {
             case SCORE_FACTOR_CHANGED: {
                 // IO.println("The score factor changed: points in this round will be"+
                 // " multiplied by "+game().scorings().getScoreFactor()+" !");
-    
                 break;
     
             }
@@ -172,13 +219,14 @@ public final class GameActivity extends Activity implements IPlayerFrontend {
             }
             case SHELL_ROUND_CANNOT_LEAVE_ROUND: {
                 // throw new UnsupportedOperationException("not yet implemented");
+                break;
             }
             default: {
                 throw new RuntimeException(id + "");
             }
         }
 
-        throw new UnsupportedOperationException("not yet implemented: void fireGameEvent(Event id)");//TODO
+        Log.d("TODO", "not yet implemented: void fireGameEvent(Event "+id+")");
     }
     public String getName() {
         return frontend.getName();

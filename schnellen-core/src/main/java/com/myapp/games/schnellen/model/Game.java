@@ -96,7 +96,7 @@ final class Game implements IGameContext {
     
     @Override
     public IConfig config() {
-        return config; // TODO
+        return config;
     }
     
     @Override
@@ -130,8 +130,6 @@ final class Game implements IGameContext {
                 assert state.getName().equals(p);
                 state.resetNewGame();
             }
-            
-            frontend(p).setGameContext(this);
         }
     
         round.initForNewGame();
@@ -741,6 +739,7 @@ final class Game implements IGameContext {
         }
         players.add(name);
         frontends.put(name, p);
+        p.setGameContext(this);
         return true;
     }
 

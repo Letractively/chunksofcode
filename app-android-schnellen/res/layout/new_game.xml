@@ -61,9 +61,9 @@
 
 
     <!-- continue button 
-            FIXME: using marginTop="-70dip" and layout_height="70dip" as trick/hack to show 
-            FIXME: something below an element that has layout_height="fill_parent"
-            FIXME: (that also has layout_marginBottom="70dip" to left some space) -->
+            XXX: using marginTop="-70dip" and layout_height="70dip" as trick/hack to show 
+            XXX: something below an element that has layout_height="fill_parent"
+            XXX: (that also has layout_marginBottom="70dip" to left some space) -->
     <RelativeLayout android:layout_marginTop="-70dip"
             android:layout_height="70dip"
             android:gravity="bottom"
