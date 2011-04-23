@@ -1,13 +1,18 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+ 
+  <groupId>com.myapp.tools</groupId>
+  <artifactId>masterbuild</artifactId>
+  <version>0.0.1-SNAPSHOT</version>
+  
+  <packaging>pom</packaging>
   <modelVersion>4.0.0</modelVersion>
   <name>masterbuild</name>
   <description>builds all maven project in this repository folder</description>
-  <artifactId>masterbuild</artifactId>
-  <groupId>com.myapp.tools</groupId>
-  <version>0.0.1-SNAPSHOT</version>
-  <packaging>pom</packaging>
+	
   <modules>
+    <module>../app-android-celsius2fahrenheit</module>
+    <module>../app-android-schnellen</module>
     <module>../app-rubic-cube</module>
     <module>../app-soundsorter</module>
     <module>../app-videotools</module>
@@ -17,8 +22,8 @@
     <module>../schnellen-core</module>
     <module>../tool-httpproxy</module>
     <module>../utilities</module>
-    <module>../web-dwr-shop</module>
     <module>../web-dwr-shop-annotated</module>
+    <module>../web-dwr-shop</module>
     <module>../web-dwr-simple</module>
     <module>../web-jsf2-getstarted</module>
     <module>../web-jsf-bookstore</module>
@@ -26,28 +31,5 @@
     <module>../web-struts-tagdemo</module>
     <module>../web-wings-mines</module>
   </modules>
-  <build>
-    <finalName>${project.artifactId}-${project.version}</finalName>
-    <plugins>
-<!--
-      <plugin>
-        <artifactId>maven-assembly-plugin</artifactId>
-        <configuration>
-          <descriptorRefs>
-            <descriptorRef>project</descriptorRef>
-          </descriptorRefs>
-        </configuration>
-        <executions>
-          <execution>
-            <id>examples</id>
-            <phase>package</phase>
-            <goals>
-              <goal>attached</goal>
-            </goals>
-          </execution>
-        </executions>
-      </plugin>
--->
-    </plugins>
-  </build>
+  
 </project>

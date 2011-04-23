@@ -15,10 +15,14 @@ import java.util.regex.Pattern;
 
 class ScriptGenerator {
 
-    private List<String[]> files;
+    @SuppressWarnings("unused")
+	private List<String[]> files;
+	
     private File hashFile;
     private BashQuoter2 quoter = new BashQuoter2();
-    private boolean verbose = false;
+    
+    @SuppressWarnings("unused")
+	private boolean verbose = false;
 
     public ScriptGenerator(File hashFile) throws IOException {
         this.hashFile = hashFile;

@@ -1,8 +1,10 @@
 package com.myapp.games.schnellen;
 
 import android.app.Activity;
+import android.app.ActivityManager;
 import android.content.Intent;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
@@ -23,9 +25,9 @@ public class NewGameActivity extends Activity {
     private EditText playerName, playerCount;
     private RadioGroup radioGroup;
     
-    
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
+	    Log.d(getClass().getSimpleName(), "onCreate() ENTERING");
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.new_game);
         
@@ -40,22 +42,52 @@ public class NewGameActivity extends Activity {
         playerCount.setText("2");
         
         go2gameButton = (Button) findViewById(R.id.new_game_go2game);
+        Log.d(getClass().getSimpleName(), "onCreate() EXITING");
 	}
 
 	/** ! method name referenced by strings.xml ! */
 	public void buttonAction(View view) {
-		switch (view.getId()) {
-		case R.id.new_game_go2game: {
-			String error = validateBeforeContinue();
-			
-			if (error != null) {
-				Toast.makeText(this, error, Toast.LENGTH_LONG).show();
-				return;
-			}
-            
+        Log.d(getClass().getSimpleName(), "buttonAction() ENTERING");
+        try {
+    		switch (view.getId()) {
+        		case R.id.new_game_go2game: {
+        			String error = validateBeforeContinue();
+        			
+        			if (error != null) {
+        				Toast.makeText(this, error, Toast.LENGTH_LONG).show();
+        				return;
+        			}
+        			createAndStartGame();
+        			return;
+        		}
+        		case R.id.new_game_type_single: {
+                    playerCount.setEnabled(true);
+                    return;
+        		}
+        		case R.id.new_game_type_network_host: { 
+                    playerCount.setEnabled(true);
+        			// remember to go to start network view...
+                    showTodo();//TODO implement me
+                    return;
+        		}
+        		case R.id.new_game_type_network_join: { 
+        		    playerCount.setEnabled(false);
+        			// remember to go to connect to game view...
+        		    showTodo();//TODO implement me
+        		    return;
+        		}
+    		}
+            throw new RuntimeException(""+Util.fromR(view.getId()));
+        } finally {
+            Log.d(getClass().getSimpleName(), "buttonAction() EXITING");
+        }
+	}
+	
+	private void createAndStartGame() {
+	    try {
             final int count = Integer.parseInt(playerCount.getText().toString());
             String name = playerName.getText().toString().trim();
-			GameFactory gf = new GameFactory();
+            GameFactory gf = new GameFactory();
             IPlayerFrontend wrapper = new PlayerFrontendWrapper(name);
             gf.putPlayer(wrapper);
             
@@ -66,33 +98,16 @@ public class NewGameActivity extends Activity {
                 gf.putPlayer(bot);
             }
             
-			IGameContext game = gf.createGame();
+            IGameContext game = gf.createGame();
             SchnellenApplication app = (SchnellenApplication) getApplication();
             app.setAttribute(SchnellenApplication.GAME_CONTEXT, game);
             app.setAttribute(SchnellenApplication.GAME_FRONTEND, wrapper);
-			startActivity(new Intent(this, GameActivity.class));
-			break;
-		}
-		case R.id.new_game_type_single: {
-            playerCount.setEnabled(true);
-			break;
-		}
-		case R.id.new_game_type_network_host: { 
-            playerCount.setEnabled(true);
-			// remember to go to start network view...
-            showTodo();//TODO implement me
-			return;
-		}
-		case R.id.new_game_type_network_join: { 
-		    playerCount.setEnabled(false);
-			// remember to go to connect to game view...
-		    showTodo();//TODO implement me
-			return;
-		}
-		default: {
-			throw new RuntimeException(""+Util.fromR(view.getId()));
-		}
-		}
+            startActivity(new Intent(this, GameActivity.class));
+	    
+	    } catch (Throwable t) {
+	        Log.e("NewGameActivity", Log.getStackTraceString(t));
+	        throw new RuntimeException("error during createAndStartGame", t);
+	    }
 	}
 	
 	private void showTodo() {
@@ -104,13 +119,16 @@ public class NewGameActivity extends Activity {
     private String validateBeforeContinue() {
         String name = playerName.getText().toString().trim();
         
-        if (! name.matches("[-._a-zA-Z0-9]{1,}"))
+        if (! name.matches("[-._a-zA-Z0-9]{1,}")) {
             return getString(R.string.new_game_error_invalid_name);
+        }
         
         int count = getPlayersCount();
         
-        if (count < 2 || count > 4)
+        if (count < 2 || count > 4) {
+            playerCount.setText("2");
             return getString(R.string.new_game_error_invalid_number);
+        }
         
         return null;
     }

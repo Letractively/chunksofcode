@@ -3,7 +3,6 @@ package com.myapp.games.schnellen.model;
 import static java.util.Collections.reverseOrder;
 import static java.util.Collections.sort;
 
-import java.util.AbstractMap.SimpleEntry;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashSet;
@@ -16,6 +15,14 @@ import com.myapp.games.schnellen.frontend.IPlayerFrontend.Event;
 
 
 final class Scorings implements IScorings {
+
+    private static final class MyEntry<K, V> implements Map.Entry<K, V> {
+        final K key; V value;
+        MyEntry(K k, V v) {key = k; value = v;}
+        public K getKey() {return key;}
+        public V getValue() {return value;}
+        public V setValue(V v) {V old = v; this.value = v; return old;}
+    }
     
     private static final long serialVersionUID = 879400423717881541L;
     private static final String NL = System.getProperty("line.separator");
@@ -139,7 +146,7 @@ final class Scorings implements IScorings {
         for (String p : context.players()) {
             // PlayerState state = states.get(p);
             PlayerBackend state = context.backend(p);
-            rankings.add(new SimpleEntry<String, Integer>(p, state.getScore()));
+            rankings.add(new MyEntry<String, Integer>(p, state.getScore()));
         }
     
         // highest first:
@@ -165,24 +172,15 @@ final class Scorings implements IScorings {
                         int longestNameLength,
                         boolean skipped,
                         StringBuilder msg) {
-        String delta = Integer.toString(points * scoreFactor);
-        String newScore = Integer.toString(context.backend(p).getScore());
-        String punchStr = Integer.toString(punches);
-
         msg.append(p);
         for (int n = longestNameLength-p.length(); n-- > 0; msg.append(' '));
 
         msg.append(" made ");
-        for (int n = 2 - punchStr.length(); n-- > 0; msg.append(' '));
-        msg.append(punchStr);
-
+        msg.append(prefixWithBlanks(punches, 2));
         msg.append(" punches this round(");
-        for (int n = 3 - delta.length(); n-- > 0; msg.append(' '));
-        msg.append(delta);
-
+        msg.append(prefixWithBlanks(points * scoreFactor, 3));
         msg.append(" points). Total score: ");
-        for (int n = 4 - newScore.length(); n-- > 0; msg.append(' '));
-        msg.append(newScore);
+        msg.append(prefixWithBlanks(context.backend(p).getScore(), 4));
 
         if (points < 0) {
             msg.append("     * ");
@@ -198,6 +196,21 @@ final class Scorings implements IScorings {
         }
 
         msg.append(Game.NL);
+    }
+    
+    private String prefixWithBlanks(int i, int finalLen) {
+        return prefixWithBlanks(Integer.toString(i), finalLen);
+    }
+    
+    private String prefixWithBlanks(String s, int finalLen) {
+        final int l = s.length();
+        assert l <= finalLen : "s='"+s+"', l='"+l+"', finalLen='"+finalLen+"'";
+        StringBuilder b = new StringBuilder(finalLen);
+        
+        for (int n = finalLen - l; n-- > 0; b.append(' '));
+        
+        b.append(s);
+        return b.toString();
     }
 
     @Override
