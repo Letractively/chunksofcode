@@ -18,9 +18,10 @@ import com.myapp.games.schnellen.frontend.PlayerFrontendWrapper;
 import com.myapp.games.schnellen.model.GameFactory;
 import com.myapp.games.schnellen.model.IGameContext;
 
+@SuppressWarnings("unused")
 public class NewGameActivity extends Activity {
 
-    private Button go2gameButton;
+	private Button go2gameButton;
     private RadioButton singleRBtn, hostRBtn, joinRBtn;
     private EditText playerName, playerCount;
     private RadioGroup radioGroup;

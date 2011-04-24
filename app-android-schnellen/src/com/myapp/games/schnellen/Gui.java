@@ -41,7 +41,7 @@ final class Gui {
         return handArea;
     }
     
-    public void start() {
+    public void prepareGameStart() {
         Log.d(getClass().getSimpleName(), "start() ENTERING");
         statusArea.removeAllViews();
         Log.d(getClass().getSimpleName(), "statusArea:"+statusArea);

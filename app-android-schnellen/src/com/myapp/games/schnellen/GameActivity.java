@@ -2,18 +2,17 @@ package com.myapp.games.schnellen;
 
 
 
+import static com.myapp.games.schnellen.SchnellenApplication.GAME_FRONTEND;
+
 import java.util.ArrayList;
 import java.util.List;
 
 import android.app.Activity;
-import android.app.Dialog;
-import android.content.Context;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.KeyEvent;
 import android.view.View;
 import android.view.View.OnClickListener;
-import android.widget.Toast;
 
 import com.myapp.games.schnellen.frontend.IPlayerFrontend;
 import com.myapp.games.schnellen.frontend.PlayerFrontendWrapper;
@@ -22,8 +21,6 @@ import com.myapp.games.schnellen.model.Card.Color;
 import com.myapp.games.schnellen.model.IColors;
 import com.myapp.games.schnellen.model.IGameContext;
 import com.myapp.games.schnellen.model.IRound;
-import static com.myapp.games.schnellen.SchnellenApplication.GAME_FRONTEND;
-import static android.view.ViewGroup.LayoutParams.*;
 
 
 
@@ -50,12 +47,24 @@ public final class GameActivity extends Activity implements IPlayerFrontend {
         gui = new Gui(this);
         SchnellenApplication app = (SchnellenApplication) getApplication();
         frontend = (PlayerFrontendWrapper) app.getAttribute(GAME_FRONTEND);
+        
+        try {
+            frontend.setDelegate(this);
+            IGameContext game = game();
+            Log.d(TAG, "onStart() game received! players: "+game.players());
+            gui.prepareGameStart();
+            
+        } catch (Throwable t) {
+            Log.e("NewGameActivity", Log.getStackTraceString(t));
+            throw new RuntimeException("error during onCreate", t);
+        }
+        
         Log.d(TAG, "onCreate() EXITING");
     }
     
     OnClickListener getStartGameCallBack() {
         return new OnClickListener() {
-            @Override
+        	// @Override
             public void onClick(View v) {
                 startGame();
             }
@@ -64,7 +73,7 @@ public final class GameActivity extends Activity implements IPlayerFrontend {
     
     void startGame() {
         Thread t = new Thread(new Runnable() {
-            @Override
+        	// @Override
             public void run() {
                 try {
                     Thread.sleep(2000);
@@ -87,16 +96,6 @@ public final class GameActivity extends Activity implements IPlayerFrontend {
     
     protected void onStart() {
         Log.d(TAG, "onStart() ENTERING");
-        try {
-            frontend.setDelegate(this);
-            IGameContext game = game();
-            Log.d(TAG, "onStart() game received! players: "+game.players());
-            gui.start();
-            
-        } catch (Throwable t) {
-            Log.e("NewGameActivity", Log.getStackTraceString(t));
-            throw new RuntimeException("error during onCreate", t);
-        }
         super.onStart();
         Log.d(TAG, "onStart() EXITING");
     }

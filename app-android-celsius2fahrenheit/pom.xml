@@ -22,7 +22,7 @@
 		add-ons  docs  google-market_billing  google-market_licensing  platforms  platform-tools  samples  SDK Readme.txt  temp  tools
 		-->
 		
-		<sdk.path>/opt/android-sdk</sdk.path>
+<!-- 		<sdk.path>/opt/android-sdk</sdk.path> -->
 	</properties>
 
 	<dependencies>
@@ -61,6 +61,14 @@
 				<configuration>
 					<source>1.5</source>
 					<target>1.5</target>
+				</configuration>
+			</plugin>
+
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-resources-plugin</artifactId>
+				<configuration>
+					<encoding>UTF-8</encoding>
 				</configuration>
 			</plugin>
 		</plugins>
