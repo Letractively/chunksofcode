@@ -1,3 +1,0 @@
-Manifest-Version: 1.0
-Main-Class: com.myapp.tools.web.httpproxy.Main
-Class-Path: lib/utilities-0.0.1-SNAPSHOT.jar lib/servlet-api-2.5.jar
