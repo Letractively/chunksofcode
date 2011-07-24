@@ -1,7 +1,5 @@
 package com.myapp.tools.media.renamer.view.swing;
 
-import static com.myapp.tools.media.renamer.config.IConstants.INameConstants.DATUM_FORMAT;
-
 import java.awt.Component;
 import java.awt.datatransfer.DataFlavor;
 import java.awt.datatransfer.Transferable;
@@ -24,6 +22,7 @@ import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
+import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import javax.swing.SwingUtilities;
@@ -33,8 +32,9 @@ import javax.swing.event.ListSelectionListener;
 import javax.swing.filechooser.FileFilter;
 
 import com.myapp.tools.media.renamer.config.Config;
-import com.myapp.tools.media.renamer.config.IRenamerConfiguration;
+import com.myapp.tools.media.renamer.config.IConstants.INameConstants;
 import com.myapp.tools.media.renamer.config.IConstants.ISysConstants;
+import com.myapp.tools.media.renamer.config.IRenamerConfiguration;
 import com.myapp.tools.media.renamer.controller.IApplication;
 import com.myapp.tools.media.renamer.controller.IController;
 import com.myapp.tools.media.renamer.controller.Log;
@@ -57,6 +57,7 @@ class Controller implements ActionListener,
                             ListSelectionListener,
                             DropTargetListener,
                             ISysConstants,
+                            INameConstants,
                             IActionCommands,
                             IController {
 
@@ -113,6 +114,8 @@ class Controller implements ActionListener,
             ((Config) cfg()).overWriteConfig(newProps);
             cfg().clearCustomProperties();
             cfg().loadCustomSettings();
+            SettingsView settingsView = (SettingsView) app.getSettingsView();
+            settingsView.setNummerierungStart(cfg().getNummerierungStart());
             app.getRenamer().calculateNames();
             
         } catch (IOException e) {
@@ -167,6 +170,27 @@ class Controller implements ActionListener,
                 break;
         }
 
+        renamer.calculateNames();
+    }
+
+    private void setNummerierungStart() {
+        int startNr = app.getSettingsView().getStartNr();
+        if (startNr == -1) {
+            return;
+        }
+
+        Log.defaultLogger().log(Level.INFO,
+                               "setting NUMMERIERUNG_START to: '"+startNr+"'");
+        IRenamer renamer = app.getRenamer();
+        renamer.setNummerierungStart(startNr);
+        cfg().setCustomProperty(NUMMERIERUNG_START, ""+startNr);
+//        try {
+//            cfg().saveCustomSettings();
+//        } catch (IOException e) {
+//            e.printStackTrace();
+//            Log.defaultLogger().log(Level.SEVERE, 
+//                          "could not save configuration! ("+e.getMessage()+")");
+//        }
         renamer.calculateNames();
     }
 
@@ -572,6 +596,10 @@ class Controller implements ActionListener,
         
         else if (SET_SYSTEM_LOOK_AND_FEEL.equals(cmd))
             setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
+        
+        else if (SET_NUMMERIERUNG_START.equals(cmd)) {
+            setNummerierungStart();
+        }
 
         else assert false : cmd;
     }

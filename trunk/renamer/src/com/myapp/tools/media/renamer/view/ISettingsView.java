@@ -51,4 +51,6 @@ public interface ISettingsView extends IUIComponent {
      * @param enabled if renaming is enabled now.
      */
     public void setRenamingEnabled(boolean enabled);
+
+    int getStartNr();
 }

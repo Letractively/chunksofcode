@@ -4,6 +4,7 @@ import static com.myapp.tools.media.renamer.controller.Msg.msg;
 import static javax.swing.BorderFactory.createTitledBorder;
 
 import java.awt.BorderLayout;
+import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.FlowLayout;
 import java.awt.Font;
@@ -25,14 +26,15 @@ import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JTextField;
 
-import com.myapp.tools.media.renamer.config.IRenamerConfiguration;
 import com.myapp.tools.media.renamer.config.IConstants.ISysConstants;
+import com.myapp.tools.media.renamer.config.IRenamerConfiguration;
 import com.myapp.tools.media.renamer.controller.Log;
-import com.myapp.tools.media.renamer.controller.Util;
 import com.myapp.tools.media.renamer.controller.Log.IMessageListener;
+import com.myapp.tools.media.renamer.controller.Util;
 import com.myapp.tools.media.renamer.model.IRenamer;
 import com.myapp.tools.media.renamer.view.ISettingsView;
-import com.myapp.util.swing.datechooser.*;
+import com.myapp.util.swing.datechooser.JCalendar;
+import com.myapp.util.swing.datechooser.JDateChooser;
 
 /**
  * helds the components in the southern control area which allows the user to
@@ -59,7 +61,7 @@ class SettingsView extends JPanel implements IMessageListener,
     private JButton destinationBtn;
     private JDateChooser dateChooser;
     
-    private JTextField titelTxf, themaTxf, beschreibungTxf;
+    private JTextField titelTxf, themaTxf, beschreibungTxf, startNrTxf;
 
     private JLabel pictureArea;
     private JButton startBtn;
@@ -94,9 +96,9 @@ class SettingsView extends JPanel implements IMessageListener,
 
         dateChooser = new JDateChooser(new JCalendar(new Date()));
         dateChooser.setPreferredSize(
-                    new Dimension(240, dateChooser.getPreferredSize().height));
-
+                    new Dimension(140, dateChooser.getPreferredSize().height));
         
+        startNrTxf = new JTextField(""+renamer.getConfig().getNummerierungStart());
         titelTxf = new JTextField(renamer.getConfig().getDefaultTitel());
         themaTxf = new JTextField(renamer.getConfig().getDefaultThema());
         beschreibungTxf = new JTextField(
@@ -129,6 +131,9 @@ class SettingsView extends JPanel implements IMessageListener,
         dateChooser.addPropertyChangeListener("date", 
                                               app.getPropertyChangeListener());
         
+        startNrTxf.addActionListener(l);
+        startNrTxf.setActionCommand(IActionCommands.SET_NUMMERIERUNG_START);
+        
         Log.addMessageListener(this, true);
         
         logLabel.addMouseListener(new MouseAdapter() {
@@ -151,7 +156,7 @@ class SettingsView extends JPanel implements IMessageListener,
             add(destinationLbl, BorderLayout.CENTER);
             add(destinationBtn, BorderLayout.EAST);
             setBorder(createTitledBorder(msg("ControlPanel.destination.border")));
-        }}, BorderLayout.CENTER);
+        }}, BorderLayout.EAST);
         
         //date
         JPanel date = new JPanel(new BorderLayout()) {{
@@ -163,6 +168,17 @@ class SettingsView extends JPanel implements IMessageListener,
             setBorder(createTitledBorder(msg("ControlPanel.date.border")));
         }};
         
+        //date
+        JPanel startNr = new JPanel(new BorderLayout()) {{
+            add(new JButton(msg("SettingsView.layoutComponents.startNrTxf")) {{
+                addActionListener(app.getActionListener());
+                setActionCommand(IActionCommands.SET_NUMMERIERUNG_START);
+            }}, BorderLayout.EAST);
+            add(startNrTxf, BorderLayout.CENTER);
+            setBorder(createTitledBorder(msg("ControlPanel.startNr.border")));
+        }};
+
+        targetDateAndStartControl.add(startNr, BorderLayout.CENTER);
         targetDateAndStartControl.add(date, BorderLayout.WEST);
         
         
@@ -274,6 +290,26 @@ class SettingsView extends JPanel implements IMessageListener,
     @Override
     public String getTitelText() {
         return titelTxf.getText();
+    }
+
+    @Override
+    public int getStartNr() {
+        String startNrText = null;
+        try {
+            startNrText = startNrTxf.getText();
+            startNrTxf.setForeground(null);
+            return Integer.parseInt(startNrText);
+            
+        } catch (NumberFormatException e) {
+            startNrTxf.setForeground(Color.red);
+            Log.defaultLogger().info("not a number:'"+startNrText+"'");
+            return -1;
+        }
+    }
+    
+    void setNummerierungStart(int startNr) {
+        startNrTxf.setForeground(null);
+        startNrTxf.setText(startNr+"");
     }
 
     @Override

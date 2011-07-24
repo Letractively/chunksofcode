@@ -43,4 +43,5 @@ interface IActionCommands {
     
     /**swing application specific*/
     String SET_CROSS_PLATFORM_LOOK_AND_FEEL ="SET_CROSS_PLATFORM_LOOK_AND_FEEL";
+    String SET_NUMMERIERUNG_START = "SET_NUMMERIERUNG_START";
 }
