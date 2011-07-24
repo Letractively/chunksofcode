@@ -5,6 +5,7 @@ import java.util.Date;
 import java.util.List;
 
 import com.myapp.tools.media.renamer.config.Config;
+import static com.myapp.tools.media.renamer.config.IConstants.INameConstants.*;
 
 /**
  * singelton implementation of a IRenamer, designed for a desktop application.
@@ -27,7 +28,7 @@ public class Renamer extends AbstractRenamer {
 
 
     private Date datum = new Date();
-    private int nummerierungStart = Config.getInstance().getNummerierungStart();
+//    private int nummerierungStart = Config.getInstance().getNummerierungStart();
 
 
     /**
@@ -61,7 +62,8 @@ public class Renamer extends AbstractRenamer {
     /* ************************* getter, setter *******************************/    
 
     public int getNummerierungStart() {
-        return nummerierungStart;
+//        return nummerierungStart;
+        return Config.getInstance().getNummerierungStart();
     }
 
     public File getDestinationDir() {
@@ -73,7 +75,8 @@ public class Renamer extends AbstractRenamer {
     }
 
     public void setNummerierungStart(int start) {
-        nummerierungStart = start;
+//        nummerierungStart = start;
+        getConfig().setCustomProperty(NUMMERIERUNG_START, ""+start);
     }
 
     public void setDatum(Date d) {

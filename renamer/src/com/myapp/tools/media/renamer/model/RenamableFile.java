@@ -4,6 +4,7 @@ import java.io.File;
 import java.io.IOException;
 
 import com.myapp.tools.media.renamer.config.IConstants.ISysConstants;
+import com.myapp.tools.media.renamer.controller.Log;
 import com.myapp.tools.media.renamer.controller.Util;
 
 /**
@@ -75,8 +76,9 @@ public final class RenamableFile implements IRenamable, ISysConstants {
     @Override
     public boolean renameFile(boolean overwrite) throws IOException,
                                                     FileAlreadyExistsException {
-        String newFileAbsPath = getNewAbsolutePath();
+        final String newFileAbsPath = getNewAbsolutePath();
         File destination = new File(newFileAbsPath);
+        final String oldFileAbsPath = file.getAbsolutePath();
         
         if (renamer.getConfig().getBoolean(REPLACE_ORIGINAL_FILES)) {
             
@@ -93,7 +95,19 @@ public final class RenamableFile implements IRenamable, ISysConstants {
             // System.out.println("will now rename...");
             
             boolean renamed = file.renameTo(destination);
-
+            File oldFile = new File(oldFileAbsPath);
+            File newFile = new File(newFileAbsPath);
+            
+            for (int i = 0; i < 3 && oldFile.isFile() && ! newFile.isFile(); i++) {
+                Log.defaultLogger().warning("ERROR! could not remane file '"+oldFileAbsPath+"' to '"+newFileAbsPath+"'. trying again...");
+                new File(oldFileAbsPath).renameTo(new File(newFileAbsPath));
+            }
+            
+            if (oldFile.isFile() || ! newFile.isFile()) {
+                Log.defaultLogger().warning("ERROR! could not remane file '"+oldFileAbsPath+"' to '"+newFileAbsPath+"'. skipping :-(.");
+                return false;
+            }
+            
             // System.out.println("... done success: " + renamed);
             // System.out.println();
             
