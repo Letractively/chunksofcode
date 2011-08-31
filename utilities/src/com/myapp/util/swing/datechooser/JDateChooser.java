@@ -45,17 +45,15 @@ import javax.swing.SwingUtilities;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 
-/**
- * A date chooser containig a date spinner and a button, that makes a JCalendar
- * visible for choosing a date.
+/** A date chooser containig a date spinner and a button, that makes a
+ * JCalendar visible for choosing a date.
  * 
  * @author Kai Toedter
- * @version 1.2.2
- */
+ * @version 1.2.2 */
 @SuppressWarnings("serial")
-public class JDateChooser extends JPanel 
-           implements ActionListener, ChangeListener, PropertyChangeListener {
-    
+public class JDateChooser extends JPanel implements ActionListener,
+        ChangeListener, PropertyChangeListener {
+
     protected JButton calendarButton;
     protected JSpinner dateSpinner;
     protected JSpinner.DateEditor editor;
@@ -68,70 +66,61 @@ public class JDateChooser extends JPanel
     protected Date lastSelectedDate;
     protected boolean startEmpty;
 
-    /**
-     * Creates a new JDateChooser object.
-     */
+    /** Creates a new JDateChooser object. */
     public JDateChooser() {
         this(null, null, false, null);
     }
 
-    /**
-     * Creates a new JDateChooser object.
+    /** Creates a new JDateChooser object.
      * 
      * @param icon
-     *            the new icon
-     */
+     *            the new icon */
     public JDateChooser(ImageIcon icon) {
         this(null, null, false, icon);
     }
 
-    /**
-     * Creates a new JDateChooser object.
+    /** Creates a new JDateChooser object.
      * 
      * @param startEmpty
-     *            true, if the date field should be empty
-     */
+     *            true, if the date field should be empty */
     public JDateChooser(boolean startEmpty) {
         this(null, null, startEmpty, null);
     }
 
-    /**
-     * Creates a new JDateChooser object with given date format string. The
-     * default date format string is "MMMMM d, yyyy".
+    /** Creates a new JDateChooser object with given date format
+     * string. The default date format string is "MMMMM d, yyyy".
      * 
      * @param dateFormatString
      *            the date format string
      * @param startEmpty
-     *            true, if the date field should be empty
-     */
+     *            true, if the date field should be empty */
     public JDateChooser(String dateFormatString, boolean startEmpty) {
         this(null, dateFormatString, startEmpty, null);
     }
 
-    /**
-     * Creates a new JDateChooser object from a given JCalendar.
+    /** Creates a new JDateChooser object from a given JCalendar.
      * 
      * @param jcalendar
-     *            the JCalendar
-     */
+     *            the JCalendar */
     public JDateChooser(JCalendar jcalendar) {
         this(jcalendar, null, false, null);
     }
 
-    /**
-     * Creates a new JDateChooser.
+    /** Creates a new JDateChooser.
      * 
      * @param jcalendar
      *            the jcalendar or null
      * @param dateFormatString
-     *            the date format string or null (then "MMMMM d, yyyy" is used)
+     *            the date format string or null (then "MMMMM d, yyyy"
+     *            is used)
      * @param startEmpty
      *            true, if the date field should be empty
      * @param icon
-     *            the icon or null (then an internal icon is used)
-     */
-    public JDateChooser(JCalendar jcalendar, String dateFormatString,
-            boolean startEmpty, ImageIcon icon) {
+     *            the icon or null (then an internal icon is used) */
+    public JDateChooser(JCalendar jcalendar,
+                        String dateFormatString,
+                        boolean startEmpty,
+                        ImageIcon icon) {
         if (jcalendar == null) {
             jcalendar = new JCalendar();
         }
@@ -182,7 +171,6 @@ public class JDateChooser extends JPanel
         // Display a calendar button with an icon
         if (icon == null) {
             URL iconURL = getClass().getResource("images/JDateChooserIcon.gif");
-            System.out.println("JDateChooser.JDateChooser() iconUrl="+iconURL);
             icon = new ImageIcon(iconURL);
         }
 
@@ -198,13 +186,11 @@ public class JDateChooser extends JPanel
         calendarButton.setMargin(new Insets(0, 0, 0, 0));
         popup = new JPopupMenu() {
             public void setVisible(boolean b) {
-                Boolean isCanceled = (Boolean) getClientProperty(
-                        "JPopupMenu.firePopupMenuCanceled");
+                Boolean isCanceled = (Boolean) getClientProperty("JPopupMenu.firePopupMenuCanceled");
 
                 if (b
-                        || (!b && dateSelected)
-                        || ((isCanceled != null) && !b && isCanceled
-                                .booleanValue())) {
+                    || (!b && dateSelected)
+                    || ((isCanceled != null) && !b && isCanceled.booleanValue())) {
                     super.setVisible(b);
                 }
             }
@@ -217,12 +203,10 @@ public class JDateChooser extends JPanel
         isInitialized = true;
     }
 
-    /**
-     * Called when the jalendar button was pressed.
+    /** Called when the jalendar button was pressed.
      * 
      * @param e
-     *            the action event
-     */
+     *            the action event */
     public void actionPerformed(ActionEvent e) {
         int x = calendarButton.getWidth()
                 - (int) popup.getPreferredSize().getWidth();
@@ -235,13 +219,12 @@ public class JDateChooser extends JPanel
         dateSelected = false;
     }
 
-    /**
-     * Listens for a "date" property change or a "day" property change event
-     * from the JCalendar. Updates the dateSpinner and closes the popup.
+    /** Listens for a "date" property change or a "day" property change
+     * event from the JCalendar. Updates the dateSpinner and closes
+     * the popup.
      * 
      * @param evt
-     *            the event
-     */
+     *            the event */
     public void propertyChange(PropertyChangeEvent evt) {
         if (evt.getPropertyName().equals("day")) {
             dateSelected = true;
@@ -253,9 +236,7 @@ public class JDateChooser extends JPanel
         }
     }
 
-    /**
-     * Updates the UI of itself and the popup.
-     */
+    /** Updates the UI of itself and the popup. */
     public void updateUI() {
         super.updateUI();
 
@@ -264,12 +245,10 @@ public class JDateChooser extends JPanel
         }
     }
 
-    /**
-     * Sets the locale.
+    /** Sets the locale.
      * 
      * @param l
-     *            The new locale value
-     */
+     *            The new locale value */
     public void setLocale(Locale l) {
         dateSpinner.setLocale(l);
         editor = new JSpinner.DateEditor(dateSpinner, dateFormatString);
@@ -277,52 +256,43 @@ public class JDateChooser extends JPanel
         jcalendar.setLocale(l);
     }
 
-    /**
-     * Gets the date format string.
+    /** Gets the date format string.
      * 
-     * @return Returns the dateFormatString.
-     */
+     * @return Returns the dateFormatString. */
     public String getDateFormatString() {
         return dateFormatString;
     }
 
-    /**
-     * Sets the date format string. E.g "MMMMM d, yyyy" will result in
-     * "July 21, 2004" if this is the selected date and locale is English.
+    /** Sets the date format string. E.g "MMMMM d, yyyy" will result in
+     * "July 21, 2004" if this is the selected date and locale is
+     * English.
      * 
      * @param dateFormatString
-     *            The dateFormatString to set.
-     */
+     *            The dateFormatString to set. */
     public void setDateFormatString(String dateFormatString) {
         this.dateFormatString = dateFormatString;
         editor.getFormat().applyPattern(dateFormatString);
         invalidate();
     }
 
-    /**
-     * Returns "JDateChooser".
+    /** Returns "JDateChooser".
      * 
-     * @return the name value
-     */
+     * @return the name value */
     public String getName() {
         return "JDateChooser";
     }
 
-    /**
-     * Returns the date.
+    /** Returns the date.
      * 
-     * @return the current date
-     */
+     * @return the current date */
     public Date getDate() {
         return model.getDate();
     }
 
-    /**
-     * Sets the date. Fires the property change "date".
+    /** Sets the date. Fires the property change "date".
      * 
      * @param date
-     *            the new date.
-     */
+     *            the new date. */
     public void setDate(Date date) {
         model.setValue(date);
         if (getParent() != null) {
@@ -330,12 +300,11 @@ public class JDateChooser extends JPanel
         }
     }
 
-    /**
-     * Fires property "date" changes, recting on the spinner's state changes.
+    /** Fires property "date" changes, recting on the spinner's state
+     * changes.
      * 
      * @param e
-     *            the change event
-     */
+     *            the change event */
     public void stateChanged(ChangeEvent e) {
         if (isInitialized) {
             firePropertyChange("date", lastSelectedDate, model.getDate());
@@ -354,32 +323,27 @@ public class JDateChooser extends JPanel
      * ADF/BC4J.
      */
 
-    /**
-     * Return this controls JSpinner control.
+    /** Return this controls JSpinner control.
      * 
-     * @return the JSpinner control
-     */
+     * @return the JSpinner control */
     public JSpinner getSpinner() {
         return dateSpinner;
     }
 
-    /**
-     * Return the SpinnerDateModel associated with this control.
+    /** Return the SpinnerDateModel associated with this control.
      * 
-     * @return the SpinnerDateModel
-     */
+     * @return the SpinnerDateModel */
     public SpinnerDateModel getModel() {
         return model;
     }
 
-    /**
-     * Set the SpinnerDateModel for this control. This method allows the
-     * JDateChooser control to be used with some persistence frameworks (ie.
-     * Oracle ADF) to bind the control to the database Date value.
+    /** Set the SpinnerDateModel for this control. This method allows
+     * the JDateChooser control to be used with some persistence
+     * frameworks (ie. Oracle ADF) to bind the control to the database
+     * Date value.
      * 
      * @param mdl
-     *            the SpinnerDateModel
-     */
+     *            the SpinnerDateModel */
     public void setModel(SpinnerDateModel mdl) {
         model = mdl;
         model.setCalendarField(java.util.Calendar.WEEK_OF_MONTH);

@@ -16,6 +16,7 @@ import java.util.Set;
 import java.util.concurrent.locks.ReentrantLock;
 import org.apache.commons.codec.binary.Base64;
 import com.myapp.util.file.FileUtils;
+import com.myapp.util.format.Util;
 
 
 public class ObjectStore<V extends Serializable>
@@ -72,8 +73,15 @@ public class ObjectStore<V extends Serializable>
         aFile = new File(path);
         
         if (aFile.exists()) {
-            if ( ! aFile.isDirectory()) throw new RuntimeException(path);
-        } else if ( ! aFile.mkdirs())   throw new RuntimeException(path);
+            if ( ! aFile.isDirectory()) {
+                throw new RuntimeException(path);
+            }
+            Util.log("ObjectStore.ObjectStore() dir found: "+aFile.getAbsolutePath(), Util.now());
+        } else if (aFile.mkdirs()) {
+            Util.log("ObjectStore.ObjectStore() dir created: "+aFile.getAbsolutePath(), Util.now());
+        } else {
+            throw new RuntimeException(path);
+        }
         
         containerDir = aFile;
     }
