@@ -13,18 +13,18 @@ public final class StreamCipherA51 {
 
 private ShiftRegister[] registers;
 
-public StreamCipherA51() {
-    registers = new ShiftRegister[]{
-                new ShiftRegister(19, new int[]{18, 17, 16, 13}, 8),
-                new ShiftRegister(22, new int[]{21, 20}, 10),
-                new ShiftRegister(23, new int[]{22, 21, 20, 7}, 10)
-            };
-}
-
-public void clearAll() {
-    for (ShiftRegister shiftRegister : registers)
-        shiftRegister.clear();
-}
+    public StreamCipherA51() {
+        registers = new ShiftRegister[]{
+                    new ShiftRegister(19, new int[]{18, 17, 16, 13}, 8),
+                    new ShiftRegister(22, new int[]{21, 20}, 10),
+                    new ShiftRegister(23, new int[]{22, 21, 20, 7}, 10)
+                };
+    }
+    
+    public void clearAll() {
+        for (ShiftRegister shiftRegister : registers)
+            shiftRegister.clear();
+    }
 
     @SuppressWarnings("unused")
     private synchronized void init(byte[] cipherPassword) {

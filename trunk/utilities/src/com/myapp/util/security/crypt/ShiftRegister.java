@@ -44,13 +44,14 @@ final class ShiftRegister {
     }
 
     Bit shift() {
-
         Bit actualBitInLoop = bits[0];
+        
         for (int i = 1; i < bits.length; i++) {
             Bit temp = bits[i];
             bits[i] = actualBitInLoop;
             actualBitInLoop = temp;
         }
+
         /*save _last_ bit of the register's array*/
         Bit output = actualBitInLoop;
 

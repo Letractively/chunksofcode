@@ -96,13 +96,27 @@ public final class CryptUtils {
         return bits;
     }
 
-    static final String byteToHexString(byte by) {
+    public static final String byteToHexString(byte by) {
         String byteStr2 = Integer.toHexString(by & 0xff);
 
         if (byteStr2.length() < 2)
             return "0" + byteStr2;
 
         return byteStr2;
+    }
+
+    public static String byteToBinString(byte b) {
+        StringBuilder bui = new StringBuilder();
+        String bin = Integer.toBinaryString(b & 0xff);
+        
+        if (bin.matches("\\d{1,7}")) {
+            for (int i = 0, times = 8 - bin.length(); i < times; i++) {
+                bui.append('0');
+            }
+        }
+        
+        bui.append(bin);
+        return bui.toString();
     }
 
     static final String bitArrToBinString(Bit[] bits) {
@@ -123,4 +137,5 @@ public final class CryptUtils {
             bui.append('0');
         bui.append(hex);
     }
+
 }
