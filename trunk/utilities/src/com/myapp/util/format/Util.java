@@ -100,6 +100,25 @@ public final class Util
         result.retainAll(c2);
         return result;
     }
+    
+    public static String squeeze(String s, int maxLen) {
+        int sLen = s.length();
+        if (sLen <= maxLen) {
+            return s;
+        }
+        
+        String middlePart = "...";
+        int middlePartLen = middlePart.length();
+        int sChars = maxLen - middlePartLen;
+        int firstHalfLen = sChars / 2;
+        int secondHalfLen = sChars - firstHalfLen;
+        
+        StringBuilder buf = new StringBuilder(maxLen);
+        buf.append(s.substring(0, firstHalfLen));
+        buf.append(middlePart);
+        buf.append(s.substring(sLen - secondHalfLen));
+        return buf.toString();
+    }
 
     public static String hackToLength(final String s, final int i) {
         final int len = s.length();
