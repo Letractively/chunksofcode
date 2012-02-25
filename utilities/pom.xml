@@ -5,12 +5,18 @@
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
 
     <modelVersion>4.0.0</modelVersion>
-	<name>utilities</name>
+    <name>utilities</name>
     <description>andres common utilities collection</description>
     
     <groupId>com.myapp.tools</groupId>
     <artifactId>utilities</artifactId>
     <version>0.0.1-SNAPSHOT</version>
+
+    <properties>
+        <test>false</test>
+        <failIfNoTests>false</failIfNoTests>
+    </properties>
+
 
     <dependencies>
         <dependency>
@@ -20,24 +26,24 @@
             <scope>test</scope>
         </dependency>
         <dependency>
-        	<groupId>org.blinkenlights.jid3</groupId>
-        	<artifactId>JID3</artifactId>
-        	<version>0.46</version>
+            <groupId>org.blinkenlights.jid3</groupId>
+            <artifactId>JID3</artifactId>
+            <version>0.46</version>
         </dependency>
         <dependency>
-        	<groupId>org.slf4j</groupId>
-        	<artifactId>slf4j-api</artifactId>
-        	<version>1.5.10</version>
+            <groupId>org.slf4j</groupId>
+            <artifactId>slf4j-api</artifactId>
+            <version>1.5.10</version>
         </dependency>
         <dependency>
-        	<groupId>ch.qos.logback</groupId>
-        	<artifactId>logback-core</artifactId>
-        	<version>0.9.18</version>
+            <groupId>ch.qos.logback</groupId>
+            <artifactId>logback-core</artifactId>
+            <version>0.9.18</version>
         </dependency>
         <dependency>
-        	<groupId>ch.qos.logback</groupId>
-        	<artifactId>logback-classic</artifactId>
-        	<version>0.9.18</version>
+            <groupId>ch.qos.logback</groupId>
+            <artifactId>logback-classic</artifactId>
+            <version>0.9.18</version>
         </dependency>
         <dependency>
           <groupId>commons-codec</groupId>
@@ -48,12 +54,12 @@
             <!--[INFO] Copying 1 resource-->
             <!--[WARNING] While downloading xerces:xerces:2.4.0-->
             <!--  This artifact has been relocated to xerces:xercesImpl:2.4.0.-->
-        	<groupId>xerces</groupId>
+            <groupId>xerces</groupId>
             <!--
             <artifactId>xerces</artifactId>
             -->
             <artifactId>xercesImpl</artifactId>
-        	<version>2.4.0</version>
+            <version>2.4.0</version>
         </dependency>
         
     </dependencies>
@@ -67,7 +73,7 @@
         <testSourceDirectory>${basedir}/test</testSourceDirectory>
 
         <resources>
-        	<!-- put config files into the jar -->
+            <!-- put config files into the jar -->
             <resource>
                 <directory>${basedir}/resources</directory>
                 <filtering>true</filtering>
@@ -89,62 +95,62 @@
             <!-- put source files into jar -->
             <!-- 
             <resource>
-            	<directory>${basedir}/src</directory>
-            	<filtering>false</filtering>
-            	<includes>
-            		<include>**/*.java</include>
-            	</includes>
+                <directory>${basedir}/src</directory>
+                <filtering>false</filtering>
+                <includes>
+                    <include>**/*.java</include>
+                </includes>
             </resource>
             -->
         </resources>
 
-		<testResources>
-			<testResource>
-				<directory>${basedir}/test-resources</directory>
-			</testResource>
-		</testResources>
-		
-		
-        <plugins>			
+        <testResources>
+            <testResource>
+                <directory>${basedir}/test-resources</directory>
+            </testResource>
+        </testResources>
         
-        	<!-- set compilation level: -->
-			<plugin>
-				<groupId>org.apache.maven.plugins</groupId>
-				<artifactId>maven-compiler-plugin</artifactId>
-				<configuration>
-					<source>1.6</source>
-					<target>1.6</target>
-					<encoding>UTF-8</encoding>
-				</configuration>
-			</plugin>			
-			<plugin>
-				<groupId>org.apache.maven.plugins</groupId>
-				<artifactId>maven-resources-plugin</artifactId>
-				<configuration>
-					<encoding>UTF-8</encoding>
-				</configuration>
-				
-				<!-- copy config files to a folder: -->
-				<executions>
-					<execution>
-						<id>copy-resources</id>
-						<phase>process-resources</phase>
-						<goals>
-							<goal>copy-resources</goal>
-						</goals>
-						<configuration>
-							<outputDirectory>${basedir}/target/conf</outputDirectory>
-							<resources>
-								<resource>
-									<directory>${basedir}/resources/config</directory>
-									<filtering>true</filtering>
-								</resource>
-							</resources>
-						</configuration>
-					</execution>
-				</executions>
-			</plugin>
-            			
+        
+        <plugins>            
+        
+            <!-- set compilation level: -->
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-compiler-plugin</artifactId>
+                <configuration>
+                    <source>1.6</source>
+                    <target>1.6</target>
+                    <encoding>UTF-8</encoding>
+                </configuration>
+            </plugin>            
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-resources-plugin</artifactId>
+                <configuration>
+                    <encoding>UTF-8</encoding>
+                </configuration>
+                
+                <!-- copy config files to a folder: -->
+                <executions>
+                    <execution>
+                        <id>copy-resources</id>
+                        <phase>process-resources</phase>
+                        <goals>
+                            <goal>copy-resources</goal>
+                        </goals>
+                        <configuration>
+                            <outputDirectory>${basedir}/target</outputDirectory>
+                            <resources>
+                                <resource>
+                                    <directory>${basedir}/resources</directory>
+                                    <filtering>true</filtering>
+                                </resource>
+                            </resources>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+                        
             <!-- create jar file:  -->
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
@@ -155,52 +161,52 @@
                     </archive>
                 </configuration>
             </plugin>
-            			
+                        
             <!-- assemble dependencies into jar file:  -->
-			<plugin>
-				<groupId>org.apache.maven.plugins</groupId>
-				<artifactId>maven-assembly-plugin</artifactId>
-				<executions>
-					<execution>
-						<id>create-my-bundle</id>
-						<phase>package</phase>
-						<goals>
-							<goal>single</goal>
-						</goals>
-						<configuration>
-							<descriptorRefs>
-								<descriptorRef>jar-with-dependencies</descriptorRef>
-							</descriptorRefs>
-		                    <archive>
-		                        <manifestFile>
-		                            ${basedir}/resources/META-INF/MANIFEST.MF
-		                        </manifestFile>
-		                    </archive>
-						</configuration>
-					</execution>
-				</executions>
-			</plugin>
-			
-			<!-- copy jars into target/lib folder  -->
-			<plugin> 
-				<groupId>org.apache.maven.plugins</groupId>
-				<artifactId>maven-dependency-plugin</artifactId>
-				<executions>
-					<execution>
-						<id>copy-dependencies</id>
-						<phase>process-resources</phase>
-						<goals>
-							<goal>copy-dependencies</goal>
-						</goals>
-						<configuration>
-							<outputDirectory>${basedir}/target/lib</outputDirectory>
-							<overWriteReleases>false</overWriteReleases>
-							<overWriteSnapshots>false</overWriteSnapshots>
-							<overWriteIfNewer>true</overWriteIfNewer>
-						</configuration>
-					</execution>
-				</executions>
-			</plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-assembly-plugin</artifactId>
+                <executions>
+                    <execution>
+                        <id>create-my-bundle</id>
+                        <phase>package</phase>
+                        <goals>
+                            <goal>single</goal>
+                        </goals>
+                        <configuration>
+                            <descriptorRefs>
+                                <descriptorRef>jar-with-dependencies</descriptorRef>
+                            </descriptorRefs>
+                            <archive>
+                                <manifestFile>
+                                    ${basedir}/resources/META-INF/MANIFEST.MF
+                                </manifestFile>
+                            </archive>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+            
+            <!-- copy jars into target/lib folder  -->
+            <plugin> 
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-dependency-plugin</artifactId>
+                <executions>
+                    <execution>
+                        <id>copy-dependencies</id>
+                        <phase>process-resources</phase>
+                        <goals>
+                            <goal>copy-dependencies</goal>
+                        </goals>
+                        <configuration>
+                            <outputDirectory>${basedir}/target/lib</outputDirectory>
+                            <overWriteReleases>false</overWriteReleases>
+                            <overWriteSnapshots>false</overWriteSnapshots>
+                            <overWriteIfNewer>true</overWriteIfNewer>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
         </plugins>
     </build>
 </project>

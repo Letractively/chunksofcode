@@ -11,7 +11,7 @@ import ch.qos.logback.core.CoreConstants;
 import ch.qos.logback.core.pattern.PatternLayoutBase;
 
 
-public class                UnixTerminalColorizedPatternLayout extends PatternLayoutBase<ILoggingEvent> {
+public class UnixTerminalColorizedPatternLayout extends PatternLayoutBase<ILoggingEvent> {
     
     public static final class ColorizedMessageConverter extends MessageConverter {
         @Override
