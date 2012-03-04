@@ -64,6 +64,16 @@ cp /etc/zsh/zshrc /root/.zshrc # apply for root
 # }}}
 
 
+# limit sudo usage to usergroup: {{{
+groupadd chucknorris
+# Allow members of group chucknorris to execute any command after they have
+# provided their password
+# XXX: add this line to /etc/sudoers:
+%chucknorris ALL=(ALL) ALL
+usermod -a -G chucknorris testuser
+#
+# }}}
+
 ###############################################################################
 ############### setup the service software: ###################################
 ###############################################################################
