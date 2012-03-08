@@ -37,7 +37,7 @@ public class Game
     @param mines the count of the randomly spreaded mines
      */
     public Game(int rows, int cols, int mines) {
-        Log.logln("(" + rows + ", " + cols + ", " + mines + ")");
+        Log.logln("(" + rows + ", " + cols + ", " + mines + ") Create a new game.");
         bombcount = mines;
         grid = new GameGrid(rows, cols, mines, this);
         Log.logln(System.getProperty("line.separator") + grid);
@@ -74,7 +74,7 @@ public class Game
     invoked by the field to notify the game to stop.
      */
     void gameOver() {
-        Log.logln("()");
+        Log.logln("() GAME OVER.");
         gameOver = true;
         finishTime = System.currentTimeMillis();
     }

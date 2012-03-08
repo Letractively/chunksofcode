@@ -31,7 +31,6 @@ public abstract class GameController
     @param mines the rows
      */
     protected GameController(int rows, int cols, int mines) {
-        Log.logln("(" + rows + ", " + cols + ", " + mines + ")");
         rowsSetByUser = rows;
         colsSetByUser = cols;
         minesSetByUser = mines;
@@ -41,7 +40,7 @@ public abstract class GameController
     @Override
     public void actionPerformed(ActionEvent e) {
         String cmd = e.getActionCommand();
-        Log.logln("(cmd=" + cmd + ")");
+        Log.logln("(ActionEvent: Command=" + cmd + ")");
 
         try {
             if (cmd.equals(CMD_ABOUT_GAME))
@@ -79,8 +78,6 @@ public abstract class GameController
 
     @Override
     public void checkGameState() {
-        Log.logln("()");
-
         String newStatus = null;
 
         if (game.isGameWon()) {
@@ -115,7 +112,6 @@ public abstract class GameController
 
     @Override
     public final void newGame(int rows, int cols, int mines) {
-        Log.logln("(" + rows + ", " + cols + ", " + mines + ")");
         rowsSetByUser = rows;
         colsSetByUser = cols;
         minesSetByUser = mines;

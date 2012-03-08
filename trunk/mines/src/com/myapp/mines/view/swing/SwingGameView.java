@@ -26,7 +26,6 @@ import com.myapp.mines.model.Field;
 import com.myapp.mines.model.Game;
 import com.myapp.util.swing.Util;
 import com.myapp.util.timedate.TimeDateUtil;
-import com.myapp.util.log.Log;
 
 /**
 a concrete view/controller implementation using a jframe
@@ -63,7 +62,6 @@ public class SwingGameView extends GameController {
     creates all field views needed in the new game and sets them up.
      */
     private void initFields() {
-        Log.logln("()");
         if (Arrays.asList(
                 window.getContentPane().getComponents()).contains(fieldsPanel))
             window.getContentPane().remove(fieldsPanel);
@@ -85,13 +83,12 @@ public class SwingGameView extends GameController {
     sets up the components for the first time playing
      */
     private void setupWindow() {
-        Log.logln("()");
-        window = new JFrame("JMines");
+        window = new JFrame("Andres Java Mines");
         window.setContentPane(new JPanel(new BorderLayout()));
 
         initFields();
 
-        statusBar = new JTextField("(c) andre");
+        statusBar = new JTextField("(c) Andre Ragg");
         statusBar.setEditable(false);
 
         window.getContentPane().add(fieldsPanel, BorderLayout.CENTER);
@@ -138,17 +135,16 @@ public class SwingGameView extends GameController {
 
     @Override
     public void showGameInfo() {
-        Log.logln("()");
         JOptionPane.showMessageDialog(
                 window,
-                "author: andre 2009",
-                "java_mines",
+                "Author: Andres Ragg 2009",
+                "Java Mines mit DWR und WingS",
                 JOptionPane.INFORMATION_MESSAGE);
     }
 
     @Override
     public void customGame() {
-        Log.logln("()");
+//        Log.logln("()");
         final JSpinner rows;
         final JSpinner cols;
         final JSpinner mines;
@@ -188,27 +184,21 @@ public class SwingGameView extends GameController {
 
     @Override
     public void cheat() {
-        Log.logln("()");
         for (Field f : game) {
             SwingFieldView fg = (SwingFieldView) game.getAssociatedView(f);
 
             if (f.isBomb())
                 ((JComponent) fg.getGuiObject()).setToolTipText("!! BOMB !!");
         }
-
-        String gameString = game.toString();
-        Log.logln("\n" + gameString);
     }
 
     @Override
     public void setStatusText(String text) {
-        Log.logln("(" + text + ")");
         statusBar.setText(text);
     }
 
     @Override
     public void gameWon() {
-        Log.logln("()");
         JOptionPane.showMessageDialog(
                 window,
                 "You won! Your time needed was " + TimeDateUtil.formatTime(game.getTime()),
@@ -218,7 +208,6 @@ public class SwingGameView extends GameController {
 
     @Override
     public void gameLost() {
-        Log.logln("()");
         JOptionPane.showMessageDialog(
                 window,
                 "You lost!!!!  Your time needed was " + TimeDateUtil.formatTime(game.getTime()),
@@ -228,7 +217,6 @@ public class SwingGameView extends GameController {
 
     @Override
     public void newGameStarted() {
-        Log.logln("()");
         Point currentLocation2 = window.getLocation();
         initFields();
         window.pack();
@@ -237,7 +225,6 @@ public class SwingGameView extends GameController {
 
     @Override
     protected void exitGame() {
-        Log.logln("()");
         System.exit(0);
     }
 
@@ -245,7 +232,6 @@ public class SwingGameView extends GameController {
     
     @Override
     protected void showError(String title, String message, String stackTrace) {
-        Log.logln("("+title + "," + message +")");
         JOptionPane.showMessageDialog(window,
                                       "Technical Information: " + NL + stackTrace,
                                       title,
