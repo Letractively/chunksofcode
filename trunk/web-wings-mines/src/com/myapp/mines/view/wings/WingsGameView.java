@@ -12,7 +12,6 @@ import org.wings.SMenuBar;
 import org.wings.SMenuItem;
 import org.wings.SOptionPane;
 import org.wings.SPanel;
-import org.wings.SSeparator;
 import org.wings.STextField;
 
 import com.myapp.mines.controller.GameController;
@@ -28,6 +27,9 @@ to interact with the user
  */
 public class WingsGameView extends GameController {
 
+    
+    private static final String NL = System.getProperty("line.separator");
+    
     private SFrame frame;
     private STextField statusBar;
 
@@ -43,9 +45,9 @@ public class WingsGameView extends GameController {
     }
 
     private void setupWindow() {
-        frame = new SFrame("JMines using wingS");
+        frame = new SFrame("Mines Game using DWR and the WingS framework");
 
-        statusBar = new STextField("(c) andre");
+        statusBar = new STextField("(c) Andre Ragg 2009");
         statusBar.setEditable(false);
         statusBar.setPreferredSize(new SDimension("100%", "35"));
 
@@ -58,7 +60,6 @@ public class WingsGameView extends GameController {
     }
 
     private void initComponents() {
-        Log.logln("()");
         SPanel fieldsPanel = new SPanel(
                 new SGridLayout(
                 rowsSetByUser, colsSetByUser, 1, 1));
@@ -76,19 +77,18 @@ public class WingsGameView extends GameController {
 
     @Override
     public void newGameStarted() {
-        Log.logln("()");
+        Log.logln("() NEW GAME STARTED!");
         initComponents();
     }
 
     @Override
     public void setStatusText(String text) {
-        Log.logln("(" + text + ")");
         statusBar.setText(text);
     }
 
     @Override
     public void gameWon() {
-        Log.logln("()");
+        Log.logln("() GAME WON!");
         SOptionPane.showMessageDialog(
                 frame,
                 "You won! Your time needed was " +
@@ -99,7 +99,6 @@ public class WingsGameView extends GameController {
 
     @Override
     public void cheat() {
-        Log.logln("()");
         for (Field f : game) {
             if (f.isBomb()) {
                 WingsFieldView fieldView;
@@ -111,13 +110,11 @@ public class WingsGameView extends GameController {
 
     @Override
     public void customGame() {
-        Log.logln("()");
         throw new UnsupportedOperationException("This Action is not yet implemented!");
     }
 
     @Override
     public void gameLost() {
-        Log.logln("()");
         SOptionPane.showMessageDialog(
                 frame,
                 "You lost!!!!  Your time needed was " +
@@ -128,11 +125,10 @@ public class WingsGameView extends GameController {
 
     @Override
     public void showGameInfo() {
-        Log.logln("()");
         SOptionPane.showMessageDialog(
                 frame,
-                "author: andre 2009",
-                "java_mines",
+                "(c) Andre Ragg 2008",
+                "Mines Game using DWR and the WingS framework",
                 SOptionPane.INFORMATION_MESSAGE);
     }
 
@@ -158,10 +154,8 @@ public class WingsGameView extends GameController {
         SMenu gameMenu = new SMenu("Spiel");
         gameMenu.add(newGame);
         gameMenu.add(customGame);
-        gameMenu.add(new SSeparator());
         gameMenu.add(aboutGame);
         gameMenu.add(cheatGame);
-        gameMenu.add(new SSeparator());
         gameMenu.add(exitGame);
 
         SMenuBar bar = new SMenuBar();
@@ -173,14 +167,11 @@ public class WingsGameView extends GameController {
     protected void exitGame() {
         frame.setVisible(false);
     }
-    
-    private static final String NL = System.getProperty("line.separator");
 
     @Override
     protected void showError(String title, String message, String stackTrace) {
-        Log.logln("("+title + "," + message +")");
         SOptionPane.showMessageDialog(frame,
-                                      "Technical Information: " + NL + stackTrace,
+                                      "The stacktrace: " + NL + stackTrace,
                                       title,
                                       SOptionPane.ERROR_MESSAGE);
     }
