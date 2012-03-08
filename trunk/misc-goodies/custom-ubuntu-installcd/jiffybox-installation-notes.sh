@@ -2,13 +2,13 @@
 ###############################################################################
 ############### installation notes for jiffybox server: #######################
 ###############################################################################
-#
+
 # more info:
 # https://help.ubuntu.com/community/ApacheMySQLPHP
-#
+
 # starting from a fresh ubuntu installation (profile: openssh-server)
 # you may start with the "custom installation cd" (see: create-automatic-ubuntu-cd.txt)
-#
+
 # credentials used for test installations # {{{
 # if you want to setup a machine for testing purposes only (!), you may want to use
 # those for convenience: (they are also listed in the corresponding sections below)
@@ -27,11 +27,11 @@
 ###############################################################################
 ############### finalize ubuntu installation: #################################
 ###############################################################################
-#
-#
+
+
 # handy apps, nice to have:
 apt-get install vim zsh tree zip unzip gzip lzma unrar rsync
-#
+
 # Enable secure automatic ssh login {{{:
 # On CLIENT MACHINE, create private/public key pair. (If not already present)
 ssh-keygen -t rsa -f ~/.ssh/andre # creates files: ~/.ssh/andre ~/.ssh/andre.pub
@@ -63,7 +63,6 @@ cp /etc/zsh/zshrc /root/.zshrc # apply for root
 #
 # }}}
 
-
 # limit sudo usage to usergroup: {{{
 groupadd chucknorris
 # Allow members of group chucknorris to execute any command after they have
@@ -77,8 +76,7 @@ usermod -a -G chucknorris testuser
 ###############################################################################
 ############### setup the service software: ###################################
 ###############################################################################
-#
-#
+
 # 1.) INSTALL THE LAMPP STACK {{{
 ###############################################################################
 #
@@ -167,7 +165,7 @@ rm /var/www/test.php
 #
 # }}}
 
-# 4.) INSTALLATION OF MYSQL: {{{
+# 4.) INSTALLATION OF MYSQL {{{
 ###############################################################################
 #
 # config file: /etc/mysql/my.cnf
@@ -205,7 +203,7 @@ service mysql start; service apache2 start
 #
 # }}}
 
-# 5.) INSTALLATION OF PHPMYADMIN: {{{
+# 5.) INSTALLATION OF PHPMYADMIN {{{
 ###############################################################################
 #
 # config dir: /etc/phpmyadmin/ (config-db.cfg does not need to be edited)
@@ -290,12 +288,12 @@ ln -s apache-tomcat-7.0.26 tomcat
 # XXX we may want to use multiple tomcat instances, but every instance
 # should use the same installation. 
 #
-# setup a tomcat instance for a user:
+# SETUP A TOMCAT INSTANCE FOR A USER:
 #
 # /opt/tomcat
 # /home/andre/bin/tomcat_base
-# tomcat uses following variables:
 #
+# tomcat uses following variables:
 # CATALINA_HOME    the expanded (unzipped) tomcat installation
 # CATALINA_BASE    the location for a given instance.
 #
