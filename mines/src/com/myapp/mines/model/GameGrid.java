@@ -1,9 +1,9 @@
 package com.myapp.mines.model;
 
-import com.myapp.mines.controller.IFieldViewCtrl;
-import com.myapp.util.log.Log;
 import java.util.Iterator;
 import java.util.Random;
+
+import com.myapp.mines.controller.IFieldViewCtrl;
 
 /**
 Class to encapsulate the positioning and
@@ -30,7 +30,6 @@ class GameGrid implements Iterable<Field> {
     @param game the game. fields will notify the game that it is over.
      */
     GameGrid(int rows, int cols, int bombs, Game game) {
-        Log.logln("(" + rows + ", " + cols + ", " + bombs + ", game)");
         checkParameters(rows, cols, bombs);
 
         this.rows = rows;
@@ -62,7 +61,6 @@ class GameGrid implements Iterable<Field> {
     creates all fields and initializes them.
      */
     private void initNewGrid() {
-        Log.logln("()");
 
         fieldArray2D = new Field[rows][cols];
         for (int r = 0; r < this.rows; r++)
@@ -93,7 +91,7 @@ class GameGrid implements Iterable<Field> {
     @throws com.myapp.util.swing.datechooser.images IllegalArgumentException if not legal
      */
     private static void checkParameters(int rows, int cols, int bombs) {
-        Log.logln("(" + rows + ", " + cols + ", " + bombs + ")");
+//        Log.logln("(" + rows + ", " + cols + ", " + bombs + ")");
         if (rows < 5 || cols < 5)
             throw new IllegalArgumentException(
                     "rows[" + rows + "] < 5 || cols[" + cols + "] < 5");
@@ -122,7 +120,6 @@ class GameGrid implements Iterable<Field> {
     }
 
     public Iterator<Field> iterator() {
-        Log.logln("()");
         return new Iterator<Field>() {
 
             private int _row = 0;
