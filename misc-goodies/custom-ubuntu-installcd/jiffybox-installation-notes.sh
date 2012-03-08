@@ -204,7 +204,7 @@ service mysql start; service apache2 start
 #
 #
 # }}}
-#
+
 # 5.) INSTALLATION OF PHPMYADMIN: {{{
 ###############################################################################
 #
@@ -258,8 +258,7 @@ chmod og-rwx -R /var/www/
 # browse to http://localhost/joomla and follow the instructions.
 #
 # }}}
-#
-#
+
 # 8.) INSTALL ORACLE JAVA {{{
 ###############################################################################
 #
@@ -278,9 +277,8 @@ java -version # tests installation
 # (system restart may be required due to env change)
 #
 # }}}
-#
-#
-# 8.) INSTALL APACHE TOMCAT {{{
+
+# 9.) INSTALL APACHE TOMCAT {{{
 ###############################################################################
 #
 cd /opt/ # where we want to install tomcat to
@@ -328,7 +326,5 @@ cp /data/shared/helloworld.war /home/andre/bin/tomcat/webapps/test.war
 # browse to: http://ragg.ws:8080/test
 
 # }}}
-
-
 
 # vim:filetype=sh:foldmethod=marker 
