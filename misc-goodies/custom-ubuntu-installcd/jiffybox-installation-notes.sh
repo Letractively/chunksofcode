@@ -30,7 +30,7 @@
 #
 #
 # handy apps, nice to have:
-apt-get install vim zsh tree
+apt-get install vim zsh tree zip unzip gzip lzma unrar rsync
 #
 # Enable secure automatic ssh login {{{:
 # On CLIENT MACHINE, create private/public key pair. (If not already present)
@@ -99,6 +99,53 @@ apt-get install apache2
 #
 # test apache installation:
 wget http://localhost -O - 2>/dev/null
+
+
+######### how to bind a subdomain to a specific directory: #########
+vim /etc/apache2/sites-available/default
+
+# Hostname            Typ    Priorität        Ziel    
+# 
+# ragg.ws             A                       141.0.20.92    
+# andre.ragg.ws       A                       141.0.20.92  
+
+<VirtualHost *:80>
+# default page:
+        ServerName ragg.ws
+        ServerAlias www.ragg.ws
+        ServerAdmin webmaster@localhost
+        DocumentRoot /data/www-data/toplevel
+        <Directory />
+                Options FollowSymLinks
+                AllowOverride None
+        </Directory>
+        <Directory /data/www-data/toplevel>
+                Options Indexes FollowSymLinks MultiViews
+                AllowOverride None
+                Order allow,deny
+                allow from all
+        </Directory>
+
+        ScriptAlias /cgi-bin/ /usr/lib/cgi-bin/
+        <Directory "/usr/lib/cgi-bin">
+                AllowOverride None
+                Options +ExecCGI -MultiViews +SymLinksIfOwnerMatch
+                Order allow,deny
+                Allow from all
+        </Directory>
+
+        ErrorLog /var/log/apache2/error.log
+
+        # Possible values: debug,info,notice,warn,error,crit,alert,emerg
+        LogLevel warn
+        CustomLog /var/log/apache2/access.log combined
+</VirtualHost>
+
+<VirtualHost *:80>
+# andres section
+  ServerName andre.ragg.ws
+  DocumentRoot /data/www-data/subdomain-andre
+</VirtualHost>
 #
 # }}}
 
@@ -146,8 +193,18 @@ mysql -u root -p
 # mysql> CREATE DATABASE database1;
 # mysql> GRANT SELECT, INSERT, UPDATE, DELETE, CREATE, DROP, INDEX, ALTER, CREATE TEMPORARY TABLES, LOCK TABLES ON database1.* TO 'user1'@'localhost' IDENTIFIED BY 'password1';
 #
+#
+# XXX if you want to move your db data to another place:
+service apache2 stop; service mysql stop
+vim /etc/mysql/my.cnf
+# change the datadir variable to your preferred location,
+# and move the data to the target.
+service mysql start; service apache2 start
+#
+#
+#
 # }}}
-
+#
 # 5.) INSTALLATION OF PHPMYADMIN: {{{
 ###############################################################################
 #
@@ -201,12 +258,75 @@ chmod og-rwx -R /var/www/
 # browse to http://localhost/joomla and follow the instructions.
 #
 # }}}
-
-# 8.) INSTALL TOMCAT AND JAVA {{{
+#
+#
+# 8.) INSTALL ORACLE JAVA {{{
 ###############################################################################
 #
-# TODO continue here
+cd /usr/local/ # where we want to install it
+wget http://download.oracle.com/otn-pub/java/jdk/6u31-b04/jre-6u31-linux-x64.bin
+/bin/sh jre-6u31-linux-x64.bin # creates dir jre1.6.0_31 and extracts archive
+ln -s jre1.6.0_31/ java # create link /usr/local/java -> jre1.6.0_31/
 #
+# tell ubuntu that java was installed:
+update-alternatives --install "/usr/bin/java" "java" "/usr/local/java/bin/java" 1
+update-alternatives --set java "/usr/local/java/bin/java"
+java -version # tests installation
+
+# add/edit JAVA_HOME in file /etc/environment: 'JAVA_HOME=/usr/local/java'
+. /etc/profile # reload environment (note: affects only this terminal session)
+# (system restart may be required due to env change)
+#
+# }}}
+#
+#
+# 8.) INSTALL APACHE TOMCAT {{{
+###############################################################################
+#
+cd /opt/ # where we want to install tomcat to
+wget http://mirror.sti2.at/apache/tomcat/tomcat-7/v7.0.26/bin/apache-tomcat-7.0.26.zip
+unzip apache-tomcat-7.0.26.zip
+ln -s apache-tomcat-7.0.26 tomcat
+# add/edit CATALINA_BASE in file /etc/environment: 'JAVA_HOME=/usr/local/java'
+#
+# XXX we may want to use multiple tomcat instances, but every instance
+# should use the same installation. 
+#
+# setup a tomcat instance for a user:
+#
+# /opt/tomcat
+# /home/andre/bin/tomcat_base
+# tomcat uses following variables:
+#
+# CATALINA_HOME    the expanded (unzipped) tomcat installation
+# CATALINA_BASE    the location for a given instance.
+#
+# setup the instance directory XXX AS USER andre !
+mkdir -p /home/andre/bin/tomcat/tomcat_base
+cd /home/andre/bin/tomcat/tomcat_base
+mkdir {bin,conf,logs,temp,webapps,work}
+echo '# do whatever you want change in catalina.sh in this file.' >> bin/setenv.sh
+cp /opt/tomcat/conf/{server,web}.xml conf/
+#
+# create a startup skript for tomcat instance:
+vim /etc/init.d/tomcat-andre.sh
+#
+# insert these lines: (see /opt/tomcat/bin/catalina.sh for brief documentation)
+# 1   #!/bin/sh
+# 2   CATALINA_HOME=/opt/tomcat
+# 3   CATALINA_BASE=/home/andre/bin/tomcat_base
+# 4   /bin/sh $CATALINA_HOME/bin/catalina.sh $@
+#
+# allow andre to start/stop :D
+chgrp andre /etc/init.d/tomcat-andre.sh
+chmod 754 /etc/init.d/tomcat-andre.sh 
+#
+# test installation: (XXX as andre)
+cp /data/shared/helloworld.war /home/andre/bin/tomcat/webapps/test.war
+# start tomcat:
+/etc/init.d/tomcat-andre.sh
+# browse to: http://ragg.ws:8080/test
+
 # }}}
 
 
