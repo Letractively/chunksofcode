@@ -200,6 +200,9 @@ vim /etc/mysql/my.cnf
 service mysql start; service apache2 start
 #
 #
+# enable accessing data from hosts outside:
+/sbin/iptables -A INPUT -i eth0 -p tcp --destination-port 3306 -j ACCEPT
+# XXX goto phpmyadmin -> privileges and change the host of the user to "any host"
 #
 # }}}
 
@@ -325,4 +328,76 @@ cp /data/shared/helloworld.war /home/andre/bin/tomcat/webapps/test.war
 
 # }}}
 
+# 10.) INSTALL JBOSS APPLICATION SERVER11 {{{
+###############################################################################
+# https://docs.jboss.org/author/display/AS71/Getting+Started+Guide
+useradd -d /home/jboss -m jboss
+usermod -a -G jboss andre
+chsh jboss
+
+
+# XXX as jboss user:
+cd /home/jboss
+wget http://download.jboss.org/jbossas/7.1/jboss-as-7.1.1.Final/jboss-as-7.1.1.Final.tar.gz
+tar -xvf jboss-as-7.1.1.Final.tar.gz 
+ln -s jboss-as-7.1.1.Final jboss
+chown jboss:jboss -R .
+chmod o-rwx -R .
+chmod g-w -R .
+# set: JBOSS_HOME=/home/jboss/jboss in /etc/environment
+# (system restart may be required due to env change)
+
+# test installation
+cd /home/jboss/jboss/bin/
+sh standalone.sh &
+wget localhost:9990 -O -
+
+# convenience:
+vim ~/.zshrc  
+# PATH="$PATH:/home/jboss/jboss/bin"
+# alias killjboss='ps auxwww | grep -E "(org\.jboss|8080)" | awk '"'"'{print $2}'"'"' | xargs kill -9'
+# alias startjboss='~/jboss/bin/standalone.sh > ~/jboss-standalone.out 2> ~/jboss-standaone.err & ; tail -F jboss-standalone.{out,err}'
+
+# configuration listen to all hosts (not only localhost)
+cd /home/jboss/jboss/bin/
+# add management user
+./add-user.sh
+
+vim jboss/standalone/configuration/standalone.xml
+# insert any address to get internet connection
+# <interfaces>
+#   <interface name="management">
+#     <any-address/>
+#     </interface>
+#   <interface name="public">
+#    <any-address/>
+#   </interface>
+# </interfaces>
+
+# }}}
+
+
+# 11.) INSTALL POSTGRESQL {{{
+###############################################################################
+
+apt-get install postgresql 
+apt-get install phppgadmin
+# 
+# XXX installation of phppgadmin automatically links /etc/phppgadmin/apache.conf into 
+# apache2/conf.d/, so therefore no include statement is needed
+# allow access from all hosts (not only localhost)
+vim /etc/phppgadmin/apache.conf
+# set 'allow from all' to be able to connect remotely
+
+# create a user and a database:
+createuser andre -P
+createdb andretest1 -O andre
+andre@j23049 ~ % psql andretest1 # test if it works. :D
+
+# }}}
+
 # vim:filetype=sh:foldmethod=marker 
+
+
+
+
