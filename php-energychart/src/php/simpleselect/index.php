@@ -4,9 +4,9 @@
 echo "<font color='green'>hello world, greetings from andre!</font><br/>";
 
 $db_host="localhost";
-$db_username="root";
+$db_username="andre";
 $db_password="";
-$db_schema="test";
+$db_schema="andre";
 
 
 // check if queryJahr is set in request parameters
@@ -29,7 +29,7 @@ if (isset($_REQUEST["queryJahr"])) {
 	    mysql_connect($db_host, $db_username, $db_password);
 	    mysql_select_db($db_schema);
         $result=mysql_query("SELECT distinct YEAR(datum) ".
-                            "FROM fmcontrol_kw_leistung ".
+                            "FROM leistung_kw ".
                             "ORDER BY 1 desc;");
 
         // show error message when query result was empty:
@@ -78,7 +78,7 @@ $sql =
         "MIN(kw_ist) as min_kw, ".
         "AVG(kw_ist) as avg_kw \n".
     "FROM ".
-        "fmcontrol_kw_leistung \n".
+        "leistung_kw \n".
     "WHERE ".
         "YEAR(datum) = ? \n". // 1
     "GROUP BY ".
