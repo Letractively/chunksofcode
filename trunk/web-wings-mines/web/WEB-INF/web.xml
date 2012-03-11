@@ -9,10 +9,8 @@
         <servlet-class>org.wings.session.WingServlet</servlet-class>
         <init-param>
             <param-name>wings.mainclass</param-name>
-            <param-value>
-                <!-- point here to your appliction entry class -->
-                com.myapp.mines.view.wings.WingsEntryPoint
-            </param-value> 
+            <!-- point here to your appliction entry class -->
+            <param-value>com.myapp.mines.view.wings.WingsEntryPoint</param-value>
         </init-param>
         <init-param>
             <param-name>wings.client.debug</param-name>
@@ -20,7 +18,7 @@
         </init-param>
     </servlet>
 
-    <!-- the DWR stuff is for the AJAX based features of wingS  -->
+    <!-- the DWR stuff is for the AJAX based features of wingS -->
     <servlet>
         <servlet-name>dwr-invoker</servlet-name>
         <display-name>DWR Servlet</display-name>
@@ -39,9 +37,17 @@
         <url-pattern>/start/*</url-pattern>
     </servlet-mapping>
 
-    <!-- DWR / AJAX service mapping                            -->
+    <!-- DWR / AJAX service mapping -->
     <servlet-mapping>
         <servlet-name>dwr-invoker</servlet-name>
         <url-pattern>/dwr/*</url-pattern>
     </servlet-mapping>
+
+    <resource-ref>
+        <description>postgreSQL Datasource example</description>
+        <res-ref-name>jdbc/postgres-andre1</res-ref-name>
+        <res-type>javax.sql.DataSource</res-type>
+        <res-auth>Container</res-auth>
+    </resource-ref>
+    
 </web-app>

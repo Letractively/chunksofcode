@@ -84,10 +84,11 @@ public class WingsFieldView extends FieldController
 
 
         if (model.isEntered()) {
-            if (model.getNeighbourBombs() == 0)
+            if (model.getNeighbourBombs() == 0) {
                 contextButton.setText(" ");
-            else
+            } else {
                 contextButton.setText("solve");
+            }
         }
         else {
             if (model.isMarked())
