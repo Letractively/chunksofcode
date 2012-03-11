@@ -376,28 +376,48 @@ vim jboss/standalone/configuration/standalone.xml
 
 # }}}
 
-
 # 11.) INSTALL POSTGRESQL {{{
 ###############################################################################
 
+# config dir: /etc/postgresql/8.4/main/
+
 apt-get install postgresql 
-apt-get install phppgadmin
-# 
-# XXX installation of phppgadmin automatically links /etc/phppgadmin/apache.conf into 
-# apache2/conf.d/, so therefore no include statement is needed
-# allow access from all hosts (not only localhost)
-vim /etc/phppgadmin/apache.conf
-# set 'allow from all' to be able to connect remotely
 
 # create a user and a database:
+su - postgres
 createuser andre -P
 createdb andretest1 -O andre
 andre@j23049 ~ % psql andretest1 # test if it works. :D
 
+
+# enable remote connections:
+su - postgres
+vim /etc/postgresql/8.4/main/postgresql.conf
+# set property: "listen_addresses = '*'" to make the server 
+# listen to hosts outside (generally).
+vim /etc/postgresql/8.4/main/postgresql.conf
+# now, add this line to grant remote connections to db 'andre1' for user andre
+# host andre1 andre 0.0.0.0/0 md5
+/etc/init.d/postgresql-8.4 restart
+
+
 # }}}
 
-# vim:filetype=sh:foldmethod=marker 
+# 11.1) OPTIONAL: PHPPGADMIN INSTALLATION # {{{
+
+apt-get install phppgadmin
+# 
+# XXX installation of phppgadmin automatically links /etc/phppgadmin/apache.conf into 
+# apache2/conf.d/, so therefore no include statement is needed
+# allow access from hosts outside (as in phpmyadmin installation)
+vim /etc/phppgadmin/apache.conf
+# set 'allow from all' to be able to connect remotely
+
+
+# }}}
 
 
 
+
+# vim:filetype=sh:foldmethod=marker
 
