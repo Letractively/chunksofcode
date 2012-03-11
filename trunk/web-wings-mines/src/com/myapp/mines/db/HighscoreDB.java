@@ -145,6 +145,29 @@ public class HighscoreDB {
     
     
     private Connection getConnection() throws NamingException, SQLException {
+        /* to configure this connection, you need to do following:
+
+        add this to web.xml of this project:
+        <resource-ref>
+            <description>postgreSQL Datasource example</description>
+            <res-ref-name>jdbc/postgres-andre1</res-ref-name>
+            <res-type>javax.sql.DataSource</res-type>
+            <res-auth>Container</res-auth>
+        </resource-ref>
+    
+        add this to tomcat_base/conf/context.xml (within <Context> tag)
+        <Resource name="jdbc/postgres-andre1"
+                 auth="Container"
+                 type="javax.sql.DataSource"
+                 maxActive="100" 
+                 maxIdle="30"
+                 maxWait="10000"
+                 username="andre"
+                 password="*********"
+                 driverClassName="org.postgresql.Driver"
+                 url="jdbc:postgresql://localhost:5432/andre1" />
+         */
+        
         InitialContext context = new InitialContext();
         DataSource ds = (DataSource) context.lookup("java:/comp/env/jdbc/postgres-andre1" );
         Connection connection = ds.getConnection();
