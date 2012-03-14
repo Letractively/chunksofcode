@@ -256,8 +256,21 @@ unzip Joomla*.zip -d /var/www/joomla
 chown www-data:www-data -R /var/www/
 chmod og-rwx -R /var/www/
 #
-# browse to http://localhost/joomla and follow the instructions.
+# browse to http://localhost/joomla and follow the installation instructions.
+
+
+# how to remove the "index.php" from the joomla url:
 #
+mv JOOMLA_BASE/htaccess.txt JOOMLA_BASE/.htaccess
+#
+# XXX browse to joomla/administrator, goto global configuration, 
+# make sure the options "Search engine friendly URLs" and 
+# "Use URL rewriting" are set to "Yes"
+#
+a2enmod rewrite # enables the "rewrite" module in apache
+service apache2 restart
+
+
 # }}}
 
 # 8.) INSTALL ORACLE JAVA {{{
@@ -328,7 +341,7 @@ cp /data/shared/helloworld.war /home/andre/bin/tomcat/webapps/test.war
 
 # }}}
 
-# 10.) INSTALL JBOSS APPLICATION SERVER11 {{{
+# 10.) INSTALL JBOSS APPLICATION SERVER {{{
 ###############################################################################
 # https://docs.jboss.org/author/display/AS71/Getting+Started+Guide
 useradd -d /home/jboss -m jboss
