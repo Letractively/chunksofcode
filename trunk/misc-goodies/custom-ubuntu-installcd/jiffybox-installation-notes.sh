@@ -335,9 +335,57 @@ chmod 754 /etc/init.d/tomcat-andre.sh
 #
 # test installation: (XXX as andre)
 cp /data/shared/helloworld.war /home/andre/bin/tomcat/webapps/test.war
-# start tomcat:
-/etc/init.d/tomcat-andre.sh
+/etc/init.d/tomcat-andre.sh start
 # browse to: http://ragg.ws:8080/test
+#
+# }}}
+
+#
+# 9.1.) CONNECT TOMCAT WITH APACHE SERVER {{{
+###############################################################################
+#
+# talk with tomcat through apache on port 80 (using an AJP/1.3 connection)
+# http://tomcat.apache.org/tomcat-3.3-doc/mod_jk-howto.html (still up 2 date!)
+#
+# for example, 
+# you want the app myhost.com:8080/testapp to be available at myhost.com/testapp
+#
+# STEP 1
+# install apache module "mod_jk"
+apt-get install libapache2-mod-jk
+#
+# STEP 2 
+# configure your tomcat as a mod_jk worker
+vim /etc/apache2/workers.properties
+# EXAMPLE: insert following lines:
+# 1   # define one single worker in this example:
+# 2   worker.list=andretomcat
+# 3   # configure worker:
+# 4   worker.andretomcat.type=ajp13
+# 5   worker.andretomcat.host=localhost
+# 6   worker.andretomcat.port=8009
+#
+# STEP 3
+# configure mod_jk in apache conf:
+vim /etc/apache2/apache2.conf
+# insert following lines:
+# 2  JkWorkersFile /etc/apache2/workers.properties
+# 5  JkLogFile /var/log/apache2/mod_jk.log
+# 4  JkShmFile /var/log/apache2/mod_jk.shm
+# 6  JkLogLevel info
+# 7  JkLogStampFormat "[%a %b %d %H:%M:%S %Y] "
+#
+# map requests by url pattern to tomcat instance:
+vim /etc/apache2/sites-enabled/000-default
+# in the desired <VirtualHost *:80> (or globally),
+# place the line "JKMount /tomcat-app-contextroot/* andretomcat" 
+# (BELOW the line "DocumentRoot /path/to/documentroot")
+#
+# STEP 4
+# configure tomcat: (disable http, enable ajp)
+vim tomcat/conf/server.xml
+# uncomment <Connector port="8009" protocol="AJP/1.3" redirectPort="8443" />
+# comment <Connector port="8081" protocol="HTTP/1.1" redirectPort="8443" />
 
 # }}}
 
@@ -420,8 +468,10 @@ vim /etc/postgresql/8.4/main/postgresql.conf
 
 apt-get install phppgadmin
 # 
-# XXX installation of phppgadmin automatically links /etc/phppgadmin/apache.conf into 
-# apache2/conf.d/, so therefore no include statement is needed
+# XXX installation of phppgadmin automatically links /etc/phppgadmin/apache.conf 
+# into /etc/apache2/conf.d/, so therefore no include statement is needed in 
+# in /etc/apache2/apache.conf as seen in section 'PHPMYADMIN'
+#
 # allow access from hosts outside (as in phpmyadmin installation)
 vim /etc/phppgadmin/apache.conf
 # set 'allow from all' to be able to connect remotely
