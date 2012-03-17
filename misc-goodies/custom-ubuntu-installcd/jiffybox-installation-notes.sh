@@ -340,7 +340,6 @@ cp /data/shared/helloworld.war /home/andre/bin/tomcat/webapps/test.war
 #
 # }}}
 
-#
 # 9.1.) CONNECT TOMCAT WITH APACHE SERVER {{{
 ###############################################################################
 #
