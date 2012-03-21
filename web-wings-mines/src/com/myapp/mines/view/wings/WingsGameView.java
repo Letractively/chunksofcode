@@ -197,7 +197,7 @@ public class WingsGameView extends GameController {
         font.setSize(20);
         gameMenu.setFont(font);
         gameMenu.add(newGame);
-        gameMenu.add(customGame);
+//        gameMenu.add(customGame); // not implemented :-P
         gameMenu.add(aboutGame);
         gameMenu.add(cheatGame);
         
