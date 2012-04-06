@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html xmlns:wicket="http://wicket.apache.org">
+<head>
+<wicket:head>
+
+    <script type="text/javascript" charset="utf-8" src="js/base.js"></script>
+    <script type="text/javascript" charset="utf-8" src="js/async.js"></script>
+    <script type="text/javascript" charset="utf-8" src="js/upload.js"></script>
+    <script type="text/javascript" charset="utf-8" src="js/json.js"></script>
+    
+</wicket:head>
+</head>
+<body>
+<wicket:extend>
+    
+    <div id="formcontainer">
+        <wicket:message key="form.message.pleasewait">PLEASE WAIT</wicket:message>
+    </div>
+    <div id="files">
+        <p>
+            <strong>
+                <wicket:message key="file.list.header">CHOSEN FILES</wicket:message>
+            </strong>
+        </p>
+        <div id="file_list"></div>
+    </div>
+
+        
+    <br/>
+    
+    <script type="text/javascript">
+        // <![CDATA[ 
+		var theUploadUrl = getContextPath() + "/upload.do";
+        // alert("theUploadUrl : " + theUploadUrl);
+		ct.attachEvent(window, 'load', function() {
+			ct.clearSubtree($('formcontainer'));
+			ct.Uploader.init({
+				formContainer : $('formcontainer'),
+				listTarget : $('file_list'),
+				maxParallelUploads : 2,
+				uploadUrl : theUploadUrl
+			});
+		});
+        
+    // ]]>
+	</script>
+
+</wicket:extend>
+</body>
+</html>

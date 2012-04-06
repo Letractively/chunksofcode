@@ -1,0 +1,142 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+
+<web-app 
+    xmlns="http://java.sun.com/xml/ns/javaee"
+    version="2.5" 
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://java.sun.com/xml/ns/javaee 
+              http://java.sun.com/xml/ns/javaee/web-app_2_5.xsd"
+>
+
+	<display-name>file-exchange</display-name>
+    
+    <servlet>
+        <servlet-name>UploadMediatorServlet</servlet-name>
+        <servlet-class>ws.ragg.webapp.fileexchange.servlet.UploadServlet</servlet-class>
+        
+        <init-param>
+            <param-name>upload.target.path</param-name>
+            <param-value>/tmp/uploads</param-value>
+        </init-param>
+        <init-param>
+            <param-name>upload.file.maxsize</param-name>
+            <param-value>10485760</param-value><!-- 10 M -->
+        </init-param>
+        <init-param>
+            <param-name>upload.factory.maxmemsize</param-name>
+            <param-value>1048576</param-value><!-- 1 M -->
+        </init-param>
+    </servlet>
+    <servlet-mapping>
+        <servlet-name>UploadMediatorServlet</servlet-name>
+        <url-pattern>/upload.do</url-pattern>
+    </servlet-mapping>
+
+
+	<!--
+		There are three means to configure Wickets configuration mode and they 
+		are tested in the order given.
+		
+		1) A system property: -Dwicket.configuration 
+		2) servlet specific <init-param> 
+		3) context specific <context-param>
+
+		The value might be either "development" (reloading when templates change) or 
+		"deployment". If no configuration is found, "development" is the default. 
+    -->
+
+	<filter>
+		<filter-name>wicket.file-exchange</filter-name>
+		<filter-class>org.apache.wicket.protocol.http.WicketFilter</filter-class>
+		<init-param>
+			<param-name>applicationClassName</param-name>
+			<param-value>ws.ragg.webapp.fileexchange.WicketApplication</param-value>
+		</init-param>
+        <init-param>
+            <param-name>ignorePaths</param-name>
+            <param-value>/upload.do</param-value>
+        </init-param>
+	</filter>
+    <filter-mapping>
+        <filter-name>wicket.file-exchange</filter-name>
+        <url-pattern>/*</url-pattern>
+    </filter-mapping>
+
+
+
+
+
+
+
+
+
+
+
+
+<!--
+Servlet class for all wicket applications. The specific application class to 
+instantiate should be specified to the application server via an init-params 
+argument named "applicationClassName" in the servlet declaration, which is 
+typically in a web.xml file. The servlet declaration may vary from one 
+application server to another, but should look something like this:
+-->
+
+<!--     <servlet> -->
+<!--         <servlet-name>WicketApplication</servlet-name> -->
+<!--         <servlet-class>org.apache.wicket.protocol.http.WicketServlet</servlet-class> -->
+<!--         <init-param> -->
+<!--             <param-name>applicationClassName</param-name> -->
+<!--             <param-value>ws.ragg.webapp.fileexchange.WicketApplication</param-value> -->
+<!--         </init-param> -->
+<!--         <init-param> -->
+<!--             <param-name>ignorePaths</param-name> -->
+<!--             <param-value>/images/products/,/documents/pdf/</param-value> -->
+<!--         </init-param> -->
+<!--         <load-on-startup>1</load-on-startup> -->
+<!--     </servlet> -->
+<!--     <servlet-mapping> -->
+<!--         <servlet-name>WicketApplication</servlet-name> -->
+<!--         <url-pattern>/upload.do*</url-pattern> -->
+<!--     </servlet-mapping> -->
+ 
+
+<!--
+Note that the applicationClassName parameter you specify must be the fully 
+qualified name of a class that extends WebApplication. If your class cannot be 
+found, does not extend WebApplication or cannot be instantiated, a runtime 
+exception of type WicketRuntimeException will be thrown.
+-->
+
+
+<!--
+As an alternative, you can configure an application factory instead.
+This looks like:
+-->
+
+<!--  <init-param> -->
+<!--    <param-name>applicationFactoryClassName</param-name> -->
+<!--    <param-value>teachscape.platform.web.wicket.SpringApplicationFactory</param-value> -->
+<!--  </init-param> -->
+ 
+
+<!--
+and it has to satisfy interface 
+org.apache.wicket.protocol.http.IWebApplicationFactory.
+The servlet can also be configured to skip certain paths, 
+this is especially useful when the servlet is mapped to /* mapping:
+-->
+ 
+
+
+
+
+
+
+
+
+
+
+
+
+    
+</web-app>
