@@ -1,20 +1,23 @@
 <!DOCTYPE html>
 <html xmlns:wicket="http://wicket.apache.org">
+
 <head>
 <wicket:head>
-
-    <script type="text/javascript" charset="utf-8" src="js/base.js"></script>
-    <script type="text/javascript" charset="utf-8" src="js/async.js"></script>
-    <script type="text/javascript" charset="utf-8" src="js/upload.js"></script>
-    <script type="text/javascript" charset="utf-8" src="js/json.js"></script>
-    
+    <script type="text/javascript" charset="utf-8" src="js/uplUtil.js"></script>
+    <script type="text/javascript" charset="utf-8" src="js/uplWorker.js"></script>
+    <script type="text/javascript" charset="utf-8" src="js/uplManager.js"></script>
 </wicket:head>
 </head>
+
 <body>
 <wicket:extend>
-    
-    <div id="formcontainer">
-        <wicket:message key="form.message.pleasewait">PLEASE WAIT</wicket:message>
+    <div id="formWrapper">
+        <wicket:message key="form.message.pleasewait">PLEASE ENABLE JS</wicket:message>
+    </div>
+    <div id="uploadNotification">
+        <wicket:message key="form.message.uploadnotification">
+            UPLOAD STARTS IMMEDIATELY ON FILE-SELECTION!
+        </wicket:message>
     </div>
     <div id="files">
         <p>
@@ -22,29 +25,21 @@
                 <wicket:message key="file.list.header">CHOSEN FILES</wicket:message>
             </strong>
         </p>
-        <div id="file_list"></div>
+        <ul id="fileList"></ul>
     </div>
-
-        
     <br/>
-    
     <script type="text/javascript">
-        // <![CDATA[ 
-		var theUploadUrl = getContextPath() + "/upload.do";
-        // alert("theUploadUrl : " + theUploadUrl);
-		ct.attachEvent(window, 'load', function() {
-			ct.clearSubtree($('formcontainer'));
-			ct.Uploader.init({
-				formContainer : $('formcontainer'),
-				listTarget : $('file_list'),
-				maxParallelUploads : 2,
-				uploadUrl : theUploadUrl
-			});
-		});
-        
-    // ]]>
-	</script>
-
+        upl.Util.registerEventHandler(window, 'load', function() {
+            var formWrapperDiv = document.getElementById('formWrapper');
+            upl.Util.clearChildren(formWrapperDiv);
+            upl.Manager.setUp({
+                formWrapper : formWrapperDiv,
+                fileList : document.getElementById('fileList'),
+                maxSimultaneousTransfers : 3,
+                uploadUrl : upl.Util.getContextPath() + "/UploadServlet"
+            });
+        });
+    </script>
 </wicket:extend>
 </body>
 </html>
