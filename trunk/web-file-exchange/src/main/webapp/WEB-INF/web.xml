@@ -11,13 +11,15 @@
 	<display-name>file-exchange</display-name>
     
     <servlet>
-        <servlet-name>UploadMediatorServlet</servlet-name>
+        <servlet-name>upload</servlet-name>
         <servlet-class>ws.ragg.webapp.fileexchange.servlet.UploadServlet</servlet-class>
-        
-        <init-param>
+
+        <!-- (defaults are read from file-exchange-app.properties) -->
+
+        <!--init-param>
             <param-name>upload.target.path</param-name>
             <param-value>/tmp/uploads</param-value>
-        </init-param>
+        </init-param-->
         <init-param>
             <param-name>upload.file.maxsize</param-name>
             <param-value>10485760</param-value><!-- 10 M -->
@@ -28,8 +30,8 @@
         </init-param>
     </servlet>
     <servlet-mapping>
-        <servlet-name>UploadMediatorServlet</servlet-name>
-        <url-pattern>/upload.do</url-pattern>
+        <servlet-name>upload</servlet-name>
+        <url-pattern>/UploadServlet</url-pattern>
     </servlet-mapping>
 
 
