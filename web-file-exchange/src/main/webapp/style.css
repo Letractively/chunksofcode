@@ -107,3 +107,7 @@ h3 {
     font-size: smaller;
     color: #995555;
 }
+
+#fileList {
+	list-style-type: none;
+}

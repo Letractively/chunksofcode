@@ -52,30 +52,53 @@ upl.Worker = function() {
     // represents this upload in the web pages fileList
     this.listItem = listItem;
     
-    // ------- form ------- 
+    
+    //  upload form  
     form.id = 'uploadForm-' + this.id;
     form.method = 'POST';
     form.target = 'uploadTarget-' + this.id;
     form.enctype = 'multipart/form-data';
     form.action = upl.Manager.uploadUrl;
     
-    //  ------- input ------- 
-    input.name = 'file';
+    
+    //   file input  
     input.type = 'file';
+    input.name = 'file';
     input.id = 'fileInput-' + this.id;
     var _this = this;
     upl.Util.registerEventHandler(input, 'change', function() {
-        _this.upload(true); // upload immediately when something was selected.
+        _this.upload(true); // upload immediately after a file was selected.
     });
     form.appendChild(input);
     
-    //  ------- hidden iframe ------- 
+    
+    // tell uploadservlet the manager's fingerprint 
+    var managerFingerInput = document.createElement('input');
+    managerFingerInput.id = 'client-fingerprint';
+    managerFingerInput.name = 'client-fingerprint';
+    managerFingerInput.type = 'hidden';
+    managerFingerInput.value = upl.Manager.fingerprint;
+    form.appendChild(managerFingerInput);
+    
+    
+    // tell uploadservlet the worker's id 
+    var workerIdInput = document.createElement('input');
+    workerIdInput.id = 'workerId';
+    workerIdInput.name = 'workerId';
+    workerIdInput.type = 'hidden';
+    workerIdInput.value = this.id;
+    form.appendChild(workerIdInput);
+    
+    
+    // hidden iframe, where the response will be written to  
     hiddenIframe.id = 'uploadTarget-' + this.id;
     hiddenIframe.name = 'uploadTarget-' + this.id;
     hiddenIframe.setAttribute('style', 'position:absolute; left:-1000px;');
     
-    // -------- list item -------
+    
+    // list item, where the state of this worker is displayed 
     listItem.id = 'fileList-item-' + this.id; // processed in upload()
+    console.debug("worker-"+this.id+" created!");
 };
 
 
@@ -106,6 +129,7 @@ upl.Worker.prototype.upload = function(appendToList) {
     
     if ( ! upl.Manager.isUploadSlotAvailable()) {
         this.updateListItem("icon.upload.queued.png", 'In Upload queue.');
+        console.debug("worker-"+this.id+" upload of: "+this.input.value+" queued.");
         return;
     }
     
@@ -128,6 +152,8 @@ upl.Worker.prototype.upload = function(appendToList) {
 
     // submit upload form, and set the "upload-in-progress-image":
     this.uplodadRunning = true;
+
+    console.debug("worker-"+this.id+" starting upload of: "+this.input.value);
     this.form.submit();
     this.updateListItem("icon.upload.loading.gif", 'Uploading...');
 };
@@ -149,6 +175,8 @@ upl.Worker.prototype.mayStartUploading = function() {
  *            the error message, if the download failed. else null.
  */
 upl.Worker.prototype.uploadCompleted = function(errorMsg) {
+    console.debug("worker-"+this.id+" finished upload of: "+this.input.value);
+    
     if ( ! errorMsg) { // upload was OK
         this.updateListItem("icon.upload.success.png", 'Upload successful.');
     } else {
@@ -187,11 +215,12 @@ upl.Worker.prototype.updateListItem = function(imgName, imgTitle, errorMessage) 
 
 /** free resources after upload has finished. */
 upl.Worker.prototype.collectGarbage = function() {
+	var _id = this.id;
     // do NOT remove obj.listItem, it will remain in fileList !
     this.form.parentNode.removeChild(this.form);
     this.hiddenIframe.parentNode.removeChild(this.hiddenIframe);
     upl.Manager.removeOldWorker(this.id);
-
     var obj = this;
     delete obj;
+    console.debug("worker-"+_id+" destroyed.");
 };
