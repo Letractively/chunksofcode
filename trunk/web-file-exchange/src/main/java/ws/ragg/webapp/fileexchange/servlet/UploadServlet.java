@@ -7,16 +7,17 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.net.URL;
-import java.text.DecimalFormat;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Date;
 import java.util.Enumeration;
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Properties;
-import java.util.Random;
 
 import javax.servlet.ServletConfig;
 import javax.servlet.ServletException;
@@ -24,13 +25,14 @@ import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import javax.servlet.http.HttpSession;
 
 import org.apache.commons.fileupload.FileItem;
+import org.apache.commons.fileupload.FileUploadBase.SizeLimitExceededException;
 import org.apache.commons.fileupload.disk.DiskFileItemFactory;
 import org.apache.commons.fileupload.servlet.ServletFileUpload;
 import org.apache.log4j.Logger;
 
-import org.apache.commons.fileupload.FileUploadBase.SizeLimitExceededException;
 import ws.ragg.webapp.fileexchange.Constants;
 
 /**
@@ -39,12 +41,16 @@ import ws.ragg.webapp.fileexchange.Constants;
  */
 public class UploadServlet extends HttpServlet {
 
-    private static final long serialVersionUID = 3318435173245734039L;
-    private Logger log = org.apache.log4j.Logger.getLogger(UploadServlet.class);
     
+    private static final String SESSION_CLIENT_TO_TARGETDIR = "clientfinger-to-targetdir-mapping";
+    private static final String CLIENT_FINGERPRINT_KEY = "client-fingerprint";
+    private static final String WORKER_ID_KEY = "workerId";
+    
+    private static final long serialVersionUID = 3318435173245734039L;
     private static final String FILE_SEPARATOR = System.getProperty("file.separator");
-    private static final Random RANDOM = new Random();
 
+
+    private Logger log = org.apache.log4j.Logger.getLogger(UploadServlet.class);
     private String uploadTargetPath;
     private int maxMemSize = Constants.DEFAULT_MAX_MEMORY_SIZE;
     private long maxFileSize = Constants.DEFAULT_MAX_UPLOAD_FILE_SIZE;
@@ -52,7 +58,7 @@ public class UploadServlet extends HttpServlet {
     private SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd_HH:mm:ss.SSS");
     
     public UploadServlet() {
-        log.debug("Default Constructor called!");
+        log.debug("Constructor called!");
     }
     
     @Override
@@ -62,7 +68,6 @@ public class UploadServlet extends HttpServlet {
         
         // create properties that will be used to init this servlet instance:
         Properties properties = readConfig();
-        
 
         // first the upload target path:
         final String uploadPathProperty = properties.getProperty(
@@ -180,8 +185,8 @@ public class UploadServlet extends HttpServlet {
             
             log.debug("Loading "+tag+" properties from "+propertiesFileName+" ...");
             tmp.load(reader);
+            
             Iterator<Entry<Object, Object>> it = tmp.entrySet().iterator();
-
             while (it.hasNext()) {
                 Entry<Object, Object> entry = it.next();
                 String key = String.valueOf(entry.getKey());
@@ -211,12 +216,82 @@ public class UploadServlet extends HttpServlet {
         }
     }
 
+    
+    @SuppressWarnings({"null"})
+    private void authenticateClient(HttpServletRequest req) throws Exception { 
+        // check if there is a client fingerprint in this request:
+        String fingerPrint = req.getParameter(CLIENT_FINGERPRINT_KEY);
+        
+        if (fingerPrint == null) {
+            String msg = "request did not contain a fingerprint!";
+            log.error(msg);
+            throw new Exception(msg);
+        }
+        
+        log.debug("client fingerprint: "+fingerPrint);
+        HttpSession s = req.getSession();
+        Map<String, String> clientToTargetdir = getClientToTargetDirMap(req);
+        if (clientToTargetdir == null) {
+            synchronized (this) {
+            if (clientToTargetdir == null) {
+                clientToTargetdir = new HashMap<String, String>();
+                s.setAttribute(SESSION_CLIENT_TO_TARGETDIR, clientToTargetdir);
+                log.debug("session-to-targetdir-map created.");
+            }
+            }
+        } else {
+            log.debug("using existing session-to-targetdir-map with "+
+                      clientToTargetdir.size() + " entries.");
+        }
+        
+        String uploadDirKey = dateFormat.format(new Date());
+        clientToTargetdir.put(fingerPrint, uploadDirKey);
+        log.info("client registered. fingerprint: "+fingerPrint);
+        log.debug("upload directory key: "+uploadDirKey);
+    }
+
+    @SuppressWarnings("unchecked")
+    private Map<String, String> getClientToTargetDirMap(HttpServletRequest r) {
+        HttpSession session = r.getSession(false);
+        if (session == null) {
+            return null;
+        }
+        return (Map<String,String>)session.getAttribute(SESSION_CLIENT_TO_TARGETDIR);
+    }
+
+    private String getUploadDirectoryKey(HttpServletRequest req, 
+                                         String clientFingerprint) throws Exception {
+        Map<String, String> clientToTargetDirMap = getClientToTargetDirMap(req);
+        if (clientToTargetDirMap == null) {
+            throw new Exception("could not lookup: "+SESSION_CLIENT_TO_TARGETDIR);
+        }
+        
+        String dirKey = clientToTargetDirMap.get(clientFingerprint);
+        if (dirKey == null) {
+            throw new Exception("not a registered client: "+clientFingerprint);
+        }
+        
+        return dirKey;
+    }
+
+    // performed by the upload client to upload a file.
     @Override
     @SuppressWarnings("unchecked")
-    protected void doPost(HttpServletRequest req, HttpServletResponse resp)
+    protected void doPost(final HttpServletRequest req, HttpServletResponse resp)
                                         throws ServletException, IOException {
         log.debug("START");
         debugRequestState(req);
+        boolean multipartContent = ServletFileUpload.isMultipartContent(req);
+        
+        if (! multipartContent) {
+            // this must be a "ping server" request from the uplManager client.
+            try {
+                authenticateClient(req);
+            } catch (Exception e) {
+                resp.getWriter().println("HANDSHAKE FAILED. MESSAGE="+e.getMessage());
+            }
+            return;
+        }
 
         // Create a new file upload handler
         ServletFileUpload upload = new ServletFileUpload(factory);
@@ -224,12 +299,9 @@ public class UploadServlet extends HttpServlet {
         // maximum file size to be uploaded.
         upload.setSizeMax(maxFileSize);
 
-        // create a unique directory where the file(s) are stored inside:
-        File targetDir = createUniqueTargetDir();
-
         List<FileItem> fileItems = null;
         try {
-            fileItems = upload.parseRequest(req);
+            fileItems = new ArrayList<FileItem>(upload.parseRequest(req));
             
         } catch (SizeLimitExceededException e2) {
             log.info("rejecting upload, file too big!"+e2);
@@ -243,17 +315,45 @@ public class UploadServlet extends HttpServlet {
             return;
         }
         
-        try {
-            log.info("file-items: "+fileItems.size());
-
-            for (FileItem item : fileItems) {
-                if (item.isFormField()) {
-                    log.debug("item.isFormField : "+item);
-                    continue;
-                }
-                storeFile(targetDir, item);
-                resp.getWriter().print("UPLOAD OK");
+        log.info(fileItems.size()+" file-items parsed.");
+        
+        // look for the client fingerprint:
+        String clientFingerPrint = null;
+        String workerId = null;
+        
+        for (Iterator<FileItem> it = fileItems.iterator(); it.hasNext(); ) {
+            FileItem item = it.next();
+            if (! item.isFormField()) {
+                continue;
             }
+            it.remove();
+            String fieldName = item.getFieldName();
+            String value = item.getString();
+            log.debug("removed item "+fieldName+" = "+value);
+            
+            if (fieldName.equals(CLIENT_FINGERPRINT_KEY)) {
+                clientFingerPrint = value;
+                log.debug("found fingerprint: "+clientFingerPrint);
+            } else if (fieldName.equals(WORKER_ID_KEY)) {
+                workerId = value;
+                log.debug("found workerId: "+workerId);
+            }
+        }
+
+        if (clientFingerPrint == null)
+            throw new ServletException("no client fingerprint found!");
+        if (workerId == null)
+            throw new ServletException("no workerId found!");
+        if (fileItems.size() != 1)
+            throw new ServletException("expecting exactly one file input per request.");
+
+        try {
+            String directoryKey = getUploadDirectoryKey(req, clientFingerPrint);
+            // create a unique directory where the file(s) are stored inside:
+            File targetDir = createUniqueTargetDir(directoryKey, workerId);
+            performUpload(targetDir, fileItems.get(0));
+            resp.getWriter().print("UPLOAD OK");
+            
         } catch (Exception e) {
             String msg = "upload rejected. error while saving file: "+e.getMessage();
             log.warn(msg);
@@ -263,24 +363,16 @@ public class UploadServlet extends HttpServlet {
         
         log.debug("END");
     }
-
-    private void storeFile(File targetFileDir, FileItem fileItem) throws Exception {
-        String fieldName = fileItem.getFieldName();
+    
+    private void performUpload(File targetDir, FileItem fileItem) throws Exception, IOException {
         String fileName = fileItem.getName();
-        String contentType = fileItem.getContentType();
+        File saveLocation = new File(targetDir, fileName);
         long sizeInBytes = fileItem.getSize();
-        File saveLocation = new File(targetFileDir, fileName);
-
-        if (log.isDebugEnabled()) {
-            log.debug("uploading file, fieldName    : '" + fieldName + "'");
-            log.debug("uploading file, contentType  : '" + contentType + "'");
-            log.debug("uploading file, fileName     : '" + fileName + "'");
-            log.debug("uploading file, sizeInBytes  : '" + sizeInBytes + "'");
-            log.debug("uploading file, saveLocation : '" + saveLocation + "'");
-        }
+        log.debug("Uploading file, fileName: '" + fileName + "', size: '" + sizeInBytes + "'");
         
         InputStream inputStream = null;
         OutputStream outputStream = null;
+        
         try {
             inputStream = fileItem.getInputStream();
             outputStream = new FileOutputStream(saveLocation);
@@ -291,34 +383,22 @@ public class UploadServlet extends HttpServlet {
              for (int read = -1, written = 0; (read = inputStream.read(buffer)) > 0;) {
                  outputStream.write(buffer, 0, read);
                  written += read;
-
-                 if (log.isDebugEnabled()) {
-                     String done = new DecimalFormat("0.0%").format((double) written / (double) sizeInBytes);
-                     log.debug("wrote: "+written+" bytes ("+done+") to file: "+fileName);
-                 }
-                 
                  Thread.sleep(1000);
              }
             
-            log.info("FILE uploaded: "+saveLocation);
+            log.info("Uploaded file '"+fileName+"' to '"+saveLocation+"'.");
             
         } finally {
             if (inputStream != null) {
-                try {
-                    inputStream.close();
-                } catch (Exception e) {
-                }
+                try { inputStream.close(); } catch (Exception e) { }
             }
             if (outputStream != null) {
-                try {
-                    outputStream.close();
-                } catch (Exception e) {
-                }
+                try { outputStream.close(); } catch (Exception e) { }
             }
         }
     }
     
-    protected File createUniqueTargetDir() {
+    protected File createUniqueTargetDir(String directoryKey, String workerId) {
         StringBuilder bui = new StringBuilder();
         bui.append(uploadTargetPath);
         
@@ -326,65 +406,79 @@ public class UploadServlet extends HttpServlet {
             bui.append(FILE_SEPARATOR);
         }
         
+        directoryKey = directoryKey.trim().replaceAll(FILE_SEPARATOR, "_");
+        workerId = workerId.trim().replaceAll(FILE_SEPARATOR, "_");
+        
         // the builder is now set to the configured base directory.
         // append a unique named folder for this upload 
+
+        bui.append("session__");
+        bui.append(directoryKey);
+        bui.append(FILE_SEPARATOR);
+
+        // the builder is now set to the base directory for this session
         
-        bui.append("upload__");
-        bui.append(dateFormat.format(new Date()));
-        bui.append("__");
-        
+        bui.append("item__");
+        if (workerId.matches("[0-9]+")) {
+            for (int i = 3 - workerId.length(); i-- > 0; bui.append('0'));
+        }
+        bui.append(workerId);
+//        bui.append("__");
+//        bui.append(dateFormat.format(new Date()));
+
         File targetDir = null;
+        final int lengthBeforeSalt = bui.length();
         
-        for (final int lengthBeforeSalt = bui.length();;) {
-            int salt = RANDOM.nextInt(Integer.MAX_VALUE);
-            bui.append(salt);
-            bui.append(FILE_SEPARATOR);
+        for (int salt = 2; ; salt++) {
             targetDir = new File(bui.toString());
             
             if (! targetDir.exists()) {
-                targetDir.mkdir();
+                targetDir.mkdirs();
                 break; // unique dir created, done!
             }
+            
+            log.warn("!! target dir already existing !! dir='"+targetDir+"'");
+            // workaround:
             bui.setLength(lengthBeforeSalt);
+            bui.append("__");
+            bui.append(salt);
         }
         return targetDir;
     }
 
-    @Override
-    protected void doGet(HttpServletRequest req, HttpServletResponse resp)
-            throws ServletException, IOException {
-        log.debug("START");
-//        super.doGet(req, resp);
-        log.debug("END");
-    }
-    
-
-    @SuppressWarnings("rawtypes") 
-    private void debugRequestState(HttpServletRequest r) {
-        if (! log.isDebugEnabled()) {
+    @SuppressWarnings({"rawtypes", "unchecked", "serial"}) 
+    private void debugRequestState(final HttpServletRequest r) {
+        if ( ! log.isDebugEnabled()) {
             return;
         }
+        debugEnum(r.getHeaderNames(), "Header", new HashMap() {
+            public Object get(Object key) {
+                return r.getHeader(String.valueOf(key));
+            }
+        });
         
-        Enumeration e = null;
-        for (e = r.getHeaderNames(); e != null && e.hasMoreElements();) {
-            String name = e.nextElement().toString();
-            log.debug("header name:  "+name);
-            String value = String.valueOf(r.getHeader(name));
-            log.debug("header value: "+value);
-        }
-
-        for (e = r.getAttributeNames(); e != null && e.hasMoreElements();) {
-            String name = String.valueOf(e.nextElement());
-            log.debug("attr name:  "+name);
-            String val = String.valueOf(r.getAttribute(name));
-            log.debug("attr value: "+val);
-        }
+        debugEnum(r.getAttributeNames(), "Attribute", new HashMap() {
+            public Object get(Object key) {
+                return r.getAttribute(String.valueOf(key));
+            }
+        });
         
-        for (e = r.getParameterNames(); e != null && e.hasMoreElements();) {
-            String name = String.valueOf(e.nextElement());
-            log.debug("param name:  "+name);
-            String val = String.valueOf(r.getParameter(name));
-            log.debug("param value: "+val);
+        debugEnum(r.getParameterNames(), "Parameter", new HashMap() {
+            public Object get(Object key) {
+                return r.getParameter(String.valueOf(key));
+            }
+        });
+        
+        HttpSession session = r.getSession(false);
+        if (session == null) {
+            log.debug("No http session!");
+        } else {
+            log.debug("Session id: "+session.getId());
+            debugEnum(r.getSession().getAttributeNames(), "Session Attribute", new HashMap() {
+                public Object get(Object key) {
+                    return r.getSession().getAttribute(String.valueOf(key));
+                }
+            });
         }
         
         Cookie[] cookies = r.getCookies();
@@ -397,7 +491,16 @@ public class UploadServlet extends HttpServlet {
                 log.debug("Cookie Domain: " + c.getDomain() );
             }
         }
-        
-        log.debug("done");
+    }
+    
+    private void debugEnum(Enumeration<String> names, 
+                                       String tag, 
+                                       Map<String, Object> lookup) {
+        List<String> list = Collections.list(names);
+        log.debug(tag+"-Names: "+list.size());
+        for (String name : list) {
+            Object value = lookup.get(name);
+            log.debug(tag+": "+name+" = "+value);
+        }
     }
 }

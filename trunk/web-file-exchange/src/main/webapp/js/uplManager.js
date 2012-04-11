@@ -37,16 +37,24 @@ if ( ! this.upl.Manager) {
  * 3) create the first upload worker instance
  */
 upl.Manager.setUp = function(attrs) {
-    if (attrs.formWrapper == null || typeof(attrs.formWrapper) !== 'object')
-        throw 'element formWrapper is mandatory!';
-    if (attrs.fileList == null || typeof(attrs.fileList) !== 'object')
-        throw 'element fileList is mandatory!';
-    if (attrs.uploadUrl == null || typeof(attrs.uploadUrl) !== 'string')
-        throw 'uploadUrl must be a string!';
+    if (attrs.formWrapper == null || typeof(attrs.formWrapper) !== 'object') {
+    	throw 'element formWrapper is mandatory!';
+    }
+    if (attrs.fileList == null || typeof(attrs.fileList) !== 'object') {
+    	throw 'element fileList is mandatory!';
+    }
+    if (attrs.uploadUrl == null || typeof(attrs.uploadUrl) !== 'string') {
+    	throw 'uploadUrl must be a string!';
+    }
     if (attrs.maxSimultaneousTransfers != null 
-                  && typeof(attrs.maxSimultaneousTransfers) !== 'number')
-        throw 'maxSimultaneousTransfers must be a number!';
+                  && typeof(attrs.maxSimultaneousTransfers) !== 'number') {
+    	throw 'maxSimultaneousTransfers must be a number!';
+    }
+
     
+    /**************** STATIC FIELDS ********************/
+    
+    upl.Manager.fingerprint = Math.random() + "__" + new Date().valueOf();
     upl.Manager.uploadQueue = []; // list of the Worker instances
     upl.Manager.formWrapper = attrs.formWrapper;
     upl.Manager.fileList = attrs.fileList;
@@ -58,9 +66,56 @@ upl.Manager.setUp = function(attrs) {
         upl.Manager.maxSimultaneousTransfers = 2;
     }
     
+    upl.Manager.pingServer(); // ensure we have a valid http session
+    
     // insert first worker:
     upl.Manager.insertNewWorker();
+    console.debug("upl.Manager.setUp() finished.");
 };
+
+/** perform a simple GET to the upload target in the background to register this
+  * manager instance. (give the servlet a chance to init the http session)<br>
+  * 
+  * a form and an iframe will be created and mounted to DOM temporarily.
+  * the form will be sent immediately and after response was loaded,
+  * both elements will be removed.
+  */
+upl.Manager.pingServer = function() {
+    var iframe = document.createElement('iframe');    
+    iframe.id = 'serverping-target';
+    iframe.name = iframe.id;
+    iframe.setAttribute('style', 'position:absolute; left:-1000px;');
+    
+    var form = document.createElement('form');
+    form.setAttribute('style', 'position:absolute; left:-1000px;');
+    form.id = 'register-mgr-form';
+    form.name = 'register-manager-on-server';
+    form.method = 'POST';
+    form.action = upl.Manager.uploadUrl;
+    form.target = iframe.id;
+    
+    // -------- tell uploadservlet the manager fingerprint -------
+    var finger = document.createElement('input');
+    finger.id = 'client-fingerprint';
+    finger.name = 'client-fingerprint';
+    finger.type = 'hidden';
+    finger.value = upl.Manager.fingerprint;
+    form.appendChild(finger);
+
+    upl.Manager.formWrapper.appendChild(iframe);
+    upl.Manager.formWrapper.appendChild(form);
+    
+    upl.Util.registerEventHandler(iframe, 'load', function() {
+        form.parentNode.removeChild(form);
+        iframe.parentNode.removeChild(iframe);
+        delete form;
+        delete iframe;
+        console.debug('... server: pong');
+    });
+
+    console.debug('client: ping ...');
+    form.submit();
+}
 
 /** when a upload starts transferring, the file-item will be added to the list*/
 upl.Manager.addFileToList = function(listItem) {
