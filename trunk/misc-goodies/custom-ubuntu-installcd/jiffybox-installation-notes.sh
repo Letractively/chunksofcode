@@ -271,6 +271,30 @@ a2enmod rewrite # enables the "rewrite" module in apache
 service apache2 restart
 
 
+
+
+
+
+
+
+
+
+
+# OPTIONAL: install advanced syntax highlighting in GeSHi Plugin:
+
+# get GeSHi:
+wget "http://sourceforge.net/projects/geshi/files/geshi/GeSHi%201.0.8.10/GeSHi-1.0.8.10.zip/download" -O GeSHi-1.0.8.10.zip
+
+
+
+
+
+
+
+
+
+
+
 # }}}
 
 # 8.) INSTALL ORACLE JAVA {{{
@@ -385,7 +409,9 @@ vim /etc/apache2/sites-enabled/000-default
 vim tomcat/conf/server.xml
 # uncomment <Connector port="8009" protocol="AJP/1.3" redirectPort="8443" />
 # comment <Connector port="8081" protocol="HTTP/1.1" redirectPort="8443" />
-
+# if tomcat and apache run on the same machine, 
+# you can set the Connector-Attribut "address" to localhost. 
+# Now tomcat is only reachable through localhost
 # }}}
 
 # 10.) INSTALL JBOSS APPLICATION SERVER {{{
@@ -478,7 +504,114 @@ vim /etc/phppgadmin/apache.conf
 
 # }}}
 
+# 12.) SETUP A MAVEN REPOSITORY # {{{
 
+# set up a Private remote internal repository using artifactory
+# see: http://www.theserverside.com/news/1364121/Setting-Up-a-Maven-Repository
+
+# i will use a separate tomcat instance and a separate user for artifactory:
+useradd -d /home/artifactory -m artifactory
+usermod -a -G artifactory artifactory
+chsh artifactory -s /bin/zsh
+# XXX create a tomcat instance as described in chapter 9 for artifactory user
+
+wget "http://sourceforge.net/projects/artifactory/files/artifactory/2.5.1.1/artifactory-2.5.1.1.zip/download" -O artifactory-2.5.1.1.zip
+unzip artifactory-2.5.1.1.zip
+
+# let's work on a link as base dir:
+ln -s artifactory-2.5.1.1 artifactory_base
+cd artifactory_base
+
+# "deploy" the artifactory.war:
+ln -vs /home/artifactory/artifactory_base/webapps/artifactory.war /home/artifactory/bin/tomcat_base/webapps/
+
+# tell the webappl where is artifactory home:
+vim ~/bin/tomcat_base/bin/setenv.sh
+# append 'export JAVA_OPTS="$JAVA_OPTS -Dartifactory.home=/home/artifactory/artifactory_base"'
+
+# start the application:
+/etc/init.d/tomcat-artifactory.sh start
+# browse to web console: http://localhost:8080/artifactory
+# login as 'admin' with 'password' (and change password)
+
+
+# CLIENT SETUP (MAVEN USER) #############################
+#
+# put this into your ~/.m2/settings.xml:
+      [...]
+      <servers>
+            <server>
+                  <id>repo.ragg.ws</id>
+                  <username>USERNAME</username>
+                  <password>******</password>
+            </server>
+            <server>
+                  <id>snapshots.ragg.ws</id>
+                  <username>USERNAME</username>
+                  <password>******</password>
+            </server>
+      </servers>
+      [...]
+      <profiles>
+         <profile>
+            <id>artifactory-repository</id>
+            <activation>
+                <activeByDefault>true</activeByDefault>
+            </activation>
+            <repositories>
+                <repository>
+                    <id>central</id>
+                    <url>http://ragg.ws:8082/artifactory/repo</url>
+                    <snapshots>
+                        <enabled>false</enabled>
+                    </snapshots>
+                </repository>
+                <repository>
+                    <id>snapshots</id>
+                    <url>http://ragg.ws:8082/artifactory/repo</url>
+                    <releases>
+                        <enabled>false</enabled>
+                    </releases>
+                </repository>
+            </repositories>
+            <pluginRepositories>
+                <pluginRepository>
+                    <id>central</id>
+                    <url>http://ragg.ws:8082/artifactory/repo</url>
+                    <snapshots>
+                        <enabled>false</enabled>
+                    </snapshots>
+                </pluginRepository>
+                <pluginRepository>
+                    <id>snapshots</id>
+                    <url>http://ragg.ws:8082/artifactory/repo</url>
+                    <releases>
+                        <enabled>false</enabled>
+                    </releases>
+                </pluginRepository>
+            </pluginRepositories>
+        </profile>
+    </profiles>
+    [...]
+
+# put this to the project's pom.xml's:
+    [...]
+    <distributionManagement>
+        <repository>
+            <id>repo.ragg.ws</id>
+            <url>http://ragg.ws:8082/artifactory/libs-release-local</url>
+        </repository>
+        <snapshotRepository>
+            <id>snapshots.ragg.ws</id>
+            <url>http://ragg.ws:8082/artifactory/libs-snapshot-local</url>
+        </snapshotRepository>
+    </distributionManagement>
+    [...]
+
+# deploy an artifact to server (from client)
+mvn clean install deploy:deploy
+
+# }}}
 
 
 # vim:filetype=sh:foldmethod=marker
