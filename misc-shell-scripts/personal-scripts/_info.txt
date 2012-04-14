@@ -1,7 +1,0 @@
-source is:
-/home/andre/workspace/misc-shell-scripts/personal-scripts
-
-productive is:
-/home/andre/.gnome2/nautilus-scripts
-and
-~/scripts
