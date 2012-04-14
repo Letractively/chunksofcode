@@ -1,0 +1,220 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<project>xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+
+    <modelVersion>4.0.0</modelVersion>
+    <name>utilities</name>
+    <description>andres common utilities collection</description>
+    
+    <groupId>com.myapp.tools</groupId>
+    <artifactId>utilities</artifactId>
+    <version>0.0.1</version>
+
+    <properties>
+        <test>false</test>
+        <failIfNoTests>false</failIfNoTests>
+    </properties>
+
+    <distributionManagement>
+        <repository> <id>andre.ragg.ws</id>
+            <url>http://andre.ragg.ws/artifactory/libs-release-local</url>
+        </repository>
+        <snapshotRepository> <id>andre.ragg.ws</id>
+            <url>http://andre.ragg.ws/artifactory/libs-snapshot-local</url>
+        </snapshotRepository>
+    </distributionManagement>
+
+    <dependencies>
+        <dependency>
+            <groupId>junit</groupId>
+            <artifactId>junit</artifactId>
+            <version>4.4</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.blinkenlights.jid3</groupId>
+            <artifactId>JID3</artifactId>
+            <version>0.46</version>
+        </dependency>
+        <dependency>
+            <groupId>org.slf4j</groupId>
+            <artifactId>slf4j-api</artifactId>
+            <version>1.5.10</version>
+        </dependency>
+        <dependency>
+            <groupId>ch.qos.logback</groupId>
+            <artifactId>logback-core</artifactId>
+            <version>0.9.18</version>
+        </dependency>
+        <dependency>
+            <groupId>ch.qos.logback</groupId>
+            <artifactId>logback-classic</artifactId>
+            <version>0.9.18</version>
+        </dependency>
+        <dependency>
+          <groupId>commons-codec</groupId>
+          <artifactId>commons-codec</artifactId>
+          <version>1.4</version>
+        </dependency>
+        <dependency>
+            <!--[INFO] Copying 1 resource-->
+            <!--[WARNING] While downloading xerces:xerces:2.4.0-->
+            <!--  This artifact has been relocated to xerces:xercesImpl:2.4.0.-->
+            <groupId>xerces</groupId>
+            <!--
+            <artifactId>xerces</artifactId>
+            -->
+            <artifactId>xercesImpl</artifactId>
+            <version>2.4.0</version>
+        </dependency>
+        
+    </dependencies>
+
+    <build>
+        <directory>${basedir}/target</directory>
+        <outputDirectory>${basedir}/target/classes</outputDirectory>
+        <finalName>${artifactId}-${version}</finalName>
+        <testOutputDirectory>${basedir}/target/test-classes</testOutputDirectory>
+        <sourceDirectory>${basedir}/src</sourceDirectory>
+        <testSourceDirectory>${basedir}/test</testSourceDirectory>
+
+        <resources>
+            <!-- put config files into the jar -->
+            <resource>
+                <directory>${basedir}/resources</directory>
+                <filtering>true</filtering>
+                <includes>
+                    <include>**/*.properties</include>
+                    <include>**/*.xml</include>
+                </includes>
+            </resource>
+            
+            <!-- put images in the jar -->
+            <resource>
+                <directory>${basedir}/img</directory>
+                <filtering>false</filtering>
+                <includes>
+                    <include>**/*.gif</include>
+                </includes>
+            </resource>
+             
+            <!-- put source files into jar -->
+            <!-- 
+            <resource>
+                <directory>${basedir}/src</directory>
+                <filtering>false</filtering>
+                <includes>
+                    <include>**/*.java</include>
+                </includes>
+            </resource>
+            -->
+        </resources>
+
+        <testResources>
+            <testResource>
+                <directory>${basedir}/test-resources</directory>
+            </testResource>
+        </testResources>
+        
+        
+        <plugins>            
+        
+            <!-- set compilation level: -->
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-compiler-plugin</artifactId>
+                <configuration>
+                    <source>1.6</source>
+                    <target>1.6</target>
+                    <encoding>UTF-8</encoding>
+                </configuration>
+            </plugin>            
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-resources-plugin</artifactId>
+                <configuration>
+                    <encoding>UTF-8</encoding>
+                </configuration>
+                
+                <!-- copy config files to a folder: -->
+                <executions>
+                    <execution>
+                        <id>copy-resources</id>
+                        <phase>process-resources</phase>
+                        <goals>
+                            <goal>copy-resources</goal>
+                        </goals>
+                        <configuration>
+                            <outputDirectory>${basedir}/target</outputDirectory>
+                            <resources>
+                                <resource>
+                                    <directory>${basedir}/resources</directory>
+                                    <filtering>true</filtering>
+                                </resource>
+                            </resources>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+                        
+            <!-- create jar file:  -->
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-jar-plugin</artifactId>
+                <configuration>
+                    <archive>
+                        <manifestFile>${basedir}/resources/META-INF/MANIFEST.MF</manifestFile>
+                    </archive>
+                </configuration>
+            </plugin>
+                        
+            <!-- assemble dependencies into jar file:  -->
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-assembly-plugin</artifactId>
+                <executions>
+                    <execution>
+                        <id>create-my-bundle</id>
+                        <phase>package</phase>
+                        <goals>
+                            <goal>single</goal>
+                        </goals>
+                        <configuration>
+                            <descriptorRefs>
+                                <descriptorRef>jar-with-dependencies</descriptorRef>
+                            </descriptorRefs>
+                            <archive>
+                                <manifestFile>
+                                    ${basedir}/resources/META-INF/MANIFEST.MF
+                                </manifestFile>
+                            </archive>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+            
+            <!-- copy jars into target/lib folder  -->
+            <plugin> 
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-dependency-plugin</artifactId>
+                <executions>
+                    <execution>
+                        <id>copy-dependencies</id>
+                        <phase>process-resources</phase>
+                        <goals>
+                            <goal>copy-dependencies</goal>
+                        </goals>
+                        <configuration>
+                            <outputDirectory>${basedir}/target/lib</outputDirectory>
+                            <overWriteReleases>false</overWriteReleases>
+                            <overWriteSnapshots>false</overWriteSnapshots>
+                            <overWriteIfNewer>true</overWriteIfNewer>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+        </plugins>
+    </build>
+</project>
