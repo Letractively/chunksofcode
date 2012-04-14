@@ -42,9 +42,6 @@ public final class GameActivity extends Activity implements IPlayerFrontend {
     @Override
     public void onCreate(Bundle savedInstanceState) {
         Log.d(TAG, "onCreate() ENTERING");
-        super.onCreate(savedInstanceState);
-        setContentView(R.layout.game);
-        gui = new Gui(this);
         SchnellenApplication app = (SchnellenApplication) getApplication();
         frontend = (PlayerFrontendWrapper) app.getAttribute(GAME_FRONTEND);
         
@@ -52,13 +49,17 @@ public final class GameActivity extends Activity implements IPlayerFrontend {
             frontend.setDelegate(this);
             IGameContext game = game();
             Log.d(TAG, "onStart() game received! players: "+game.players());
+
+            gui = new Gui(this);
             gui.prepareGameStart();
             
         } catch (Throwable t) {
             Log.e("NewGameActivity", Log.getStackTraceString(t));
             throw new RuntimeException("error during onCreate", t);
         }
-        
+
+        View v = findViewById(R.layout.game);
+        super.onCreate(savedInstanceState);
         Log.d(TAG, "onCreate() EXITING");
     }
     
@@ -93,17 +94,18 @@ public final class GameActivity extends Activity implements IPlayerFrontend {
     public boolean onKeyDown(int keyCode, KeyEvent event) {
     	return super.onKeyDown(keyCode, event);
     }
-    
+
+    @Override
     protected void onStart() {
         Log.d(TAG, "onStart() ENTERING");
         super.onStart();
         Log.d(TAG, "onStart() EXITING");
     }
-    
+
     IGameContext game() {
         return frontend.getGame();
     }
-    
+
     List<Card> hand() {
         return frontend.getHand();
     }
@@ -123,7 +125,8 @@ public final class GameActivity extends Activity implements IPlayerFrontend {
     public Color spellTrumpSuit()          {throw new UnsupportedOperationException("not yet implemented: Color spellTrumpSuit()           ");}
 
     
-    
+
+    @Override
     public int offerPunch() {
         IColors cs = game().colors();
         int promise = cs.getSpellersPromise();
@@ -140,6 +143,7 @@ public final class GameActivity extends Activity implements IPlayerFrontend {
         return punchesOffered;
     }  
 
+    @Override
     public void fireGameEvent(Event id) {
         IRound cr = game().round();
         IColors cs = game().colors();
@@ -227,14 +231,18 @@ public final class GameActivity extends Activity implements IPlayerFrontend {
 
         Log.d("TODO", "not yet implemented: void fireGameEvent(Event "+id+")");
     }
+    
+    @Override
     public String getName() {
         return frontend.getName();
     }
 
+    @Override
     public String toString() {
         return frontend.toString();
     }
 
+    @Override
     public final void setGameContext(IGameContext c) {
         throw new RuntimeException("should not be called: void setGameContext(IGameContext c)");
     }  
