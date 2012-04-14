@@ -7,8 +7,6 @@ import java.util.ArrayList;
 import java.util.List;
 
 import android.util.Log;
-import android.view.View;
-import android.view.View.OnClickListener;
 import android.view.ViewGroup.LayoutParams;
 import android.widget.Button;
 import android.widget.LinearLayout;
@@ -16,6 +14,7 @@ import android.widget.TextView;
 
 import com.myapp.games.schnellen.model.IColors;
 import com.myapp.games.schnellen.model.IGameContext;
+import com.myapp.games.schnellen.model.IRound;
 
 
 final class Gui {
@@ -25,6 +24,8 @@ final class Gui {
     
     Gui(GameActivity activity) {
         context = activity;
+        context.setContentView(R.layout.game);
+        
         statusArea = (LinearLayout) activity.findViewById(R.id.game_status_area_container);
         playedArea = (LinearLayout) activity.findViewById(R.id.game_playedcards_container);
         handArea = (LinearLayout) activity.findViewById(R.id.game_hand_container);
@@ -64,17 +65,19 @@ final class Gui {
     }
     
     public int showOfferPunchMenu() {
+        Log.d(getClass().getSimpleName(), "showOfferPunchMenu() ENTERING");
         IGameContext g = context.game();
         IColors cs = g.colors();
+        IRound rnd = g.round();
         int promise = cs.getSpellersPromise();
-        int minimumOffer = cs.getMinimumOfferValue(context.frontend().getName());
+        String playerName = context.frontend().getName();
+        int minimumOffer = cs.getMinimumOfferValue(playerName);
         
         List<CharSequence> itemList = new ArrayList<CharSequence>();
         itemList.add(context.getString(R.string.game_offerpunch_skip)); // skip
         
-        // dealer may say bei mir:
-        String dealer = context.game().round().getDealer();
-        if (context.frontend().getName().equals(dealer)) {
+
+        if (rnd.isDealer(playerName)) { // dealer may say bei mir:
             itemList.add(context.getString(R.string.game_offerpunch_beimir, minimumOffer));
         } else {
             itemList.add(context.getString(R.string.game_offerpunch_minimum, minimumOffer));
@@ -113,6 +116,7 @@ final class Gui {
 //        );
 //        
 //        alert.show();
+        Log.d(getClass().getSimpleName(), "showOfferPunchMenu() EXITING");
         return offer[0];
     }
 }
