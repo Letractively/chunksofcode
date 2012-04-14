@@ -319,6 +319,8 @@ java -version # tests installation
 # 9.) INSTALL APACHE TOMCAT {{{
 ###############################################################################
 #
+# STEP 1) SETUP A SHARED TOMCAT INSTALLATION
+#
 cd /opt/ # where we want to install tomcat to
 wget http://mirror.sti2.at/apache/tomcat/tomcat-7/v7.0.26/bin/apache-tomcat-7.0.26.zip
 unzip apache-tomcat-7.0.26.zip
@@ -328,7 +330,7 @@ ln -s apache-tomcat-7.0.26 tomcat
 # XXX we may want to use multiple tomcat instances, but every instance
 # should use the same installation. 
 #
-# SETUP A TOMCAT INSTANCE FOR A USER:
+# STEP 2) SETUP A TOMCAT INSTANCE FOR A USER:
 #
 # /opt/tomcat
 # /home/andre/bin/tomcat_base
@@ -506,110 +508,142 @@ vim /etc/phppgadmin/apache.conf
 
 # 12.) SETUP A MAVEN REPOSITORY # {{{
 
+
 # set up a Private remote internal repository using artifactory
 # see: http://www.theserverside.com/news/1364121/Setting-Up-a-Maven-Repository
 
-# i will use a separate tomcat instance and a separate user for artifactory:
+# i will use a separate tomcat instance and a separate user for artifactory.
+#
+#
+# STEP 1.) setup server environment ###################################
+#
 useradd -d /home/artifactory -m artifactory
 usermod -a -G artifactory artifactory
 chsh artifactory -s /bin/zsh
-# XXX create a tomcat instance as described in chapter 9 for artifactory user
-
+#
+# XXX create a tomcat instance as described in chapter 9 for artifactory user.
+# (in this example: /home/artifactory/bin/tomcat_base)
+#
+# tomcat/server.xml: add line
+#    '<Connector port="8010" protocol="AJP/1.3" redirectPort="8443" address="localhost"/>'
+#
+# use apache as proxy (described in 9.1)
+#
+# add a worker to: /etc/apache2/workers.properties
+#   worker.list=<EXISTING-WORKERS>,artifactorytomcat
+#   worker.artifactorytomcat.type=ajp13
+#   worker.artifactorytomcat.host=localhost
+#   worker.artifactorytomcat.port=8010
+#
+# mount the application in: /etc/apache2/sites-available/default
+#   <VirtualHost *:80>
+#     ServerName andre.ragg.ws
+#     [...]
+#     # artifactory tomcat instance: (maven repo)
+#     JkMount /artifactory* artifactorytomcat
+#   </VirtualHost>
+#
+# STEP 2.) setup artifactory installation ###################################
+#
 wget "http://sourceforge.net/projects/artifactory/files/artifactory/2.5.1.1/artifactory-2.5.1.1.zip/download" -O artifactory-2.5.1.1.zip
 unzip artifactory-2.5.1.1.zip
-
+#
 # let's work on a link as base dir:
 ln -s artifactory-2.5.1.1 artifactory_base
 cd artifactory_base
-
+#
 # "deploy" the artifactory.war:
 ln -vs /home/artifactory/artifactory_base/webapps/artifactory.war /home/artifactory/bin/tomcat_base/webapps/
-
-# tell the webappl where is artifactory home:
-vim ~/bin/tomcat_base/bin/setenv.sh
-# append 'export JAVA_OPTS="$JAVA_OPTS -Dartifactory.home=/home/artifactory/artifactory_base"'
-
-# start the application:
-/etc/init.d/tomcat-artifactory.sh start
-# browse to web console: http://localhost:8080/artifactory
-# login as 'admin' with 'password' (and change password)
-
-
-# CLIENT SETUP (MAVEN USER) #############################
 #
+# tell the webappl where is artifactory home:
+vim /home/artifactory/bin/tomcat_base/bin/setenv.sh
+# append 'export JAVA_OPTS="$JAVA_OPTS -Dartifactory.home=/home/artifactory/artifactory_base"'
+#
+# start the artifactory server:
+/etc/init.d/tomcat-artifactory.sh start
+# browse to web console: http://andre.ragg.ws/artifactory
+# login as 'admin' with 'password' (and change password)
+#
+#
+# STEP 3.) setup maven client ###################################
+#
+# STORE CREDENTIALS ASSIGNED TO A SERVER USER:
+#
+# (create a user in the web console.)
 # put this into your ~/.m2/settings.xml:
-      [...]
-      <servers>
-            <server>
-                  <id>repo.ragg.ws</id>
-                  <username>USERNAME</username>
-                  <password>******</password>
-            </server>
-            <server>
-                  <id>snapshots.ragg.ws</id>
-                  <username>USERNAME</username>
-                  <password>******</password>
-            </server>
-      </servers>
-      [...]
-      <profiles>
-         <profile>
-            <id>artifactory-repository</id>
-            <activation>
-                <activeByDefault>true</activeByDefault>
-            </activation>
-            <repositories>
-                <repository>
-                    <id>central</id>
-                    <url>http://ragg.ws:8082/artifactory/repo</url>
-                    <snapshots>
-                        <enabled>false</enabled>
-                    </snapshots>
-                </repository>
-                <repository>
-                    <id>snapshots</id>
-                    <url>http://ragg.ws:8082/artifactory/repo</url>
-                    <releases>
-                        <enabled>false</enabled>
-                    </releases>
-                </repository>
-            </repositories>
-            <pluginRepositories>
-                <pluginRepository>
-                    <id>central</id>
-                    <url>http://ragg.ws:8082/artifactory/repo</url>
-                    <snapshots>
-                        <enabled>false</enabled>
-                    </snapshots>
-                </pluginRepository>
-                <pluginRepository>
-                    <id>snapshots</id>
-                    <url>http://ragg.ws:8082/artifactory/repo</url>
-                    <releases>
-                        <enabled>false</enabled>
-                    </releases>
-                </pluginRepository>
-            </pluginRepositories>
-        </profile>
-    </profiles>
-    [...]
+#      [...]
+#      <servers>
+#            <server>
+#                  <id>repo.ragg.ws</id>
+#                  <username>USERNAME</username>
+#                  <password>******</password>
+#            </server>
+#            <server>
+#                  <id>snapshots.ragg.ws</id>
+#                  <username>USERNAME</username>
+#                  <password>******</password>
+#            </server>
+#      </servers>
+#      [...]
+#      <profiles>
+#         <profile>
+#            <id>artifactory-repository</id>
+#            <activation>
+#                <activeByDefault>true</activeByDefault>
+#            </activation>
+#            <repositories>
+#                <repository>
+#                    <id>central</id>
+#                    <url>http://andre.ragg.ws/artifactory/repo</url>
+#                    <snapshots>
+#                        <enabled>false</enabled>
+#                    </snapshots>
+#                </repository>
+#                <repository>
+#                    <id>snapshots</id>
+#                    <url>http://andre.ragg.ws/artifactory/repo</url>
+#                    <releases>
+#                        <enabled>false</enabled>
+#                    </releases>
+#                </repository>
+#            </repositories>
+#            <pluginRepositories>
+#                <pluginRepository>
+#                    <id>central</id>
+#                    <url>http://andre.ragg.ws/artifactory/repo</url>
+#                    <snapshots>
+#                        <enabled>false</enabled>
+#                    </snapshots>
+#                </pluginRepository>
+#                <pluginRepository>
+#                    <id>snapshots</id>
+#                    <url>http://andre.ragg.ws/artifactory/repo</url>
+#                    <releases>
+#                        <enabled>false</enabled>
+#                    </releases>
+#                </pluginRepository>
+#            </pluginRepositories>
+#        </profile>
+#    </profiles>
+#    [...]
+#
+# put this to the project's pom.xml's: (to be able to use deploy:deploy)
+#    [...]
+#    <distributionManagement>
+#        <repository>
+#            <id>repo.ragg.ws</id>
+#            <url>http://andre.ragg.ws/artifactory/libs-release-local</url>
+#        </repository>
+#        <snapshotRepository>
+#            <id>snapshots.ragg.ws</id>
+#            <url>http://andre.ragg.ws/artifactory/libs-snapshot-local</url>
+#        </snapshotRepository>
+#    </distributionManagement>
+#    [...]
+#
+# test: deploy an artifact to server (from client)
+mvn install deploy:deploy # used repo depends on: version.endsWith("SNAPSHOT")
 
-# put this to the project's pom.xml's:
-    [...]
-    <distributionManagement>
-        <repository>
-            <id>repo.ragg.ws</id>
-            <url>http://ragg.ws:8082/artifactory/libs-release-local</url>
-        </repository>
-        <snapshotRepository>
-            <id>snapshots.ragg.ws</id>
-            <url>http://ragg.ws:8082/artifactory/libs-snapshot-local</url>
-        </snapshotRepository>
-    </distributionManagement>
-    [...]
-
-# deploy an artifact to server (from client)
-mvn clean install deploy:deploy
 
 # }}}
 
