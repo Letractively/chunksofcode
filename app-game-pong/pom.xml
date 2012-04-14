@@ -5,6 +5,15 @@
     <groupId>com.myapp.games</groupId>
     <artifactId>pong-game</artifactId>
     <version>0.0.1</version>
+
+    <distributionManagement>
+        <repository> <id>andre.ragg.ws</id>
+            <url>http://andre.ragg.ws/artifactory/libs-release-local</url>
+        </repository>
+        <snapshotRepository> <id>andre.ragg.ws</id>
+            <url>http://andre.ragg.ws/artifactory/libs-snapshot-local</url>
+        </snapshotRepository>
+    </distributionManagement>
     
     <dependencies>
         <dependency>
