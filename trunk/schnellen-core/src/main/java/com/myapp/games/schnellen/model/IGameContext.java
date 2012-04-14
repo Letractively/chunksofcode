@@ -13,7 +13,7 @@ public interface IGameContext extends Serializable {
      * 
      * @return the state of the current round
      */
-    public abstract IRound round();
+    IRound round();
 
     /**
      * answers a list of the player's names in the order of their playings.
@@ -21,7 +21,7 @@ public interface IGameContext extends Serializable {
      * @return the list of players. the dealer is always at position 0 in this
      *         view.
      */
-    public abstract List<String> players();
+    List<String> players();
 
     /**
      * helds the state about how and which color was determinded as the trupm
@@ -29,25 +29,25 @@ public interface IGameContext extends Serializable {
      * 
      * @return the color selector
      */
-    public abstract IColors colors();
+    IColors colors();
 
     /**
      * @return the current game's configuration
      */
-    public abstract IConfig config();
+    IConfig config();
 
     /**
      * answers the number of cards in the deck stack
      * 
      * @return the number of cards in the deck stack
      */
-    public abstract int deckSize();
+    int deckSize();
 
     /**
      * plays one round after the other, until one players has reached the target
      * score
      */
-    public abstract void playGame();
+    void playGame();
 
 
     /**

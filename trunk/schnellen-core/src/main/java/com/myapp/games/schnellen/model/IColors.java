@@ -13,7 +13,7 @@ public interface IColors extends Serializable {
      * 
      * @return the trump suit of the current round
      */
-    public abstract Card.Color getTrumpSuit();
+    Card.Color getTrumpSuit();
 
     /**
      * calculates the minimum offer number for that player to be the trump
@@ -23,7 +23,7 @@ public interface IColors extends Serializable {
      *            the player who wants to know the minimum punch count.
      * @return the minimum value to be the highest bid.
      */
-    public abstract int getMinimumOfferValue(String p);
+    int getMinimumOfferValue(String p);
 
     /**
      * if the color was specified by a player (in game variant:
@@ -37,7 +37,7 @@ public interface IColors extends Serializable {
      *         the one with the highest promise. null if the color was not
      *         chosen by a player or no offer was made yet
      */
-    public abstract String getSpeller();
+    String getSpeller();
 
     /**
      * if the color was specified by a player (in game variant:
@@ -48,13 +48,13 @@ public interface IColors extends Serializable {
      *
      * @return the number of punches the trump speller had said.
      */
-    public abstract int getSpellersPromise();
+    int getSpellersPromise();
 
     /**
      * when the color was determined by uncovering the first card after dealing,
      * this links to the card, it is visible to all players.
      * @return
      */
-    public abstract Card uncoveredCard();
+    Card uncoveredCard();
 
 }
