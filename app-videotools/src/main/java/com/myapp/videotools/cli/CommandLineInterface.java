@@ -33,10 +33,12 @@ import java.util.Arrays;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.myapp.util.log.unixcolors.LogFileSelector;
 import com.myapp.videotools.AppStatistics;
 import com.myapp.videotools.IPathCalculator;
 import com.myapp.videotools.IVideoFileParser;
 import com.myapp.videotools.IVideoThumbnailer;
+import com.myapp.videotools.StatisticsShutDownHook;
 import com.myapp.videotools.Util;
 import com.myapp.videotools.VideoFile;
 import com.myapp.videotools.impl.FFMPEG;/*}}}*/
@@ -46,21 +48,9 @@ import com.myapp.videotools.impl.FFMPEG;/*}}}*/
 public final class CommandLineInterface {
 
     
-    private static final class StatisticsShutDownHook extends Thread {
-       
-        public void run() {
-            currentThread().setName("summary");
-            AppStatistics s = AppStatistics.getInstance();
-            s.setApplicationExit();
-            log.info(NL + s.toString());
-        }
-    }
-    
-    
-    
     private static final int INVALID_ARGS_EXIT_VAL = -17;
-    private static final Logger log = LoggerFactory.getLogger(CommandLineInterface.class);
-    private static final String NL = System.getProperty("line.separator");
+    static final Logger log = LoggerFactory.getLogger(CommandLineInterface.class);
+    static final String NL = System.getProperty("line.separator");
 
     
     private final StatisticsShutDownHook printStatsShutDownHook = new StatisticsShutDownHook();
@@ -229,19 +219,17 @@ public final class CommandLineInterface {
         throw new RuntimeException("not yet implemented");
     }
     
-    private void applyLogConfig() {
+    /**package visible because testing*/
+    void applyLogConfig() {
         if (params.isFlagSet(FLAG_TRACE_OUTPUT)) {
             if (params.isFlagSet(FLAG_COLORED_OUTPUT))
-                Util.setUnixColoredTraceLogLevel();
-            
+                LogFileSelector.setUnixColoredTraceLogLevel();
             else
-                Util.setTraceLogLevel();
-            
+                LogFileSelector.setTraceLogLevel();
         } else if (params.isFlagSet(FLAG_DEBUG_OUTPUT)) {
-            Util.setDebugLogLevel();
-            
+            LogFileSelector.setDebugLogLevel();
         } else {
-            Util.setDefaultLogLevel();
+            LogFileSelector.setDefaultLogLevel();
         }
     }
     

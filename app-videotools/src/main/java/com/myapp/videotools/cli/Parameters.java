@@ -32,7 +32,7 @@ public final class Parameters extends CommandLineUtil {
     public static final String FLAG_DEBUG_OUTPUT =             "--debug";
     public static final String FLAG_TRACE_OUTPUT =             "--trace";
     public static final String FLAG_CUSTOM_OUTPUT =            "--custom-loglevel";
-    public static final String FLAG_COLORED_OUTPUT =                 "--colored";
+    public static final String FLAG_COLORED_OUTPUT =           "--colored";
 
     private static final Map<String, String> SHORT_TO_LONG;
     private static final Map<String, String> LONG_TO_SHORT;

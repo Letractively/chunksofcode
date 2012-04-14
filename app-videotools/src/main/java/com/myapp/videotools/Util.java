@@ -46,44 +46,29 @@ public final class Util {
         return fileName.substring(0, 52 - suffix.length()) + "..." + suffix;
     }
     
-    
+    public static String squeezeFileName2(String fileName) {
+        final int MAX = 50;
+        if (fileName.length() <= MAX)
+            return fileName;
+        
+        int lastDotIndex = fileName.lastIndexOf(".");
+        if (lastDotIndex < 0)
+            return fileName.substring(0, MAX - 3) + "...";
+        
+        int suffixLength = fileName.length() - (lastDotIndex + 1);
+        
+        // max 4 chars for extension
+        if (suffixLength > 4) {
+            return fileName.substring(0, MAX - 3) + "...";
+        }
+        
+        StringBuilder s = new StringBuilder();
+        s.append(fileName.substring(0, MAX - (suffixLength + 3)));
+        s.append("...");
+        s.append(fileName.substring(lastDotIndex));
+        return s.toString();
+    }
  
-
-
-    public static void setDefaultLogLevel() {
-        try {
-            LogFileSelector.setLogConfig("logback-config-default.xml");
-        } catch (Exception e) {
-            throw new RuntimeException(e);
-        }
-    }
-
-    public static void setDebugLogLevel() {
-        try {
-            LogFileSelector.setLogConfig("logback-config-debug.xml");
-        } catch (Exception e) {
-            throw new RuntimeException(e);
-        }
-    }
-
-    public static void setTraceLogLevel() {
-        try {
-            LogFileSelector.setLogConfig("logback-config-trace.xml");
-        } catch (Exception e) {
-            throw new RuntimeException(e);
-        }
-    }
-
-    public static void setUnixColoredTraceLogLevel() {
-        try {
-            LogFileSelector.setLogConfig("logback-config-trace-unix-colored.xml");
-        } catch (Exception e) {
-            throw new RuntimeException(e);
-        }
-    }
-
-    
-    
     
     public static String getOsInfoString() {
         String osName = System.getProperty("os.name");
