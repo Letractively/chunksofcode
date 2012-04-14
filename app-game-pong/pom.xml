@@ -4,7 +4,7 @@
     
     <groupId>com.myapp.games</groupId>
     <artifactId>pong-game</artifactId>
-    <version>0.0.1</version>
+    <version>0.0.2-SNAPSHOT</version>
 
     <distributionManagement>
         <repository> <id>andre.ragg.ws</id>
