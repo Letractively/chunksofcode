@@ -1,0 +1,116 @@
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+	
+	<modelVersion>4.0.0</modelVersion>
+	<name>web-jsf2-getstarted</name>
+    <description>demo webapp to demonstrate jsf2 framework usage</description>
+    
+	<groupId>com.myapp.web</groupId>
+	<artifactId>jsf2-getstarted</artifactId>
+	<version>0.0.1</version>
+
+  <distributionManagement>
+      <repository> <id>andre.ragg.ws</id>
+          <url>http://andre.ragg.ws/artifactory/libs-release-local</url>
+      </repository>
+      <snapshotRepository> <id>andre.ragg.ws</id>
+          <url>http://andre.ragg.ws/artifactory/libs-snapshot-local</url>
+      </snapshotRepository>
+  </distributionManagement>
+
+
+    <packaging>war</packaging>
+    <!--
+	<repositories>
+		<repository>
+			<id>maven repo</id>
+			<url>http://repo1.maven.org/maven2</url>
+		</repository>
+		<repository>
+			<id>jboss repo</id>
+			<url>http://repository.jboss.org/maven2</url>
+		</repository>
+	</repositories>
+-->
+    <dependencies>
+    
+        <!-- jsf2 api and implementation: -->
+        <dependency>
+            <groupId>mojarra-2.0.1-FCS</groupId>
+            <artifactId>faces-api</artifactId>
+            <version>2.0.1</version>
+            <scope>system</scope>
+            <systemPath>${basedir}/web/WEB-INF/lib/jsf-api.jar</systemPath>
+        </dependency>
+        <dependency>
+            <groupId>mojarra-2.0.1-FCS</groupId>
+            <artifactId>faces-impl</artifactId>
+            <version>2.0.1</version>
+            <scope>system</scope>
+            <systemPath>${basedir}/web/WEB-INF/lib/jsf-impl.jar</systemPath>
+        </dependency>
+        
+        <dependency>
+        	<groupId>javax.servlet</groupId>
+        	<artifactId>servlet-api</artifactId>
+        	<version>2.5</version>
+        	<scope>provided</scope>
+        </dependency>
+        
+        <!-- validation api and hibernate's implementation: -->
+        <dependency>
+            <groupId>org.hibernate</groupId>
+            <artifactId>hibernate-validator</artifactId>
+            <version>4.0.2.GA</version>
+        </dependency>
+        <dependency>
+        	<groupId>org.slf4j</groupId>
+        	<artifactId>slf4j-simple</artifactId>
+        	<version>1.5.6</version>
+        </dependency>
+        <dependency>
+        	<groupId>javax.servlet</groupId>
+        	<artifactId>jstl</artifactId>
+        	<version>1.2</version>
+        </dependency>
+    </dependencies>
+
+    <build>
+        <finalName>${pom.artifactId}</finalName>
+        <directory>${basedir}/target</directory>
+        <defaultGoal>package</defaultGoal>
+
+        <sourceDirectory>${basedir}/src</sourceDirectory>
+
+        <plugins>
+            <plugin>
+                <artifactId>maven-compiler-plugin</artifactId>
+                <configuration>
+                    <source>1.6</source>
+                    <target>1.6</target>
+                </configuration>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-resources-plugin</artifactId>
+                <configuration>
+                    <encoding>UTF-8</encoding>
+                </configuration>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-war-plugin</artifactId>
+                <version>2.0</version>
+                <configuration>
+                    <webappDirectory>${project.build.directory}/${pom.artifactId}</webappDirectory>
+                    <webResources>
+                        <resource>
+                            <directory>${basedir}/web</directory>
+                        </resource>
+                    </webResources>
+                </configuration>
+            </plugin>
+        </plugins>
+    </build>
+</project>
+	
