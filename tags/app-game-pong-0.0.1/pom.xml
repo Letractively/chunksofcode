@@ -1,0 +1,87 @@
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+    
+    <groupId>com.myapp.games</groupId>
+    <artifactId>pong-game</artifactId>
+    <version>0.0.1</version>
+
+    <distributionManagement>
+        <repository> <id>andre.ragg.ws</id>
+            <url>http://andre.ragg.ws/artifactory/libs-release-local</url>
+        </repository>
+        <snapshotRepository> <id>andre.ragg.ws</id>
+            <url>http://andre.ragg.ws/artifactory/libs-snapshot-local</url>
+        </snapshotRepository>
+    </distributionManagement>
+    
+    <dependencies>
+        <dependency>
+          <groupId>com.google.collections</groupId>
+          <artifactId>google-collections</artifactId>
+          <version>1.0</version>
+        </dependency>
+        
+        <!-- logging libs -->
+        <dependency>
+            <groupId>org.slf4j</groupId>
+            <artifactId>slf4j-api</artifactId>
+            <version>1.5.10</version>
+        </dependency>
+        <dependency>
+            <groupId>ch.qos.logback</groupId>
+            <artifactId>logback-core</artifactId>
+            <version>0.9.18</version>
+        </dependency>
+        <dependency>
+            <groupId>ch.qos.logback</groupId>
+            <artifactId>logback-classic</artifactId>
+            <version>0.9.18</version>
+        </dependency>
+    </dependencies>
+
+    <build>
+        <plugins>
+            <plugin>
+                <artifactId>maven-compiler-plugin</artifactId>
+                <configuration>
+                    <source>1.6</source>
+                    <target>1.6</target>
+                    <encoding>UTF-8</encoding>
+                </configuration>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-resources-plugin</artifactId>
+                <configuration>
+                    <encoding>UTF-8</encoding>
+                </configuration>
+            </plugin>
+            <plugin>
+                <artifactId>maven-jar-plugin</artifactId>
+                <configuration>
+                    <archive>
+                        <manifestFile>${basedir}/src/main/resources/META-INF/MANIFEST.MF</manifestFile>
+                    </archive>
+                </configuration>
+            </plugin>
+            <!--plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-dependency-plugin</artifactId>
+                <executions>
+                    <execution>
+                        <id>build-classpath</id>
+                        <phase>generate-sources</phase>
+                        <goals>
+                            <goal>build-classpath</goal>
+                        </goals>
+                        <configuration>
+                            <outputFile>${basedir}/target/classpath.txt</outputFile>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin-->        
+        
+        </plugins>
+    </build>
+</project>
