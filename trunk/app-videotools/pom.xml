@@ -6,7 +6,7 @@
 
   <groupId>com.myapp</groupId>
   <artifactId>app-videotools</artifactId>
-  <version>1.0</version>
+  <version>1.0.1-SNAPSHO</version>
 
   <distributionManagement>
       <repository> <id>andre.ragg.ws</id>
