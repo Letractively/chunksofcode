@@ -8,9 +8,19 @@
 	<groupId>com.myapp.web</groupId>
 	<artifactId>jsf2-getstarted</artifactId>
 	<version>0.0.1-SNAPSHOT</version>
-	
-    <packaging>war</packaging>
 
+  <distributionManagement>
+      <repository> <id>andre.ragg.ws</id>
+          <url>http://andre.ragg.ws/artifactory/libs-release-local</url>
+      </repository>
+      <snapshotRepository> <id>andre.ragg.ws</id>
+          <url>http://andre.ragg.ws/artifactory/libs-snapshot-local</url>
+      </snapshotRepository>
+  </distributionManagement>
+
+
+    <packaging>war</packaging>
+    <!--
 	<repositories>
 		<repository>
 			<id>maven repo</id>
@@ -21,7 +31,7 @@
 			<url>http://repository.jboss.org/maven2</url>
 		</repository>
 	</repositories>
-
+-->
     <dependencies>
     
         <!-- jsf2 api and implementation: -->
