@@ -7,7 +7,7 @@
     
 	<groupId>com.myapp.web</groupId>
 	<artifactId>jsf2-getstarted</artifactId>
-	<version>0.0.1-SNAPSHOT</version>
+	<version>0.0.1</version>
 
   <distributionManagement>
       <repository> <id>andre.ragg.ws</id>
