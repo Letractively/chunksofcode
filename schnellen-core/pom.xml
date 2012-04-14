@@ -6,7 +6,7 @@
 
     <groupId>com.myapp.games</groupId>
     <artifactId>schnellen-core</artifactId>
-    <version>1.0-SNAPSHOT</version>
+    <version>1.0</version>
     <packaging>jar</packaging>
 
     <name>schnellen-core</name>
@@ -14,8 +14,19 @@
 
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-        <game.main.class>com.myapp.games.schnellen.view.cli.Main</game.main.class>
+        <game.main.class>com.myapp.games.schnellen.frontend.Main</game.main.class>
     </properties>
+
+    <distributionManagement>
+        <repository> <id>andre.ragg.ws</id>
+            <url>http://andre.ragg.ws/artifactory/libs-release-local</url>
+        </repository>
+        <snapshotRepository> <id>andre.ragg.ws</id>
+            <url>http://andre.ragg.ws/artifactory/libs-snapshot-local</url>
+        </snapshotRepository>
+    </distributionManagement>
+
+
 
     <dependencies>
         <dependency>

@@ -103,6 +103,12 @@ final class Round implements IRound {
     }
 
     @Override
+    public boolean isDealer(String name) {
+        assert name != null;
+        return getDealer().equals(name);
+    }
+
+    @Override
     public int getExchangeCount(String p) {
         return context.backend(p).getExchanged();
     }

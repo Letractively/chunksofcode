@@ -17,7 +17,7 @@ public interface IScorings extends Serializable {
      * @param player
      * @return
      */
-    public abstract int getGamesWon(String player);
+    int getGamesWon(String player);
 
     /**
      * returns the score of the player. unfinished rounds are not considered in
@@ -31,7 +31,7 @@ public interface IScorings extends Serializable {
      *            the player to request the score for
      * @return the score
      */
-    public abstract int getScore(String p);
+    int getScore(String p);
 
     /**
      * determines if there is a winner in this game. the game is final after the
@@ -44,7 +44,7 @@ public interface IScorings extends Serializable {
      * 
      * @return if the game is final
      */
-    public abstract boolean isGameFinal();
+    boolean isGameFinal();
 
     /**
      * calculates a list of players with their current total score. highest
@@ -53,7 +53,7 @@ public interface IScorings extends Serializable {
      * 
      * @return the score ranking of the current game.
      */
-    public abstract List<Entry<String, Integer>> getRankings();
+    List<Entry<String, Integer>> getRankings();
 
     /**
      * when the game is final this will return the winner whose score is the
@@ -64,7 +64,7 @@ public interface IScorings extends Serializable {
      * 
      * @return the winner of this game, or more
      */
-    public abstract Collection<String> getWinners();
+    Collection<String> getWinners();
 
     /**
      * the score factor will be used to multiply the POINTS OF ONE ROUND
@@ -73,6 +73,6 @@ public interface IScorings extends Serializable {
      *
      * @return the current score factor for this round
      */
-    public abstract int getScoreFactor();
+    int getScoreFactor();
 
 }
