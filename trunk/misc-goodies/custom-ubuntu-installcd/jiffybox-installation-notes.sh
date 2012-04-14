@@ -524,6 +524,7 @@ chsh artifactory -s /bin/zsh
 # XXX create a tomcat instance as described in chapter 9 for artifactory user.
 # (in this example: /home/artifactory/bin/tomcat_base)
 #
+# configure tomcat {{{
 # tomcat/server.xml: add line
 #    '<Connector port="8010" protocol="AJP/1.3" redirectPort="8443" address="localhost"/>'
 #
@@ -542,6 +543,7 @@ chsh artifactory -s /bin/zsh
 #     # artifactory tomcat instance: (maven repo)
 #     JkMount /artifactory* artifactorytomcat
 #   </VirtualHost>
+#}}}
 #
 # STEP 2.) setup artifactory installation ###################################
 #
@@ -565,27 +567,55 @@ vim /home/artifactory/bin/tomcat_base/bin/setenv.sh
 # login as 'admin' with 'password' (and change password)
 #
 #
+# STEP 2.1) OPTIONAL: tell artifactory to use mysql: # {{{
+#
+# create mysql db and user:
+mysql -u root -p
+# > create database artifactory character set utf8;
+# > GRANT SELECT,INSERT,UPDATE,DELETE,CREATE,DROP,ALTER,INDEX on artifactory.* TO 'artifactory'@'localhost' IDENTIFIED BY 'password1';
+
+cd /home/artifactory # (as artifactory user)
+
+# install mysql driver to tomcat:
+wget http://www.mysql.com/get/Downloads/Connector-J/mysql-connector-java-5.1.19.zip/from/http://gd.tuwien.ac.at/db/mysql/ -O mysql-connector-java-5.1.19.zip
+unzip mysql-connector-java-5.1.19.zip
+cp mysql-connector-java-5.1.19/mysql-connector-java-5.1.19-bin.jar bin/tomcat_base/lib/
+
+
+# tell artifactory to use mysql:
+vim artifactory_base/etc/artifactory.system.properties
+# artifactory.jcr.configDir=repo/filesystem-mysql
+
+# configure datasource in:
+vim artifactory_base/etc/repo/filesystem-mysql/repo.xml
+#
+# }}}
+#
+#
 # STEP 3.) setup maven client ###################################
 #
 # STORE CREDENTIALS ASSIGNED TO A SERVER USER:
 #
-# (create a user in the web console.)
-# put this into your ~/.m2/settings.xml:
-#      [...]
+# (create a user in the artifactory web console.)
+# update your ~/.m2/settings.xml to tell maven the server settings:
+# {{{
 #      <servers>
+#            [...]
+#            <!-- define your user's credentials here to deploy
+#               your artifacts on the server. (server.id is
+#               referenced in poms at <distributionManagement>  section-->
 #            <server>
-#                  <id>repo.ragg.ws</id>
-#                  <username>USERNAME</username>
-#                  <password>******</password>
-#            </server>
-#            <server>
-#                  <id>snapshots.ragg.ws</id>
-#                  <username>USERNAME</username>
+#                  <id>andre.ragg.ws</id>
+#                  <username>artifactoryUserName</username>
 #                  <password>******</password>
 #            </server>
 #      </servers>
-#      [...]
+#
 #      <profiles>
+#         [...]
+#         <!-- add a profile that configures the repositories
+#               used to fetch artifacts during build 
+#               (overrides default maven repo) -->
 #         <profile>
 #            <id>artifactory-repository</id>
 #            <activation>
@@ -625,21 +655,23 @@ vim /home/artifactory/bin/tomcat_base/bin/setenv.sh
 #            </pluginRepositories>
 #        </profile>
 #    </profiles>
-#    [...]
+# }}}
 #
 # put this to the project's pom.xml's: (to be able to use deploy:deploy)
+# {{{
+# <project>
 #    [...]
 #    <distributionManagement>
-#        <repository>
-#            <id>repo.ragg.ws</id>
+#        <repository> <id>andre.ragg.ws</id>
 #            <url>http://andre.ragg.ws/artifactory/libs-release-local</url>
 #        </repository>
-#        <snapshotRepository>
-#            <id>snapshots.ragg.ws</id>
+#        <snapshotRepository> <id>andre.ragg.ws</id>
 #            <url>http://andre.ragg.ws/artifactory/libs-snapshot-local</url>
 #        </snapshotRepository>
 #    </distributionManagement>
 #    [...]
+# </project>
+# }}}
 #
 # test: deploy an artifact to server (from client)
 mvn install deploy:deploy # used repo depends on: version.endsWith("SNAPSHOT")
