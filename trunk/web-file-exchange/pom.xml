@@ -25,6 +25,17 @@
         <jetty.version>7.5.0.v20110901</jetty.version>
     </properties>
 
+  <distributionManagement>
+    <repository>
+      <id>andre.ragg.ws</id>
+      <url>http://andre.ragg.ws/artifactory/libs-release-local</url>
+    </repository>
+    <snapshotRepository>
+      <id>andre.ragg.ws</id>
+      <url>http://andre.ragg.ws/artifactory/libs-snapshot-local</url>
+    </snapshotRepository>
+  </distributionManagement>
+
     <dependencies>
 
         <!--  WICKET DEPENDENCIES -->
