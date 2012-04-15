@@ -113,7 +113,6 @@ public class UploadServlet extends HttpServlet {
             maxMemSize = Integer.parseInt(uploadFactoryMaxMemProperty.trim());
         }
         
-        
         factory = new DiskFileItemFactory();
         factory.setSizeThreshold(maxMemSize);
         
@@ -304,18 +303,21 @@ public class UploadServlet extends HttpServlet {
             fileItems = new ArrayList<FileItem>(upload.parseRequest(req));
             
         } catch (SizeLimitExceededException e2) {
-            log.info("rejecting upload, file too big!"+e2);
-            resp.getWriter().println("UPLOAD FAILED. MESSAGE="+e2.getMessage());
+            String msg = e2.getMessage();
+            log.info("File too big. "+msg);
+            resp.getWriter().println("UPLOAD FAILED. MESSAGE="+msg);
             return;
             
         } catch (Exception e1) {
-            String msg = "upload rejected. Error: "+e1.getMessage();
-            log.error(msg, e1);
-            resp.getWriter().println("UPLOAD FAILED. MESSAGE="+e1.getMessage());
+            String msg = e1.getMessage();
+            log.error(msg);
+            log.info("File too big.", e1);
+            resp.getWriter().println("UPLOAD FAILED. MESSAGE="+msg);
             return;
+            
         }
         
-        log.info(fileItems.size()+" file-items parsed.");
+        log.debug(fileItems.size()+" file-items parsed.");
         
         // look for the client fingerprint:
         String clientFingerPrint = null;
@@ -386,7 +388,7 @@ public class UploadServlet extends HttpServlet {
                  Thread.sleep(1000);
              }
             
-            log.info("Uploaded file '"+fileName+"' to '"+saveLocation+"'.");
+            log.info("Uploaded file '"+saveLocation+"'.");
             
         } finally {
             if (inputStream != null) {
