@@ -12,7 +12,7 @@ else
 fi
 
 # create small versions in 16 pixel steps:
-for i in 256 240 224 208 192 176 160 144 128 112 96 80 64 48 32 16; do
+for i in 16 32 48 64 80 96 112 128 144 160 176 192 208 224 240 256; do
     shrinkFactor=$(echo "scale=5; ($i/256)*100" | bc)
     echo "$i - $shrinkFactor"
     
@@ -21,7 +21,7 @@ for i in 256 240 224 208 192 176 160 144 128 112 96 80 64 48 32 16; do
     | while read image; do
         # shrink image file
         imgName=$(basename $image)
-        newName=$(echo $imgName | sed s/256/$i/g)
+        newName=$(echo $imgName | sed s/256/$i/g )
         convert -resize "$shrinkFactor%" "$image" "$target/$newName"
     done
 done
