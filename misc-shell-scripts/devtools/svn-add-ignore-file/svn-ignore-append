@@ -1,0 +1,22 @@
+#!/bin/bash
+
+
+# include function library {{{
+THIS_DIR_PATH=$(cd `dirname $0`; pwd)
+LIB="$THIS_DIR_PATH/function-lib.sh"
+. "$LIB"
+# }}}
+
+
+# set to 1 if you want debug output
+DEBUG=
+
+
+applyDir="$1"
+propertyName="$2"
+
+
+appendIgnoreProperty
+
+
+# vim: set foldmethod=marker:

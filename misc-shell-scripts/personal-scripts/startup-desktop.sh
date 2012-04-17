@@ -1,7 +1,114 @@
 #!/bin/bash
 
+
+
+# $1 : pattern
+# $2 : grepOptions
+function isWindowVisible() {
+    pattern=$1
+    grepOptions=$2
+    
+    if [ $# -lt 1 ] ; then
+        echo "must provide a pattern!"
+        exit 1
+    fi
+
+    if ( wmctrl -l -p -G | grep -q $grepOptions "$pattern" ) ; then
+        echo "window is visible: '$pattern'"
+        return 0
+    fi
+
+    echo "window is NOT visible: '$pattern'"
+    return 1
+}
+
+
+function isProcessStarted() {
+    pattern=$1
+    grepOptions=$2
+
+    if [ $# -lt 1 ] ; then
+        echo "must provide a pattern!"
+        exit 1
+    fi
+
+    if ( ps auxwww | grep -v grep | grep "$(whoami)" | grep -q $grepOptions "$pattern" ) ; then
+        echo "process is started: '$pattern'"
+        return 0
+    fi
+
+    echo "process is NOT started: '$pattern'"
+    return 1
+}
+
+
+function printWmctrlState() {
+    echo "current wmctrl-header output:"
+    cat ~/scripts/wmctrl-header.txt
+    wmctrl -l -p -G
+}
+
+function startProcesses() {
+        echo "will now start apps..."
+        firefox &
+        skype &
+        empathy &
+        xterm -bg black -fg white -fn 7x13 -e /bin/zsh &
+        transmission &
+        liferea &
+        thunderbird &
+        gmpc &
+}
+
+function waitForProcessGuis() {
+    while [ 1 ] 
+    do
+        echo "waiting for initialize..."
+        sleep 2
+        echo 
+        echo "***********************************************************"
+        echo 
+        echo "will now lookup if all apps were loaded: `date '+%H.%M.%S'` "
+        echo
+        echo "wait for the started apps' processes to start..."
+        echo
+        
+        isProcessStarted firefox      -i || continue
+        isProcessStarted skype        -i || continue
+        isProcessStarted empathy      -i || continue
+        isProcessStarted xterm        -i || continue
+        isProcessStarted transmission -i || continue
+        isProcessStarted liferea      -i || continue
+        isProcessStarted thunderbird  -i || continue
+        isProcessStarted gmpc         -i || continue
+        
+        echo
+        echo "wait for the started apps' guis to become visible..."
+        printWmctrlState 
+        echo
+        
+        # gmpc is not being tested here, because it's title differs when playing during login 
+        isWindowVisible 'x-nautilus-desktop'                                 -i    || continue
+        isWindowVisible '(Oberes Kanten-Panel|Top Expanded Edge Panel)'      -iE   || continue
+        isWindowVisible '(Unteres Kanten-Panel|Bottom Expanded Edge Panel)'  -iE   || continue
+        isWindowVisible "$(whoami)@$(hostname): ~"                           -i    || continue
+        isWindowVisible firefox                                              -i    || continue
+        isWindowVisible skype                                                -i    || continue
+        isWindowVisible "(contact list|Kontaktliste)"                        -iE   || continue
+        isWindowVisible transmission                                         -i    || continue
+        isWindowVisible liferea                                              -i    || continue
+        isWindowVisible thunderbird                                          -i    || continue
+
+        break
+    done
+    
+    echo
+    echo "all apps are started and visible!"
+}
+
+
 function main() {
-    date
+    date '+%Y-%m-%d_%H.%M.%S'
 
     local DEBUG_MODE=0
     local START_APPS=1
@@ -13,72 +120,21 @@ function main() {
     ########################################
 
 
-    if [ "$DEBUG_MODE" == "1" ] ; then
+    if [ "$DEBUG_MODE" != "0" ] ; then
         echo DEBUG_MODE is on !
+        echo will not start apps!
+    fi
 
-    else
-
-        if [ "$START_APPS" == "1" ] ; then
-            firefox &
-            skype &
-            empathy &
-            xterm -bg black -fg white -fn 7x13 -e /bin/zsh &
-            transmission &
-            liferea &
-            thunderbird &
-            gmpc &
-
-            ls -1 /var/log/auth.log \
-                  /var/log/boot.log \
-                  /var/log/daemon.log \
-                  /var/log/kern.log \
-                  /var/log/messages \
-                  /var/log/syslog \
-            | while read line; do
-                xterm -title "$line" -geometry "120x20" -e tail -fn20 "$line" &
-            done
-            
-            while [ 1 ] ; do
-                sleep 1
-
-                # wait for gnome panel to initialize...
-                wmctrl -l -p -G | grep -iq 'x-nautilus-desktop' || continue
-                wmctrl -l -p -G | grep -iq 'Top Expanded Edge Panel' || continue
-                wmctrl -l -p -G | grep -iq 'Bottom Expanded Edge Panel' || continue
-          
-
-                wmctrl -l -p -G | grep -iq firefox        || continue
-                wmctrl -l -p -G | grep -iq skype          || continue
-                wmctrl -l -p -G | grep -iq "contact list" || continue
-                wmctrl -l -p -G | grep -iq transmission   || continue
-                wmctrl -l -p -G | grep -iq liferea        || continue
-                wmctrl -l -p -G | grep -iq thunderbird    || continue
-                wmctrl -l -p -G | grep -iq 'andre@buenosaires: ~' || continue
-               
-              # commented because title different when mpc is not stopped:
-              # wmctrl -l -p -G | grep -iq 'gmpc'                 || continue
-                
-                ps auxwww | grep -v grep | grep "$(whoami)" | grep -q firefox      || continue
-                ps auxwww | grep -v grep | grep "$(whoami)" | grep -q skype        || continue
-                ps auxwww | grep -v grep | grep "$(whoami)" | grep -q empathy      || continue
-                ps auxwww | grep -v grep | grep "$(whoami)" | grep -q xterm        || continue
-                ps auxwww | grep -v grep | grep "$(whoami)" | grep -q transmission || continue
-                ps auxwww | grep -v grep | grep "$(whoami)" | grep -q liferea      || continue
-                ps auxwww | grep -v grep | grep "$(whoami)" | grep -q thunderbird  || continue
-                ps auxwww | grep -v grep | grep "$(whoami)" | grep -q gmpc         || continue
-
-                break
-            done
-       fi
+    if [ "$START_APPS" == "1" -a "$DEBUG_MODE" == "0" ] ; then
+        startProcesses
+        waitForProcessGuis
     fi
 
 
     #################################
     # log the current windows' state
     #################################
-    cat ~/scripts/wmctrl-header.txt
-    wmctrl -l -p -G
-
+    printWmctrlState
 
 
 
@@ -86,8 +142,8 @@ function main() {
     # parse wmctrl output:
     ########################################
 
-    wmctrl -l -p -G \
-    | while read line; do
+    wmctrl -l -p -G | while read line
+    do
         
         DEBUG=0
        
@@ -122,63 +178,54 @@ function main() {
         if (echo "$proccmd" | grep -q "skype"); then 
             echo
             echo " -------    found skype instance! ------------------"
-            xywh="1650 50   252,495"
+            xywh="1645 98   266  495 "
 
 
         elif (echo "$proccmd" | grep -q "empathy"); then 
-            echo
-            echo " -------    found emphaty instance! ------------------"
-            xywh="1370 50   257  495"
+            echo;echo " -------    found emphaty instance! ------------------"
+            xywh="1335 98   286  495"
         
 
         elif (echo "$proccmd" | grep -q "transmission"); then 
-            echo
             echo " -------    found transmission instance! ------------------"
-            xywh="1370,594,533,409"
+            xywh="1335 642  576  409"
         
 
         elif (echo "$proccmd" | grep -q "/usr/lib/thunderbird" && echo "$title" | grep -qi "thunderbird"); then 
-            echo
             echo " -------    found thunderbird instance! ------------------"
-            xywh=" 17 50 1327,953"
+            xywh="25   98   1286 953"
 
 
         elif (echo "$proccmd" | grep -q "liferea"); then 
-            echo
             echo " -------    found liferea instance! ------------------"
             desktop=1
-            xywh="1059,50,844,953"
+            xywh="1067 98   844  953"
         
 
         elif (echo "$proccmd" | grep -q "firefox"); then 
-            echo
             echo " -------    found firefox instance! ------------------"
             desktop=1
-            xywh="  17,50,1014,953 "
+            xywh="25   98   1014 953"
         
         
         elif (echo "$proccmd" | grep -q "xterm" && echo "$title" | grep -qE "^andre@buenosaires: ~$"); then 
-            echo
             echo " -------    found xterm instance! ------------------"
-            xywh="17,50,844,953"
+            xywh="23   98   844  953 "
             desktop=2
 
 
-        elif (echo "$proccmd" | grep -q "nautilus" && echo "$title" | grep -q "File Browser"); then 
-            echo
-            echo " -------    found nautilus file browser instance! ------------------"
-            xywh="887,50,1016,953"
-            desktop=2
+#        elif (echo "$proccmd" | grep -q "nautilus" && echo "$title" | grep -q "File Browser"); then 
+#            echo " -------    found nautilus file browser instance! ------------------"
+#            xywh=""
+#            desktop=2
 
 
         elif (echo "$proccmd" | grep -q "gmpc"); then 
-            echo
             echo " -------    found gmpc instance! ------------------"
-            xywh=",888,50,1018,953"
+            xywh=" 892  98   1019 953 "
             desktop=2
 
         else
-            echo "- uninteresting: $simpleLine"
             continue
         fi
 
@@ -190,41 +237,28 @@ function main() {
         # group1=x group2=y, group3=height, group4=width
         ######################################################
 
-        sedexpr="s/"
-        sedexpr="${sedexpr}[^0-9]*\([0-9]*\)"
-        sedexpr="${sedexpr}[^0-9]*\([0-9]*\)"
-        sedexpr="${sedexpr}[^0-9]*\([0-9]*\)"
-        sedexpr="${sedexpr}[^0-9]*\([0-9]*\)"
-        sedexpr="${sedexpr}.*/"
+        #               \([0-9]*\)       \([0-9]*\)       \([0-9]*\)       \([0-9]*\)  
+        sedexpr="[^0-9]*\([0-9]*\)[^0-9]*\([0-9]*\)[^0-9]*\([0-9]*\)[^0-9]*\([0-9]*\).*"
+        newXYWH="$(echo $xywh | sed "s/${sedexpr}/\1,\2,\3,\4/")"
 
-        if [ -z "$( echo "$xywh"  | sed  "${sedexpr}nasen/" )" ] ; then
-            echo "WARNING: did not match: $xywh"
-            echo "sedexpr:   $sedexpr"
-            exit 231
-        fi
-            
-#       echo "simpleLine:    $simpleLine"
-#       echo "windowId:      $windowId"
-#       echo "procId:        $procId"
-#       echo "psOutput:      $psOutput"
-#       echo "procOwner:     $procOwner"
-#       echo "title :        $title"
-#       echo "proccmd:       $proccmd"
-#       echo "x      :       $x"
-#       echo "y      :       $y"
-#       echo "width  :       $width"
-#       echo "height :       $height"
 
-        newX=$(echo $xywh  | sed "${sedexpr}\1/" )
-        newY=$(echo $xywh  | sed "${sedexpr}\2/" )
-        newW=$(echo $xywh  | sed "${sedexpr}\3/" )
-        newH=$(echo $xywh  | sed "${sedexpr}\4/" )
-        newXYWH="$newX,$newY,$newW,$newH"
 
-        echo "currentXywh :   $currentXywh"
+        # XXX hack START: apply offset to x and y: XXX
+
+        hackX="$(echo $xywh | sed "s/$sedexpr/\1/")"
+        hackY="$(echo $xywh | sed "s/$sedexpr/\2/")"
+        hackWH="$(echo $xywh | sed "s/$sedexpr/\3,\4/")"
+        hackX=$(echo "$hackX - 10" | bc)
+        hackY=$(echo "$hackY - 60" | bc)
+        hackXYWH="$hackX,$hackY,$hackWH"
+        newXYWH=$hackXYWH
+
+        # XXX hack END: apply offset to x and y: XXX
+
+
+
         echo "newXYWH  :      $newXYWH"
         echo "will now exec:  wmctrl -i -r $windowId -e '0,$newXYWH'"
-
         if [ $desktop -ne 0 ] ; then
             echo "will now exec:  wmctrl -i -r $windowId -t $desktop"
         fi
@@ -234,88 +268,27 @@ function main() {
         ##########################################
 
         if [ "$DEBUG_MODE" == "1" ] ; then
-            echo dbg
+            echo "debug mode is on"
             echo
             continue
         fi
 
         if [ $desktop -ne 0 ] ; then
-            wmctrl -i -r $windowId -t $desktop
-            echo success: $?
+            echo "executing: wmctrl -i -r $windowId -t $desktop"
+            wmctrl -i -r $windowId -t $desktop || exit 222
         fi
 
-        wmctrl -i -r $windowId -e "0,$newXYWH"
-        echo success: $?
+        echo "executing: wmctrl -i -r $windowId -e '0,$newXYWH'"
+        wmctrl -i -r $windowId -e "0,$newXYWH" || exit 333
         
         echo
     done
 
-
-
-    ################################################
-    ################################################
-    ######      show logfiles on desktop 4:   ######
-    ################################################
-    ################################################
-
-    wmctrl -l -p -G \
-    | grep /var/log \
-    | grep -v cat \
-    | while read window; do
-        echo "$window"
-        simpleLine=$(echo $window | tr -s " ")
-        procId=$(echo $simpleLine | cut -d " " -f 3)
-        windowId=$(echo $simpleLine | cut -d " " -f 1)
-        psOutput=$(ps auxww | grep -v grep | grep $procId | tr -s ' ')
-        procOwner=$(echo $psOutput | cut -d " " -f 1)
-        title=$(echo $simpleLine | cut -d " " -f 9-)
-
-#        echo "simpleLine:    $simpleLine"
-#        echo "windowId:      $windowId"
-#        echo "procId:        $procId"
-#        echo "psOutput:      $psOutput"
-#        echo "procOwner:     $procOwner"
-#        echo "title :        $title"
-#        echo "window:        $window"
-
-        case $title in
-            /var/log/kern.log)
-                xywh=" 235  160  724  264 "
-            ;;
-            /var/log/daemon.log)
-                xywh="235  452  724  264 "
-            ;;
-            /var/log/auth.log)
-                xywh="235  744  724  264"
-            ;;
-            /var/log/boot.log)
-                xywh=" 967  160  724  264 "
-            ;;
-            /var/log/syslog)
-                xywh=" 967  452  724  264 "
-            ;;
-            /var/log/messages)
-                xywh=" 967  744  724  264"
-            ;;
-        esac
-
-        x=$(echo "$xywh" | grep -Eo "\<.*\>" | tr -s " " | cut -d" " -f1)
-        y=$(echo "$xywh" | grep -Eo "\<.*\>" | tr -s " " | cut -d" " -f2)
-        w=$(echo "$xywh" | grep -Eo "\<.*\>" | tr -s " " | cut -d" " -f3)
-        h=$(echo "$xywh" | grep -Eo "\<.*\>" | tr -s " " | cut -d" " -f4)
-
-        # insert some offsets:
-        y=$(echo "$y - 110" | bc)
-        x=$(echo "$x + 120" | bc)
-
-        newXYWH="$x,$y,$w,$h"
-        echo;echo wmctrl -i -r $windowId -e "0,$newXYWH"
-        wmctrl -i -r $windowId -e "0,$newXYWH"
-        wmctrl -i -r $windowId -t 3
-        echo;echo
-    done
-
+    echo "will now start conky..."
     conky &
+    sleep 2
+
+    exit 0
 }
 
 rm -f /tmp/startup-desktop.sh.log
