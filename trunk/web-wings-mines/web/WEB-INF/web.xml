@@ -29,7 +29,6 @@
             <param-value>org.wings.plaf.css.dwr.SessionCreatorManager</param-value>
             <description>Install a session local CreatorManager</description>
         </init-param>
-        <load-on-startup>-1</load-on-startup>
     </servlet>
 
     <servlet-mapping>
