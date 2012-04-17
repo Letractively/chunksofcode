@@ -1,18 +1,11 @@
 package com.myapp.tools.media.renamer.view.swing;
 
+import java.util.*;
+import javax.swing.*;
 import static com.myapp.tools.media.renamer.controller.Msg.msg;
+import static com.myapp.tools.media.renamer.config.IConstants.ISysConstants.*;
+import static com.myapp.tools.media.renamer.view.swing.IActionCommands.*;
 
-import java.awt.event.ActionListener;
-import java.util.HashSet;
-import java.util.Set;
-
-import javax.swing.ButtonGroup;
-import javax.swing.JMenu;
-import javax.swing.JMenuBar;
-import javax.swing.JMenuItem;
-import javax.swing.JRadioButtonMenuItem;
-
-import com.myapp.tools.media.renamer.config.IConstants.ISysConstants;
 
 /**
  * the component used as menubar of the renamer swing ui.
@@ -20,7 +13,7 @@ import com.myapp.tools.media.renamer.config.IConstants.ISysConstants;
  * @author andre
  */
 @SuppressWarnings("serial")
-class MenuBar extends JMenuBar implements IActionCommands, ISysConstants {
+class MenuBar extends JMenuBar {
     
     private final SwingApplication app;
     
@@ -41,34 +34,38 @@ class MenuBar extends JMenuBar implements IActionCommands, ISysConstants {
         add(createEditMenu());
         refreshDisplay();
     }
-    
+
+
 
     /**
      * creates and inserts the file menu
      */
     private JMenu createFileMenu() {
         JMenuItem add, rmAll, resetAll, copyright, exit;
-
-        add             = new JMenuItem(msg("MenuBar.AddFiles"));
-        rmAll           = new JMenuItem(msg("MenuBar.RemoveAllFiles"));
-        resetAll        = new JMenuItem(msg("MenuBar.discardAllChanges"));
-        startRenaming   = new JMenuItem(msg("MenuBar.renameStartbtn"));
-        copyright       = new JMenuItem(msg("MenuBar.showCopyRight"));
-        exit            = new JMenuItem(msg("MenuBar.ExitApplication"));
-
-        add             .addActionListener(app.getActionListener());
-        rmAll           .addActionListener(app.getActionListener());
-        resetAll        .addActionListener(app.getActionListener());
-        startRenaming   .addActionListener(app.getActionListener());
-        copyright       .addActionListener(app.getActionListener());
-        exit            .addActionListener(app.getActionListener());
-
-        add             .setActionCommand(ADD_FILES);
-        rmAll           .setActionCommand(REMOVE_ALL_FILES);
-        resetAll        .setActionCommand(DISCARD_ALL_CHANGES);
-        startRenaming   .setActionCommand(START_RENAME_PROCESS);
-        copyright       .setActionCommand(SHOW_COPYRIGHT);
-        exit            .setActionCommand(EXIT_APP);
+//         add             = new JMenuItem(msg("MenuBar.AddFiles"));
+//         rmAll           = new JMenuItem(msg("MenuBar.RemoveAllFiles"));
+//         resetAll        = new JMenuItem(msg("MenuBar.discardAllChanges"));
+//         startRenaming   = new JMenuItem(msg("MenuBar.renameStartbtn"));
+//         copyright       = new JMenuItem(msg("MenuBar.showCopyRight"));
+//         exit            = new JMenuItem(msg("MenuBar.ExitApplication"));
+//        add             .addActionListener(app.getActionListener());
+//        rmAll           .addActionListener(app.getActionListener());
+//        resetAll        .addActionListener(app.getActionListener());
+//        startRenaming   .addActionListener(app.getActionListener());
+//        copyright       .addActionListener(app.getActionListener());
+//        exit            .addActionListener(app.getActionListener());
+//         add             .setActionCommand(ADD_FILES);
+//         rmAll           .setActionCommand(REMOVE_ALL_FILES);
+//         resetAll        .setActionCommand(DISCARD_ALL_CHANGES);
+//         startRenaming   .setActionCommand(START_RENAME_PROCESS);
+//         copyright       .setActionCommand(SHOW_COPYRIGHT);
+//         exit            .setActionCommand(EXIT_APP);
+        add           = createMenuItem("MenuBar.createFileMenu.add",              "MenuBar.AddFiles"           , ADD_FILES);            
+        rmAll         = createMenuItem("MenuBar.createFileMenu.rmAll",            "MenuBar.RemoveAllFiles"     , REMOVE_ALL_FILES);     
+        resetAll      = createMenuItem("MenuBar.createFileMenu.resetAll",         "MenuBar.discardAllChanges"  , DISCARD_ALL_CHANGES);  
+        startRenaming = createMenuItem("MenuBar.createFileMenu.startRenaming",    "MenuBar.renameStartbtn"     , START_RENAME_PROCESS); 
+        copyright     = createMenuItem("MenuBar.createFileMenu.copyright",        "MenuBar.showCopyRight"      , SHOW_COPYRIGHT);       
+        exit          = createMenuItem("MenuBar.createFileMenu.exit",             "MenuBar.ExitApplication"    , EXIT_APP);             
         
         JMenu menu = new JMenu(msg("MenuBar.File"));
         menu.add(add);
@@ -126,10 +123,10 @@ class MenuBar extends JMenuBar implements IActionCommands, ISysConstants {
         JMenuItem num   = new JMenuItem(msg("MenuBar.editNummerierung"));
         JMenuItem reset = new JMenuItem(msg("MenuBar.discardSelChanges"));
         
-        rm   .addActionListener(app.getActionListener());
-        mv   .addActionListener(app.getActionListener());
-        num  .addActionListener(app.getActionListener());
-        reset.addActionListener(app.getActionListener());
+         rm   .addActionListener(app.getActionListener());
+         mv   .addActionListener(app.getActionListener());
+         num  .addActionListener(app.getActionListener());
+         reset.addActionListener(app.getActionListener());
         
         rm   .setActionCommand(REMOVE_SELECTED_FILES);
         mv   .setActionCommand(MOVE_SELECTED_FILES);
@@ -151,6 +148,14 @@ class MenuBar extends JMenuBar implements IActionCommands, ISysConstants {
         return menu;
     }
     
+    private JMenuItem createMenuItem(String name, String msgId, String actionCommand) {
+        JMenuItem i = new JMenuItem(msg(msgId));
+        i.setName(name);
+        i.addActionListener(app.getActionListener());
+        i.setActionCommand(actionCommand);
+        return i;
+    }
+    
     /**
      * creates the submenu for the settings menu.
      * 
@@ -159,22 +164,24 @@ class MenuBar extends JMenuBar implements IActionCommands, ISysConstants {
     private JMenu createEditSettingsSubMenu() {
         JMenuItem copySettings, filterSettings, dateSettings, extendedSettings;
         
-        copySettings     = new JMenuItem(msg("MenuBar.editMenu.copySettings")); 
-        filterSettings   = new JMenuItem(msg("MenuBar.editMenu.filters")); 
-        dateSettings     = new JMenuItem(msg("MenuBar.editMenu.dateFormat")); 
-        extendedSettings = new JMenuItem(msg("MenuBar.editMenu.extended"));
-
-        copySettings    .setActionCommand(EDIT_COPY_SETTINGS);
-        filterSettings  .setActionCommand(EDIT_FILTER);
-        dateSettings    .setActionCommand(EDIT_DATE_FORMAT);
-        extendedSettings.setActionCommand(EDIT_ALL_SETTINGS);
+//        copySettings     = new JMenuItem(msg("MenuBar.editMenu.copySettings"));
+//        filterSettings   = new JMenuItem(msg("MenuBar.editMenu.filters"));
+//        dateSettings     = new JMenuItem(msg("MenuBar.editMenu.dateFormat"));
+//        extendedSettings = new JMenuItem(msg("MenuBar.editMenu.extended"));
+//         copySettings    .setActionCommand(EDIT_COPY_SETTINGS);
+//         filterSettings  .setActionCommand(EDIT_FILTER);
+//         dateSettings    .setActionCommand(EDIT_DATE_FORMAT);
+//         extendedSettings.setActionCommand(EDIT_ALL_SETTINGS);
+//        ActionListener actionListener = app.getActionListener();
+//        copySettings    .addActionListener(actionListener);
+//        filterSettings  .addActionListener(actionListener);
+//        dateSettings    .addActionListener(actionListener);
+//        extendedSettings.addActionListener(actionListener);
+        copySettings     = createMenuItem("MenuBar.createEditSettingsMenu.copySettings", "MenuBar.editMenu.copySettings", EDIT_COPY_SETTINGS);
+        filterSettings   = createMenuItem("MenuBar.createEditSettingsMenu.filters"     , "MenuBar.editMenu.filters"     , EDIT_FILTER);     
+        dateSettings     = createMenuItem("MenuBar.createEditSettingsMenu.dateFormat"  , "MenuBar.editMenu.dateFormat"  , EDIT_DATE_FORMAT);
+        extendedSettings = createMenuItem("MenuBar.createEditSettingsMenu.extended"    , "MenuBar.editMenu.extended"    , EDIT_ALL_SETTINGS);
         
-        ActionListener actionListener = app.getActionListener();
-        copySettings    .addActionListener(actionListener);
-        filterSettings  .addActionListener(actionListener);
-        dateSettings    .addActionListener(actionListener);
-        extendedSettings.addActionListener(actionListener);
-
         JMenu menu = new JMenu(msg("MenuBar.editMenu.Root"));
         menu.add(copySettings);
         menu.add(filterSettings);

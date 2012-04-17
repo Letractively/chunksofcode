@@ -2,6 +2,7 @@ package com.myapp.tools.media.renamer.view.swing;
 
 import static com.myapp.tools.media.renamer.controller.Msg.msg;
 import static javax.swing.ListSelectionModel.SINGLE_INTERVAL_SELECTION;
+import static com.myapp.tools.media.renamer.view.swing.IActionCommands.*;
 
 import java.awt.BorderLayout;
 import java.awt.Component;
@@ -171,6 +172,14 @@ final class ListView extends JPanel implements IListView, ISysConstants {
         }; // end of jtable anonymous inner class
     }
 
+    private JMenuItem createMenuItem(String name, String msgId, String actionCommand) {
+        JMenuItem i = new JMenuItem(msg(msgId));
+        i.setName(name);
+        i.addActionListener(app.getActionListener());
+        i.setActionCommand(actionCommand);
+        return i;
+    }
+    
     /**
      * displays a contextmenu with actions that are possible for the current
      * selection
@@ -180,22 +189,33 @@ final class ListView extends JPanel implements IListView, ISysConstants {
     private void showContextMenu(Point pointInJTable) {
         JPopupMenu popupMenu = new JPopupMenu();
         
-        JMenuItem rm = new JMenuItem(msg("MenuBar.RemoveFiles"));
-        rm.addActionListener(app.getActionListener());
-        rm.setActionCommand(IActionCommands.REMOVE_SELECTED_FILES);
+//        JMenuItem rm = new JMenuItem(msg("MenuBar.RemoveFiles"));
+//        rm.addActionListener(app.getActionListener());
+//        rm.setActionCommand(REMOVE_SELECTED_FILES);
+        JMenuItem rm = createMenuItem("ListView.showContextMenu.rm",
+                                      "MenuBar.RemoveFiles", 
+                                      REMOVE_SELECTED_FILES);
+//        JMenuItem mv = new JMenuItem(msg("MenuBar.MoveFiles"));
+//        mv.addActionListener(app.getActionListener());
+//        mv.setActionCommand(MOVE_SELECTED_FILES);
+        JMenuItem mv = createMenuItem("ListView.showContextMenu.mv",
+                                      "MenuBar.MoveFiles", 
+                                      MOVE_SELECTED_FILES);
         
-        JMenuItem mv = new JMenuItem(msg("MenuBar.MoveFiles"));
-        mv.addActionListener(app.getActionListener());
-        mv.setActionCommand(IActionCommands.MOVE_SELECTED_FILES);
+//        JMenuItem num = new JMenuItem(msg("MenuBar.editNummerierung"));
+//        num.addActionListener(app.getActionListener());
+//        num.setActionCommand(SET_NUMMERIERUNG_TO_SELECTION);
+        JMenuItem num = createMenuItem("ListView.showContextMenu.num",
+                                       "MenuBar.editNummerierung", 
+                                       SET_NUMMERIERUNG_TO_SELECTION);
         
-        JMenuItem num = new JMenuItem(msg("MenuBar.editNummerierung"));
-        num.addActionListener(app.getActionListener());
-        num.setActionCommand(IActionCommands.SET_NUMMERIERUNG_TO_SELECTION);
+//        JMenuItem reset = new JMenuItem(msg("MenuBar.discardSelChanges"));
+//        reset.addActionListener(app.getActionListener());
+//        reset.setActionCommand(DISCARD_SELECTIONS_CHANGES);
+        JMenuItem reset = createMenuItem("ListView.showContextMenu.reset",
+                                         "MenuBar.discardSelChanges", 
+                                          DISCARD_SELECTIONS_CHANGES);
         
-        JMenuItem reset = new JMenuItem(msg("MenuBar.discardSelChanges"));
-        reset.addActionListener(app.getActionListener());
-        reset.setActionCommand(IActionCommands.DISCARD_SELECTIONS_CHANGES);
-
         popupMenu.add(mv);
         popupMenu.add(rm);
         popupMenu.add(num);

@@ -1,50 +1,26 @@
 package com.myapp.tools.media.renamer.view.swing;
 
 import java.awt.Component;
-import java.awt.datatransfer.DataFlavor;
-import java.awt.datatransfer.Transferable;
-import java.awt.dnd.DnDConstants;
-import java.awt.dnd.DropTargetDragEvent;
-import java.awt.dnd.DropTargetDropEvent;
-import java.awt.dnd.DropTargetEvent;
-import java.awt.dnd.DropTargetListener;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
-import java.awt.event.WindowEvent;
-import java.awt.event.WindowListener;
-import java.beans.PropertyChangeEvent;
-import java.beans.PropertyChangeListener;
-import java.io.File;
-import java.io.IOException;
+import java.awt.datatransfer.*;
+import java.awt.dnd.*;
+import java.awt.event.*;
+import java.beans.*;
+import java.io.*;
 import java.net.URL;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Date;
-import java.util.List;
-import java.util.Map;
-import java.util.logging.Level;
-import java.util.logging.Logger;
-
-import javax.swing.SwingUtilities;
-import javax.swing.UIManager;
-import javax.swing.event.ListSelectionEvent;
-import javax.swing.event.ListSelectionListener;
+import java.util.*;
+import java.util.logging.*;
+import javax.swing.*;
+import javax.swing.event.*;
 import javax.swing.filechooser.FileFilter;
+import com.myapp.tools.media.renamer.config.*;
+import com.myapp.tools.media.renamer.controller.*;
+import com.myapp.tools.media.renamer.model.*;
+import com.myapp.tools.media.renamer.view.*;
+import static com.myapp.tools.media.renamer.config.IConstants.ISysConstants.*;
+import static com.myapp.tools.media.renamer.config.IConstants.INameConstants.*;
+import static com.myapp.tools.media.renamer.view.swing.IActionCommands.*;
 
-import com.myapp.tools.media.renamer.config.Config;
-import com.myapp.tools.media.renamer.config.IConstants.INameConstants;
-import com.myapp.tools.media.renamer.config.IConstants.ISysConstants;
-import com.myapp.tools.media.renamer.config.IRenamerConfiguration;
-import com.myapp.tools.media.renamer.controller.IApplication;
-import com.myapp.tools.media.renamer.controller.IController;
-import com.myapp.tools.media.renamer.controller.Log;
-import com.myapp.tools.media.renamer.controller.Msg;
-import com.myapp.tools.media.renamer.controller.Util;
-import com.myapp.tools.media.renamer.model.IRenamable;
-import com.myapp.tools.media.renamer.model.IRenamer;
-import com.myapp.tools.media.renamer.model.RenamableFile;
-import com.myapp.tools.media.renamer.view.IDialogs;
-import com.myapp.tools.media.renamer.view.ISettingsView;
+
 
 /**
  * the global listener implementation of the renamer application.
@@ -56,9 +32,6 @@ class Controller implements ActionListener,
                             PropertyChangeListener,
                             ListSelectionListener,
                             DropTargetListener,
-                            ISysConstants,
-                            INameConstants,
-                            IActionCommands,
                             IController {
 
     private static final Logger L = Log.defaultLogger();

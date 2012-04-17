@@ -236,7 +236,9 @@ public final class Util implements IConstants.ISysConstants {
      */
     @SuppressWarnings("null")
 	public static void copyFile(File src, File dst) throws IOException {
-        if ( ! dst.getParentFile().exists()) dst.getParentFile().mkdirs();
+        if ( ! dst.getParentFile().exists()) {
+            dst.getParentFile().mkdirs();
+        }
         
         dst.createNewFile();
         
@@ -250,11 +252,18 @@ public final class Util implements IConstants.ISysConstants {
 
         } finally {
             try {
-                if (src != null) srcC.close();
-                if (dst != null) dstC.close();
+                if (dst != null) {
+                    dstC.close();
+                }
             } catch (Exception e) {
                 e.printStackTrace();
-                assert false;
+            }
+            try {
+                if (src != null) {
+                    srcC.close();
+                }
+            } catch (Exception e) {
+                e.printStackTrace();
             }
         }
     }

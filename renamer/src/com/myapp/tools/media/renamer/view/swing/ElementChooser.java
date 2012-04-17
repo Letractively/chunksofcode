@@ -398,7 +398,7 @@ private static void clickOnDetailViewButton(JFileChooser chooser) {
         // System.out.println("chooser: ________________________" +
         // chooser);
 
-        detailViewBtn = Utils.findSubComponent(AbstractButton.class,
+        detailViewBtn = com.myapp.util.swing.Util.findSubComponent(AbstractButton.class,
                                                chooser,
                                                "getIcon",
                                                detailsBtnIcon);
