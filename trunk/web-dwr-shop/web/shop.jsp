@@ -69,36 +69,43 @@
     * author: andre
     ***********************************************************/
 
-    /*on page load we are loading the (empty) ShoppingBasket from
-    the server and set the searchFormHandler onto the searchbutton.*/
+        /*
+         * on page load we are loading the (empty) ShoppingBasket from
+         * the server and set the searchFormHandler onto the searchbutton.
+         */
     window.onload = function() {
         ShoppingBasket.getShoppingBasket(displayShopptingBasket);
         $("searchform").onsubmit = searchFormHandler;
     }
 
-    /*being invoked when searchbutton is clicked.
-    gets the search result from the server.
-    when the response returns, function displayArticles
-    will be called. (callback function)*/
+        /*
+         * being invoked when searchbutton is clicked.
+         * gets the search result from the server.
+         * when the response returns, function displayArticles
+         * will be called. (callback function)
+         */
     function searchFormHandler() {
         var searchexp = $("searchbox").value;
         Store.findArticles(searchexp, displayArticles);
         return false;
     }
 
-    /*Handles a click on an Item's "kaufen" button
-    the java method on the corresponding server class
-    needs only the id of the item, the second argument
-    is the function which should be invoked when the
-    server-request returns back (callback function).*/
+        /*
+         * Handles a click on an Item's "kaufen" button
+         * the java method on the corresponding server class
+         * needs only the id of the item, the second argument
+         * is the function which should be invoked when the
+         * server-request returns back (callback function).
+         */
     function buyButtonHandler() {
         ShoppingBasket.buyArticle(this.articleId, displayShopptingBasket);
     }
 
-    /*puts the items from the list into a table.
-    being called from function searchFormSubmitHandler
-    after it got the results from the server.
-    */
+        /*
+         * puts the items from the list into a table.
+         * being called from function searchFormSubmitHandler
+         * after it got the results from the server.
+         */
     function displayArticles(articleListJSON) {
         DWRUtil.removeAllRows("articles");
 
@@ -109,10 +116,12 @@
         }
     }
 
-    /*used by DWRUtil to create a table element.
-    dwrutil expects a value for each column.
-    an array of functions being invoked for
-    every line in the table.*/
+        /*
+         * used by DWRUtil to create a table element.
+         * dwrutil expects a value for each column.
+         * an array of functions being invoked for
+         * every line in the table.
+         */
     var articleRowConstruct = [ 
         function(article) {
             return article.name;
@@ -133,10 +142,12 @@
         }
     ];
 
-    /*displays the current shoppingBasket into the basket element,
-    expects a list of strings. creates an unordered list and
-    fills it with textnodes, one for each product.
-    being called from function buyButtonHandler.*/
+        /*
+         * displays the current shoppingBasket into the basket element,
+         * expects a list of strings. creates an unordered list and
+         * fills it with textnodes, one for each product.
+         * being called from function buyButtonHandler.
+         */
     function displayShopptingBasket(shoppingBasketJSON) {
         var basketUL = $("basket");
         basketUL.innerHTML = "";
