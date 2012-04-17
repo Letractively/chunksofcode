@@ -77,7 +77,7 @@ public abstract class AbstractRenamer implements IRenamer, IConstants.ISysConsta
      * 
      * @param offset
      *            the index of the first element to be inserted
-     * @param excludeDuplicates
+     * @param excludeDupl
      *            if true, there will be no duplicate elements in the list after
      *            inserting
      * @param newFiles
@@ -86,12 +86,12 @@ public abstract class AbstractRenamer implements IRenamer, IConstants.ISysConsta
      *         duplicate items which have not been inserted.
      */
     private synchronized List<IRenamable> addImpl(int offset,
-                                                  boolean excludeDuplicates,
+                                                  boolean excludeDupl,
                                                   List<IRenamable> newFiles) {
         synchronized (files) {
             List<IRenamable> tmpList = new ArrayList<IRenamable>(0);
 
-            if (excludeDuplicates) {
+            if (excludeDupl) {
                 Iterator<IRenamable> i;
 
                 //make sure there are no duplicates in the existing list
@@ -129,10 +129,10 @@ public abstract class AbstractRenamer implements IRenamer, IConstants.ISysConsta
             files.addAll(offset, newFiles);
 
             L.info(Msg.msg("AbstractRenamer.elementsAdded")
-                        .replace("#atPos#", Integer.toString(offset))
-                        .replace("#allowDuplicates#",  Boolean.toString( ! excludeDuplicates))
-                        .replace("#count#", Integer.toString(newFiles.size())));
-            
+                .replace("#atPos#", Integer.toString(offset))
+                .replace("#allowDuplicates#",  Boolean.toString( ! excludeDupl))
+                .replace("#count#", Integer.toString(newFiles.size()))
+            );
             return tmpList.isEmpty() ? null : tmpList;
         }
     }
@@ -312,10 +312,8 @@ public abstract class AbstractRenamer implements IRenamer, IConstants.ISysConsta
             
             for (IRenamable f : files) {
                 notifyFileStart(f);
-                
                 try {
                     boolean ok = f.renameFile(true);
-                    
                     if (ok)
                         notifyFileSuccess();
                     

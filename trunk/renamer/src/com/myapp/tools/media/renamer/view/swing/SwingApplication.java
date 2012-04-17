@@ -21,7 +21,6 @@ import javax.swing.event.ListSelectionListener;
 import javax.swing.table.TableModel;
 
 import com.myapp.tools.media.renamer.config.IRenamerConfiguration;
-import com.myapp.tools.media.renamer.config.IConstants.ISysConstants;
 import com.myapp.tools.media.renamer.controller.AbstractApplication;
 import com.myapp.tools.media.renamer.controller.LockManager;
 import com.myapp.tools.media.renamer.controller.Log;
@@ -30,6 +29,7 @@ import com.myapp.tools.media.renamer.model.IRenamable;
 import com.myapp.tools.media.renamer.model.IRenamer;
 import com.myapp.tools.media.renamer.model.Renamer;
 import com.myapp.tools.media.renamer.view.IDialogs;
+import static com.myapp.tools.media.renamer.config.IConstants.ISysConstants.*;
 
 /**
  * The SwingApplication provides an UI for the renamer using swing components.
@@ -37,7 +37,7 @@ import com.myapp.tools.media.renamer.view.IDialogs;
  * @author andre
  * 
  */
-class SwingApplication extends AbstractApplication implements ISysConstants {
+class SwingApplication extends AbstractApplication {
 
     private static final String APP_KEY = "jRenamerApplication";
     private static final Logger L = Log.defaultLogger();

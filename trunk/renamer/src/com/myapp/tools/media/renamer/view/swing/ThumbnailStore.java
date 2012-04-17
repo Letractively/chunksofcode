@@ -113,7 +113,6 @@ class ThumbnailStore {
                 assert false;
                 return null;
             }
-            
         }
     }
     
@@ -200,12 +199,22 @@ class ThumbnailStore {
         
         assert dest.getWidth() == dim.width && dest.getHeight() == dim.height;
         
+//        try {
+//            
+//            ByteArrayOutputStream byteArray = new ByteArrayOutputStream();
+//            ImageIO.write(dest, "jpeg", byteArray);
+//            byte[] bytes = byteArray.toByteArray(); 
+//            
+//            
+//        } catch (IOException e) {
+//            e.printStackTrace();
+//        }
         return dest;
     }
 
     /**
      * calculates the dimension of an image that will be scaled without changing
-     * its width and height relation. the dimension will fit in the max bounds,
+     * its width and height relation. the dimension will fit into the max bounds,
      * and be as big as possible.
      * 
      * @param origW
@@ -218,10 +227,10 @@ class ThumbnailStore {
      *            the maximum height of the scaled image
      * @return a dimension with the corrected dimensions of the image.
      */
-    private static Dimension getScaledDimension(int origW,
-                                                int origH, 
-                                                int maxWidth, 
-                                                int maxHeight) {
+    public static Dimension getScaledDimension(int origW,
+                                               int origH, 
+                                               int maxWidth, 
+                                               int maxHeight) {
         double widthFactor = new Integer(maxWidth).doubleValue() / origW;
         double heightFactor = new Integer(maxHeight).doubleValue() / origH;
         

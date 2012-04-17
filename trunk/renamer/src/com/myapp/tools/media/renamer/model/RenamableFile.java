@@ -12,6 +12,9 @@ import com.myapp.tools.media.renamer.controller.Util;
  */
 public final class RenamableFile implements IRenamable, ISysConstants {
     // TODO: DATUM FLEXIBEL MACHEN
+    
+    private static final RenameExecutor executor = new RenameExecutor();
+    
     private String beschreibung = null;
     private String thema = null;
     private String titel = null;
@@ -72,44 +75,63 @@ public final class RenamableFile implements IRenamable, ISysConstants {
     public String getOldParentAbsolutePath() {
         return file.getParentFile().getAbsolutePath();
     }
-
+    
     @Override
-    public boolean renameFile(boolean overwrite) throws IOException,
-                                                    FileAlreadyExistsException {
-        final String newFileAbsPath = getNewAbsolutePath();
-        File destination = new File(newFileAbsPath);
-        final String oldFileAbsPath = file.getAbsolutePath();
+    public boolean renameFile(boolean overwrite) throws IOException {
+        final File srcFile = new File(file.getAbsolutePath());
+        final File dstFile = new File(getNewAbsolutePath());
+        
+        boolean mv = renamer.getConfig().getBoolean(REPLACE_ORIGINAL_FILES);
+        if (mv) {
+            boolean moved = executor.moveFile(srcFile, dstFile, overwrite);
+            if (! moved) {
+                throw new IOException("could not move "+srcFile+" to "+dstFile);
+            }
+            return true;
+        }
+
+        boolean copied = executor.copyFile(srcFile, dstFile, overwrite);
+        if (! copied) {
+            throw new IOException("could not copy "+srcFile+" to "+dstFile);
+        }
+        return true;
+    }
+
+    public boolean renameFileOld(boolean overwrite) throws IOException, FileAlreadyExistsException {
+        final String oldPath = file.getAbsolutePath();
+        final String newPath = getNewAbsolutePath();
+        final File destination = new File(newPath);
         
         if (renamer.getConfig().getBoolean(REPLACE_ORIGINAL_FILES)) {
+            boolean renamed = new File(oldPath).renameTo(destination);
+            File oldFile = new File(oldPath);
             
-            // System.out.println(
-            // "sourcefile path      : " + file.getAbsolutePath());
-            // System.out.println("sourcefile can read  : " + file.canRead());
-            // System.out.println("sourcefile can write : " + file.canWrite());
-            // System.out.println(
-            // "targetfile path      : " + destination.getAbsolutePath());
-            // System.out.println(
-            // "targetfile can read  : " + destination.canRead());
-            // System.out.println(
-            // "targetfile can write : " + destination.canWrite());
-            // System.out.println("will now rename...");
-            
-            boolean renamed = file.renameTo(destination);
-            File oldFile = new File(oldFileAbsPath);
-            File newFile = new File(newFileAbsPath);
-            
-            for (int i = 0; i < 3 && oldFile.isFile() && ! newFile.isFile(); i++) {
-                Log.defaultLogger().warning("ERROR! could not remane file '"+oldFileAbsPath+"' to '"+newFileAbsPath+"'. trying again...");
-                new File(oldFileAbsPath).renameTo(new File(newFileAbsPath));
+            for (int i = 0; i < 3 && oldFile.isFile() && ! destination.isFile(); i++) {
+                Log.defaultLogger().warning(
+                          "ERROR! could not remane file '"+oldPath+"' " +
+                          "to '"+newPath+"'. trying again...");
+                renamed = new File(oldPath).renameTo(new File(newPath));
             }
+
+            ////// XXX hack start (renameTo() did not work several times on wind*ws machines...)
+            if (oldFile.isFile() || ! destination.isFile()) {
+                Log.defaultLogger().warning("APPLY HACK: copy file '"+oldPath+"' to '"+newPath+"'...");
+                Util.copyFile(new File(oldPath), destination);
+                
+                if (destination.isFile()) {
+                    Log.defaultLogger().warning("HACK Successful, delete source file '"+oldPath+"'!");
+                    new File(oldPath).delete();
+                } else {
+                    Log.defaultLogger().warning("HACK Unsuccessful. '"+destination+"' could not be created!!");
+                }
+            }
+            ////// XXX hack end /////////////////
             
-            if (oldFile.isFile() || ! newFile.isFile()) {
-                Log.defaultLogger().warning("ERROR! could not remane file '"+oldFileAbsPath+"' to '"+newFileAbsPath+"'. skipping :-(.");
+            
+            if (oldFile.isFile() || ! destination.isFile()) {
+                Log.defaultLogger().warning("ERROR! could not remane file '"+oldPath+"' to '"+newPath+"'. skipping :-(.");
                 return false;
             }
-            
-            // System.out.println("... done success: " + renamed);
-            // System.out.println();
             
             return renamed;
         }

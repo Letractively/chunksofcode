@@ -27,7 +27,7 @@
         <dependency>
           <groupId>com.myapp.tools</groupId>
           <artifactId>utilities</artifactId>
-          <version>0.0.1-SNAPSHOT</version>
+          <version>0.0.1</version>
         </dependency>
     </dependencies>
 
@@ -42,8 +42,7 @@
         <testOutputDirectory>${basedir}/target/test-classes</testOutputDirectory>
 
         <resources>
-        
-        	<!-- put textfiles into the jar -->
+            <!-- put textfiles into the jar -->
             <resource>
                 <directory>${basedir}/resources</directory>
                 <filtering>true</filtering>
@@ -53,17 +52,15 @@
                     <include>**/*.html</include>
                 </includes>
             </resource>
-            
+
             <!-- put source files into jar -->
-            <!-- 
             <resource>
-            	<directory>${basedir}/src</directory>
-            	<filtering>false</filtering>
-            	<includes>
-            		<include>**/*.java</include>
-            	</includes>
+                <directory>${basedir}/src</directory>
+                <filtering>false</filtering>
+                <includes>
+                  <include>**/*.java</include>
+                </includes>
             </resource>
-            -->
         </resources>
 
         <plugins>
@@ -97,6 +94,7 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-assembly-plugin</artifactId>
+                <version>2.1</version>
                 <executions>
                     <execution>
                         <id>create-my-bundle</id>
@@ -117,7 +115,14 @@
                     </execution>
                 </executions>
             </plugin>
-            
+            <!--plugin>
+              <groupId>net.sf.doodleproject</groupId>
+              <artifactId>doxygen-maven-plugin</artifactId>
+              <version>2.2</version>
+              <configuration>
+                <configurationFile>${basedir}/target/classes/doxygen.config</configurationFile>
+              </configuration>
+            </plugin-->
         </plugins>
     </build>
 

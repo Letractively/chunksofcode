@@ -1,84 +1,31 @@
 package com.myapp.tools.media.renamer.view.swing;
 
 import static com.myapp.tools.media.renamer.controller.Msg.msg;
-import static java.awt.BorderLayout.CENTER;
-import static java.awt.BorderLayout.EAST;
-import static java.awt.BorderLayout.NORTH;
-import static java.awt.BorderLayout.SOUTH;
+import static java.awt.BorderLayout.*;
 import static javax.swing.BorderFactory.createTitledBorder;
-import static javax.swing.JFileChooser.APPROVE_OPTION;
-import static javax.swing.JFileChooser.DIRECTORIES_ONLY;
-import static javax.swing.JOptionPane.ERROR_MESSAGE;
-import static javax.swing.JOptionPane.INFORMATION_MESSAGE;
-import static javax.swing.JOptionPane.OK_CANCEL_OPTION;
-import static javax.swing.JOptionPane.OK_OPTION;
-import static javax.swing.JOptionPane.PLAIN_MESSAGE;
-import static javax.swing.JOptionPane.QUESTION_MESSAGE;
-import static javax.swing.JOptionPane.WARNING_MESSAGE;
-import static javax.swing.JOptionPane.YES_NO_CANCEL_OPTION;
-import static javax.swing.JOptionPane.YES_NO_OPTION;
-import static javax.swing.JOptionPane.YES_OPTION;
-import static javax.swing.JOptionPane.showConfirmDialog;
-import static javax.swing.JOptionPane.showMessageDialog;
-import static javax.swing.JOptionPane.showOptionDialog;
+import static javax.swing.JFileChooser.*;
+import static javax.swing.JOptionPane.*;
 
-import java.awt.BorderLayout;
-import java.awt.Component;
-import java.awt.Dialog;
-import java.awt.Dimension;
-import java.awt.FlowLayout;
-import java.awt.Font;
-import java.awt.GridLayout;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
-import java.io.File;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
-import java.io.Reader;
+import java.awt.*;
+import java.awt.event.*;
+import java.io.*;
 import java.net.URL;
-import java.text.DateFormat;
-import java.text.SimpleDateFormat;
-import java.util.Arrays;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
-import java.util.Vector;
+import java.text.*;
+import java.util.*;
+import java.util.List; // explicitly
 import java.util.logging.LogRecord;
 
-import javax.swing.BorderFactory;
-import javax.swing.ButtonGroup;
-import javax.swing.DefaultComboBoxModel;
-import javax.swing.JButton;
-import javax.swing.JCheckBox;
-import javax.swing.JComboBox;
-import javax.swing.JDialog;
-import javax.swing.JFileChooser;
-import javax.swing.JFrame;
-import javax.swing.JLabel;
-import javax.swing.JOptionPane;
-import javax.swing.JPanel;
-import javax.swing.JRadioButton;
-import javax.swing.JScrollPane;
-import javax.swing.JSpinner;
-import javax.swing.JTextArea;
-import javax.swing.JTextField;
-import javax.swing.JTextPane;
-import javax.swing.SpinnerNumberModel;
+import javax.swing.*;
 import javax.swing.border.EmptyBorder;
 
 import com.myapp.tools.media.renamer.config.IRenamerConfiguration;
-import com.myapp.tools.media.renamer.config.IConstants.INameConstants;
-import com.myapp.tools.media.renamer.config.IConstants.ISysConstants;
-import com.myapp.tools.media.renamer.controller.IApplication;
-import com.myapp.tools.media.renamer.controller.Log;
-import com.myapp.tools.media.renamer.controller.TimeSpan;
-import com.myapp.tools.media.renamer.controller.Util;
-import com.myapp.tools.media.renamer.model.IRenamable;
-import com.myapp.tools.media.renamer.model.IRenamer;
+import com.myapp.tools.media.renamer.controller.*;
+import com.myapp.tools.media.renamer.model.*;
 import com.myapp.tools.media.renamer.view.IDialogs;
+
+import static com.myapp.tools.media.renamer.config.IConstants.ISysConstants.*;
+import static com.myapp.tools.media.renamer.config.IConstants.INameConstants.*;
+
 
 /**
  * common dialogs of the application are encapsulated by this class.
@@ -86,7 +33,7 @@ import com.myapp.tools.media.renamer.view.IDialogs;
  * @author andre
  */
 @SuppressWarnings("serial")
-class Dialogs implements ISysConstants, INameConstants, IDialogs {
+class Dialogs implements IDialogs {
 
     private static final String LINE_SEPARATOR;
     private static final String DATEFORMAT_HELPRESOURCE;
@@ -495,8 +442,7 @@ public void showLogHistoryDialog() {
 @Override
 public String showFilterDefinitionDialog() {
     IRenamerConfiguration cfg = app.getRenamer().getConfig();
-    final JTextField filterTxtFld = new JTextField(
-                                 cfg.getString(ISysConstants.FILE_FILTERS));
+    final JTextField filterTxtFld = new JTextField(cfg.getString(FILE_FILTERS));
     final JCheckBox applyFilterToCurrentList = new JCheckBox(msg(
                         "Dialogs.showFilterSelectionDialog.applyChbxText"));
     applyFilterToCurrentList.setSelected(false);
