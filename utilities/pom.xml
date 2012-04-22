@@ -1,30 +1,28 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<project>xmlns="http://maven.apache.org/POM/4.0.0"
+<project xmlns="http://maven.apache.org/POM/4.0.0"
          xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
 
-    <modelVersion>4.0.0</modelVersion>
-    <name>utilities</name>
+    <name>utilities</name>  
+    <packaging>jar</packaging>
     <description>andres common utilities collection</description>
+    <modelVersion>4.0.0</modelVersion>
     
     <groupId>com.myapp.tools</groupId>
     <artifactId>utilities</artifactId>
-    <version>0.0.2-SNAPSHOT</version>
+    <version>0.0.3</version>
+
+    <parent>
+      <groupId>com.myapp.maven</groupId>
+      <artifactId>compile-pom</artifactId>
+      <version>1.0</version>
+    </parent>
 
     <properties>
         <test>false</test>
         <failIfNoTests>false</failIfNoTests>
     </properties>
-
-    <distributionManagement>
-        <repository> <id>andre.ragg.ws</id>
-            <url>http://andre.ragg.ws/artifactory/libs-release-local</url>
-        </repository>
-        <snapshotRepository> <id>andre.ragg.ws</id>
-            <url>http://andre.ragg.ws/artifactory/libs-snapshot-local</url>
-        </snapshotRepository>
-    </distributionManagement>
 
     <dependencies>
         <dependency>
@@ -59,17 +57,10 @@
           <version>1.4</version>
         </dependency>
         <dependency>
-            <!--[INFO] Copying 1 resource-->
-            <!--[WARNING] While downloading xerces:xerces:2.4.0-->
-            <!--  This artifact has been relocated to xerces:xercesImpl:2.4.0.-->
             <groupId>xerces</groupId>
-            <!--
-            <artifactId>xerces</artifactId>
-            -->
             <artifactId>xercesImpl</artifactId>
             <version>2.4.0</version>
         </dependency>
-        
     </dependencies>
 
     <build>
@@ -119,25 +110,11 @@
         </testResources>
         
         
-        <plugins>            
-        
-            <!-- set compilation level: -->
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-compiler-plugin</artifactId>
-                <configuration>
-                    <source>1.6</source>
-                    <target>1.6</target>
-                    <encoding>UTF-8</encoding>
-                </configuration>
-            </plugin>            
-            <plugin>
+        <plugins>         
+           <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-resources-plugin</artifactId>
-                <configuration>
-                    <encoding>UTF-8</encoding>
-                </configuration>
-                
+
                 <!-- copy config files to a folder: -->
                 <executions>
                     <execution>
@@ -171,6 +148,7 @@
             </plugin>
                         
             <!-- assemble dependencies into jar file:  -->
+            <!--
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-assembly-plugin</artifactId>
@@ -194,7 +172,8 @@
                     </execution>
                 </executions>
             </plugin>
-            
+            -->
+
             <!-- copy jars into target/lib folder  -->
             <plugin> 
                 <groupId>org.apache.maven.plugins</groupId>
