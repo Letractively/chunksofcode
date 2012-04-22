@@ -4,73 +4,78 @@
          xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
 
-    <modelVersion>4.0.0</modelVersion>
-	<name>web-wings-mines</name>
+    <name>web-wings-mines</name>
+    <packaging>war</packaging>
     <description>minesweeper webapp using the mines game model</description>
+    <modelVersion>4.0.0</modelVersion>
 
     <groupId>com.myapp.web</groupId>
     <artifactId>web-wings-mines</artifactId>
-    <version>0.0.1-SNAPSHOT</version>
+    <version>0.0.1</version>
 
-    <packaging>war</packaging>
+    <parent>
+      <groupId>com.myapp.maven</groupId>
+      <artifactId>compile-pom</artifactId>
+      <version>1.0</version>
+    </parent>
 
     <dependencies>
         <dependency>
             <groupId>com.myapp.tools</groupId>
             <artifactId>utilities</artifactId>
-            <version>0.0.1-SNAPSHOT</version>
+            <version>0.0.3</version>
         </dependency>
         <dependency>
             <groupId>com.myapp.apps</groupId>
             <artifactId>mines</artifactId>
-            <version>0.0.1-SNAPSHOT</version>
+            <version>0.0.2</version>
+        </dependency>
+        <dependency>
+            <groupId>commons-logging</groupId>
+            <artifactId>commons-logging</artifactId>
+            <version>1.0.3</version>
+        </dependency>
+        <dependency>
+            <groupId>commons-httpclient</groupId>
+            <artifactId>commons-httpclient</artifactId>
+            <version>2.0</version>
+        </dependency>
+        <dependency>
+            <groupId>log4j</groupId>
+            <artifactId>log4j</artifactId>
+            <version>1.2.9</version>
+        </dependency>
+        <dependency>
+            <groupId>org.directwebremoting</groupId>
+            <artifactId>dwr</artifactId>
+            <version>2.0.rc2</version>
         </dependency>
         
         <!-- DEPENDENCIES NOT CONTAINED IN OFFICIAL REPO: -->
         
         <dependency>
-        	<groupId>org.wingsframework</groupId>
-        	<artifactId>wings</artifactId>
-        	<version>3.2.1</version>
-        	<scope>system</scope>
-        	<systemPath>${basedir}/web/WEB-INF/lib/wings.jar</systemPath>
+            <groupId>org.wingsframework</groupId>
+            <artifactId>wings</artifactId>
+            <version>3.2.1</version>
+        </dependency>
+        <dependency>
+            <groupId>bsh-core</groupId>
+            <artifactId>bsh-core</artifactId>
+            <version>1.0</version>
         </dependency>
         <dependency>
         	<groupId>org.wingsframework</groupId>
         	<artifactId>wingx</artifactId>
-        	<version>3.2.1</version>
-        	<scope>system</scope>
-        	<systemPath>${basedir}/web/WEB-INF/lib/wingx.jar</systemPath>
+                <version>3.2.1</version>
         </dependency>
-        <!--dependency>
-        	<groupId>org.openqa.selenium</groupId>
-        	<artifactId>selenium-server</artifactId>
-        	<version>0.9.2</version>
-        	<scope>system</scope>
-        	<systemPath>${basedir}/web/WEB-INF/lib/selenium-server-0.9.2.jar</systemPath>
-        </dependency-->
     </dependencies>
 
     <build>
         <sourceDirectory>${basedir}/src</sourceDirectory>
         <directory>${basedir}/target</directory>
-        <finalName>${pom.artifactId}</finalName>
+        <!--finalName>${pom.artifactId}</finalName-->
 
         <plugins>
-            <plugin>
-                <artifactId>maven-compiler-plugin</artifactId>
-                <configuration>
-                    <source>1.6</source>
-                    <target>1.6</target>
-                </configuration>
-            </plugin>           
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-resources-plugin</artifactId>
-                <configuration>
-                    <encoding>UTF-8</encoding>
-                </configuration>
-            </plugin>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-war-plugin</artifactId>
