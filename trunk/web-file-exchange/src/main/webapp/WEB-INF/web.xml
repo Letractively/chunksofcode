@@ -12,7 +12,7 @@
     
     <servlet>
         <servlet-name>upload</servlet-name>
-        <servlet-class>ws.ragg.webapp.fileexchange.servlet.UploadServlet</servlet-class>
+        <servlet-class>com.myapp.web.fileexchange.servlet.UploadServlet</servlet-class>
 
         <!-- (defaults are read from file-exchange-app.properties) -->
 
@@ -52,7 +52,7 @@
 		<filter-class>org.apache.wicket.protocol.http.WicketFilter</filter-class>
 		<init-param>
 			<param-name>applicationClassName</param-name>
-			<param-value>ws.ragg.webapp.fileexchange.WicketApplication</param-value>
+			<param-value>com.myapp.web.fileexchange.WicketApplication</param-value>
 		</init-param>
         <init-param>
             <param-name>ignorePaths</param-name>
@@ -88,7 +88,7 @@ application server to another, but should look something like this:
 <!--         <servlet-class>org.apache.wicket.protocol.http.WicketServlet</servlet-class> -->
 <!--         <init-param> -->
 <!--             <param-name>applicationClassName</param-name> -->
-<!--             <param-value>ws.ragg.webapp.fileexchange.WicketApplication</param-value> -->
+<!--             <param-value>com.myapp.web.fileexchange.WicketApplication</param-value> -->
 <!--         </init-param> -->
 <!--         <init-param> -->
 <!--             <param-name>ignorePaths</param-name> -->

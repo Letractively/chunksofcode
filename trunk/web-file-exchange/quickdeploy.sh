@@ -10,7 +10,7 @@ HERE="$(
     pwd
 )"
 SRC_DIR="$HERE/src/main"
-TRG_DIR="$HERE/target/file-exchange-1.0-SNAPSHOT"
+TRG_DIR="$HERE/target/file-exchange-1.0.0"
 SERVLET_API_DIR="/home/andre/tomcat/lib/" # avoid "~" here, because it's part of the classpath
 
 

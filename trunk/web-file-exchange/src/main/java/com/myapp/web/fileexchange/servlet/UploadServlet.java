@@ -1,4 +1,4 @@
-package ws.ragg.webapp.fileexchange.servlet;
+package com.myapp.web.fileexchange.servlet;
 
 import java.io.File;
 import java.io.FileOutputStream;
@@ -33,7 +33,7 @@ import org.apache.commons.fileupload.disk.DiskFileItemFactory;
 import org.apache.commons.fileupload.servlet.ServletFileUpload;
 import org.apache.log4j.Logger;
 
-import ws.ragg.webapp.fileexchange.Constants;
+import com.myapp.web.fileexchange.Constants;
 
 /**
  * @author andre

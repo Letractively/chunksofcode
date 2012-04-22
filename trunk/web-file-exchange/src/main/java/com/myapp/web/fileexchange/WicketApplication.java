@@ -1,11 +1,11 @@
-package ws.ragg.webapp.fileexchange;
+package com.myapp.web.fileexchange;
 
 import org.apache.wicket.protocol.http.WebApplication;
 
 /**
  * Application object for your web application. If you want to run this application without deploying, run the Start class.
  * 
- * @see ws.ragg.webapp.fileexchange.Start#main(String[])
+ * @see com.myapp.web.fileexchange.Start#main(String[])
  */
 public class WicketApplication extends WebApplication
 {    	

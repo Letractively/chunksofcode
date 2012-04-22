@@ -1,4 +1,4 @@
-package ws.ragg.webapp.fileexchange;
+package com.myapp.web.fileexchange;
 
 import java.util.Collections;
 import java.util.HashSet;

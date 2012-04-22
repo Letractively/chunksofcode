@@ -1,4 +1,4 @@
-package ws.ragg.webapp.fileexchange.servlet;
+package com.myapp.web.fileexchange.servlet;
 
 import java.io.File;
 import java.text.DecimalFormat;
