@@ -2,31 +2,25 @@
     xmlns="http://maven.apache.org/POM/4.0.0"
     xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
     xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    
+    <name>schnellen-core</name>
+    <packaging>jar</packaging>
     <modelVersion>4.0.0</modelVersion>
 
     <groupId>com.myapp.games</groupId>
     <artifactId>schnellen-core</artifactId>
-    <version>1.0.1-SNAPSHOT</version>
-    <packaging>jar</packaging>
+    <version>1.0.2</version>
 
-    <name>schnellen-core</name>
-    <url>http://maven.apache.org</url>
-
+    <parent>
+      <groupId>com.myapp.maven</groupId>
+      <artifactId>compile-pom</artifactId>
+      <version>1.0</version>
+    </parent>
+    
     <properties>
-        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+        <!--project.build.sourceEncoding>UTF-8</project.build.sourceEncoding-->
         <game.main.class>com.myapp.games.schnellen.frontend.Main</game.main.class>
     </properties>
-
-    <distributionManagement>
-        <repository> <id>andre.ragg.ws</id>
-            <url>http://andre.ragg.ws/artifactory/libs-release-local</url>
-        </repository>
-        <snapshotRepository> <id>andre.ragg.ws</id>
-            <url>http://andre.ragg.ws/artifactory/libs-snapshot-local</url>
-        </snapshotRepository>
-    </distributionManagement>
-
-
 
     <dependencies>
         <dependency>
@@ -53,9 +47,6 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-resources-plugin</artifactId>
-                <configuration>
-                    <encoding>UTF-8</encoding>
-                </configuration>
                 
                 <!-- process startup script to target dir: -->
                 <executions>
@@ -80,37 +71,6 @@
                     </execution>
                 </executions>
             </plugin>
-
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-compiler-plugin</artifactId>
-                <configuration>
-                    <source>1.6</source>
-                    <target>1.6</target>
-                    <encoding>UTF-8</encoding>
-                </configuration>
-            </plugin>
-
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-dependency-plugin</artifactId>
-                <executions>
-                    <execution>
-                        <id>build-classpath</id>
-                        <phase>generate-sources</phase>
-                        <goals>
-                            <goal>build-classpath</goal>
-                        </goals>
-                        <configuration>
-                              <!-- os dependent: (empty to use platform default) -->
-                              <!-- <pathSeparator>:</pathSeparator> // linux -->
-                              <!-- <pathSeparator>;</pathSeparator> // windows -->
-                            <outputFile>${basedir}/target/classpath.txt</outputFile>
-                        </configuration>
-                    </execution>
-                </executions>
-            </plugin>
         </plugins>
-
     </build>
 </project>

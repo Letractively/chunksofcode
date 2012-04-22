@@ -1,12 +1,21 @@
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-  xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" 
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+  
+  <packaging>jar</packaging>
+  <name>rubic-cube</name>
   <modelVersion>4.0.0</modelVersion>
+    
   <groupId>com.myapp.games</groupId>
   <artifactId>app-rubic-cube</artifactId>
-  <packaging>jar</packaging>
-  <version>1.0-SNAPSHOT</version>
-  <name>rubic-cube</name>
-  <url>http://maven.apache.org</url>
+  <version>1.0.1</version>
+  
+    <parent>
+      <groupId>com.myapp.maven</groupId>
+      <artifactId>compile-pom</artifactId>
+      <version>1.0</version>
+    </parent>
+  
   <dependencies>
     <dependency>
       <groupId>junit</groupId>
@@ -17,22 +26,7 @@
     <dependency>
       <groupId>com.myapp.tools</groupId>
       <artifactId>utilities</artifactId>
-      <version>0.0.1</version>
+      <version>0.0.3</version>
     </dependency>
   </dependencies>
-    <build>
-        <plugins>           
-        
-            <!-- set compilation level: -->
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-compiler-plugin</artifactId>
-                <configuration>
-                    <source>1.6</source>
-                    <target>1.6</target>
-                    <encoding>UTF-8</encoding>
-                </configuration>
-            </plugin>       
-        </plugins>
-    </build>
 </project>
