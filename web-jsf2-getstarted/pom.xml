@@ -1,53 +1,40 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
 	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
 	
-	<modelVersion>4.0.0</modelVersion>
-	<name>web-jsf2-getstarted</name>
+    <name>web-jsf2-getstarted</name>
+    <packaging>war</packaging>
     <description>demo webapp to demonstrate jsf2 framework usage</description>
+    <modelVersion>4.0.0</modelVersion>
     
 	<groupId>com.myapp.web</groupId>
 	<artifactId>jsf2-getstarted</artifactId>
 	<version>0.0.1</version>
 
-  <distributionManagement>
-      <repository> <id>andre.ragg.ws</id>
-          <url>http://andre.ragg.ws/artifactory/libs-release-local</url>
-      </repository>
-      <snapshotRepository> <id>andre.ragg.ws</id>
-          <url>http://andre.ragg.ws/artifactory/libs-snapshot-local</url>
-      </snapshotRepository>
-  </distributionManagement>
+    <parent>
+      <groupId>com.myapp.maven</groupId>
+      <artifactId>compile-pom</artifactId>
+      <version>1.0</version>
+    </parent>
 
-
-    <packaging>war</packaging>
-    <!--
-	<repositories>
-		<repository>
-			<id>maven repo</id>
-			<url>http://repo1.maven.org/maven2</url>
-		</repository>
-		<repository>
-			<id>jboss repo</id>
-			<url>http://repository.jboss.org/maven2</url>
-		</repository>
-	</repositories>
--->
     <dependencies>
-    
         <!-- jsf2 api and implementation: -->
         <dependency>
-            <groupId>mojarra-2.0.1-FCS</groupId>
+            <groupId>mojarra</groupId>
             <artifactId>faces-api</artifactId>
             <version>2.0.1</version>
+            <!--
             <scope>system</scope>
             <systemPath>${basedir}/web/WEB-INF/lib/jsf-api.jar</systemPath>
+            -->
         </dependency>
         <dependency>
-            <groupId>mojarra-2.0.1-FCS</groupId>
+            <groupId>mojarra</groupId>
             <artifactId>faces-impl</artifactId>
             <version>2.0.1</version>
+            <!--
             <scope>system</scope>
             <systemPath>${basedir}/web/WEB-INF/lib/jsf-impl.jar</systemPath>
+            -->
         </dependency>
         
         <dependency>
@@ -83,20 +70,6 @@
         <sourceDirectory>${basedir}/src</sourceDirectory>
 
         <plugins>
-            <plugin>
-                <artifactId>maven-compiler-plugin</artifactId>
-                <configuration>
-                    <source>1.6</source>
-                    <target>1.6</target>
-                </configuration>
-            </plugin>
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-resources-plugin</artifactId>
-                <configuration>
-                    <encoding>UTF-8</encoding>
-                </configuration>
-            </plugin>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-war-plugin</artifactId>

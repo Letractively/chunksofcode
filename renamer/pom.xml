@@ -10,12 +10,17 @@
 
     <groupId>com.myapp.apps</groupId>
     <artifactId>renamer</artifactId>
-    <version>0.0.4-SNAPSHOT</version>
+    <version>0.0.5</version>
+
+    <parent>
+      <groupId>com.myapp.maven</groupId>
+      <artifactId>compile-pom</artifactId>
+      <version>1.0</version>
+    </parent>
 
     <properties>
         <doxygen.output.dir>${basedir}/target/doxygen</doxygen.output.dir>
     </properties>
-
 
     <dependencies>
         <dependency>
@@ -27,7 +32,7 @@
         <dependency>
           <groupId>com.myapp.tools</groupId>
           <artifactId>utilities</artifactId>
-          <version>0.0.1</version>
+          <version>0.0.3</version>
         </dependency>
     </dependencies>
 
@@ -65,13 +70,6 @@
 
         <plugins>
             <plugin>
-                <artifactId>maven-compiler-plugin</artifactId>
-                <configuration>
-                    <source>1.6</source>
-                    <target>1.6</target>
-                </configuration>
-            </plugin>
-            <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-jar-plugin</artifactId>
                 <configuration>
@@ -80,13 +78,6 @@
                             ${basedir}/resources/META-INF/MANIFEST.MF
                         </manifestFile>
                     </archive>
-                </configuration>
-            </plugin>
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-resources-plugin</artifactId>
-                <configuration>
-                    <encoding>UTF-8</encoding>
                 </configuration>
             </plugin>
                         
@@ -115,14 +106,6 @@
                     </execution>
                 </executions>
             </plugin>
-            <!--plugin>
-              <groupId>net.sf.doodleproject</groupId>
-              <artifactId>doxygen-maven-plugin</artifactId>
-              <version>2.2</version>
-              <configuration>
-                <configurationFile>${basedir}/target/classes/doxygen.config</configurationFile>
-              </configuration>
-            </plugin-->
         </plugins>
     </build>
 
@@ -136,3 +119,4 @@
     </reporting>
 
 </project>
+
