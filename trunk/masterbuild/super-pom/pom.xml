@@ -1,0 +1,57 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+
+  <name>Super-Pom</name>
+  <modelVersion>4.0.0</modelVersion>
+  <packaging>pom</packaging>
+
+  <groupId>com.myapp.maven</groupId>
+  <artifactId>super-pom</artifactId>
+  <version>1.0</version>
+
+  <licenses>
+    <license>
+      <name>The Apache Software License, Version 2.0</name>
+      <url>http://www.apache.org/licenses/LICENSE-2.0.txt</url>
+      <distribution>repo</distribution>
+    </license>
+  </licenses>
+
+  <properties>  
+      <default.encoding>UTF-8</default.encoding>
+  </properties>
+
+    <distributionManagement>
+        <repository> 
+            <id>andre.ragg.ws</id><!-- use credentials in settings.xml -->
+            <url>http://andre.ragg.ws/artifactory/libs-release-local</url>
+        </repository>
+        <snapshotRepository>
+            <id>andre.ragg.ws</id><!-- use credentials in settings.xml -->
+            <url>http://andre.ragg.ws/artifactory/libs-snapshot-local</url>
+        </snapshotRepository>
+    </distributionManagement>
+
+    <build>
+        <plugins>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-resources-plugin</artifactId>
+                <configuration>
+                    <encoding>${default.encoding}</encoding>
+                </configuration>
+            </plugin>
+
+            <plugin>
+              <groupId>org.apache.maven.plugins</groupId>
+              <artifactId>maven-eclipse-plugin</artifactId>
+              <configuration>
+                  <downloadSources>true</downloadSources>
+                  <downloadJavaDocs>true</downloadJavaDocs>
+              </configuration>
+            </plugin>
+        </plugins>
+    </build>
+</project>

@@ -1,18 +1,24 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
  
+  <name>masterbuild</name>
+  <packaging>pom</packaging>
+  <description>builds all maven project in this repository folder</description>
+  <modelVersion>4.0.0</modelVersion>
+
   <groupId>com.myapp.tools</groupId>
   <artifactId>masterbuild</artifactId>
-  <version>0.0.1-SNAPSHOT</version>
+  <version>0.0.1</version>
   
-  <packaging>pom</packaging>
-  <modelVersion>4.0.0</modelVersion>
-  <name>masterbuild</name>
-  <description>builds all maven project in this repository folder</description>
-	
   <modules>
+    <module>./super-pom</module>
+    <module>./compile-pom</module>
+    
     <module>../app-android-celsius2fahrenheit</module>
     <module>../app-android-schnellen</module>
+    <module>../app-game-pong</module>
     <module>../app-rubic-cube</module>
     <module>../app-soundsorter</module>
     <module>../app-videotools</module>
@@ -20,16 +26,23 @@
     <module>../mines</module>
     <module>../renamer</module>
     <module>../schnellen-core</module>
+    <module>../tool-desktop-startup</module>
     <module>../tool-httpproxy</module>
     <module>../utilities</module>
-    <module>../web-dwr-shop-annotated</module>
     <module>../web-dwr-shop</module>
+    <module>../web-dwr-shop-annotated</module>
     <module>../web-dwr-simple</module>
+    <module>../web-file-exchange</module>
     <module>../web-jsf2-getstarted</module>
     <module>../web-jsf-bookstore</module>
     <module>../web-jsp-bookstore</module>
     <module>../web-struts-tagdemo</module>
     <module>../web-wings-mines</module>
+
+    <!--    
+    <module>../hack-alpha-centauri-rip</module>
+    <module>../hack.pagerip.literotica</module>
+    -->
   </modules>
   
 </project>
