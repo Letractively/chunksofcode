@@ -21,7 +21,7 @@ import org.wings.SPanel;
 import org.wings.STextArea;
 import org.wings.STextField;
 
-import sun.nio.cs.HistoricallyNamedCharset;
+//import sun.nio.cs.HistoricallyNamedCharset;
 
 import com.myapp.mines.controller.GameController;
 import com.myapp.mines.db.HighscoreDB;
