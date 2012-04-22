@@ -1,4 +1,4 @@
-package ws.ragg.webapp.fileexchange;
+package com.myapp.web.fileexchange;
 
 import org.apache.wicket.markup.html.WebPage;
 import org.apache.wicket.markup.html.basic.Label;

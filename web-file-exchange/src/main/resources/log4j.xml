@@ -13,7 +13,7 @@
         <appender-ref ref="STDOUT" />
     </logger>
     
-    <logger name="ws.ragg.webapp.fileexchange.servlet.UploadServlet">
+    <logger name="com.myapp.web.fileexchange.servlet.UploadServlet">
         <level value="INFO" />
         <appender-ref ref="STDOUT" />
     </logger>

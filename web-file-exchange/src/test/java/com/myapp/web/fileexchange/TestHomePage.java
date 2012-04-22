@@ -1,4 +1,4 @@
-package ws.ragg.webapp.fileexchange;
+package com.myapp.web.fileexchange;
 
 import junit.framework.Assert;
 
