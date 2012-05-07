@@ -34,7 +34,7 @@ echo "\$regex : '$regex'"
 
 results=$(mktemp --tmpdir=$tmpDir)
 
-find "$sourceCopy" -type f | grep -iE "$regex" > "$results"
+find "$sourceCopy" -type f -follow | grep -iE "$regex" > "$results"
 
 totalCount="$(cat $results | wc -l)"
 echo "$totalCount files found. now resize them to: $convertTarget ..."
