@@ -18,7 +18,7 @@
 <form method="get">
 
     <!-- view type radiobuttons: -->
-    Ansichtstyp:
+    ViewType:
 <?php HtmlUtil :: render_radiobutton_input("queryTyp",
             $viewDef -> getAvailableViewTypes(), $viewDef -> getViewType());
 ?>
@@ -26,7 +26,7 @@
     <!-- end of the viewtype radio buttons -->
 
     <!-- data source checkboxes: -->
-    Datenquelle:
+    Database:
 <?php HtmlUtil :: render_checkboxes_input(
            $viewDef -> getAvailableDatabases(), $viewDef -> getDatabases());
 ?>
@@ -34,29 +34,29 @@
     <!-- end of data source checkboxes -->
 
     <!-- year selectbox: -->
-    Jahr:
-<?php HtmlUtil :: render_options_input("queryJahr",
+    Year:
+<?php HtmlUtil :: render_options_input("queryYear",
                     $viewDef -> getAvailableYears(), $viewDef -> getYear());
 ?>
     <!-- end of year selectbox -->
 
     <!-- month selectbox: -->
-    Monat:
-<?php HtmlUtil :: render_options_input("queryMonat",
+    Month:
+<?php HtmlUtil :: render_options_input("queryMonth",
                   $viewDef -> getAvailableMonths(), $viewDef -> getMonth());
 ?>
     <!-- end of month selectbox -->
 
     <!-- day selectbox: -->
-    Tag:
-<?php HtmlUtil :: render_options_input( "queryTag",
+    Day:
+<?php HtmlUtil :: render_options_input( "queryDay",
                       $viewDef -> getAvailableDays(), $viewDef -> getDay());
 ?>
     <!-- end of day selectbox -->
 
 
 <br/>
-<button onclick="this.form.submit(); return false;">Abfragen</button>
+<button onclick="this.form.submit(); return false;">Query</button>
 
 </form>
 <!-- end of http form -->

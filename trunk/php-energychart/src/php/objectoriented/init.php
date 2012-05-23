@@ -10,9 +10,9 @@
 
 	// show debug messages:
         HtmlUtil :: html_debug("chosen Ansicht: "  .$viewDef -> getViewType() );
-        HtmlUtil :: html_debug("chosen Jahr: "     .$viewDef -> getYear()     );
-        HtmlUtil :: html_debug("chosen Monat: "    .$viewDef -> getMonth()    );
-        HtmlUtil :: html_debug("chosen Tag: "      .$viewDef -> getDay()      );
+        HtmlUtil :: html_debug("chosen Year: "     .$viewDef -> getYear()     );
+        HtmlUtil :: html_debug("chosen Month: "    .$viewDef -> getMonth()    );
+        HtmlUtil :: html_debug("chosen Day: "      .$viewDef -> getDay()      );
         HtmlUtil :: html_debug("chosen Databases: ".sizeof($viewDef -> getDatabases()));
 
 	// show error message and exit when no data is available:

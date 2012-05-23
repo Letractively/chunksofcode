@@ -10,27 +10,27 @@
     <meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
     <script type="text/javascript">
       function refreshForm(selection) {
-        var jahrBox = document.getElementById("queryJahrSelBox");
-        var monatBox = document.getElementById("queryMonatSelBox");
-        var tagBox = document.getElementById("queryTagSelBox");
+        var jahrBox = document.getElementById("queryYearSelBox");
+        var monatBox = document.getElementById("queryMonthSelBox");
+        var tagBox = document.getElementById("queryDaySelBox");
 
         switch (selection) {
-          case "Jahr":
+          case "Year":
             jahrBox.disabled = false;
             monatBox.disabled = true;
             tagBox.disabled = true;
             break;
-          case "Monat":
+          case "Month":
             jahrBox.disabled = false;
             monatBox.disabled = false;
             tagBox.disabled = true;
             break;
-          case "Tag":
+          case "Day":
             jahrBox.disabled = false;
             monatBox.disabled = false;
             tagBox.disabled = false;
             break;
-          case "Gesamt":
+          case "Everything":
             jahrBox.disabled = true;
             monatBox.disabled = true;
             tagBox.disabled = true;
@@ -42,10 +42,9 @@
   <body>
 
 
-  <h2>Energieverbrauch Diagramm Demo (php/mysql)</h2>
-  Bitte wählen Sie einen Ansichtstyp, eine oder mehrere Datenquellen und einen Zeitraum.<br/>
-  Beim Klick auf Abfragen werden die Daten aus den gewählten Quellen selektiert.</br>
-  Aus den Daten wird dann eine Grafik generiert und angezeigt.<br/>
+  <h2>Energy Consumption Graph Demo (php/mysql)</h2>
+   Please select a view type, one or more data sources and a period. <br/>
+   By clicking on the query button data will be selected and a chart will be generated. </ Br>
   <hr/>
 
 

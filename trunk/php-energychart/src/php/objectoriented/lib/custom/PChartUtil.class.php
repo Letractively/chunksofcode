@@ -70,7 +70,7 @@ class PChartUtil {
         $sum = preg_replace("/([.,]\\d\\d)\\d*/", "\\1", "".$sum);
 
         // XXX assuming the y axis name is the unit of the data values
-        $label_average = "Mittel (".$sum." ".$this -> calc_y_axis_name().")";
+        $label_average = "Average (".$sum." ".$this -> calc_y_axis_name().")";
 
         for ($i = 0; $i < sizeof($values); $i++) {
             $AvgData -> AddPoint($sum, $label_average);
@@ -98,7 +98,7 @@ class PChartUtil {
         $DataSet -> AddSerie($value_series_name);
 
 
-        // set the "Tag" values as labels for the x axis:
+        // set the "Day" values as labels for the x axis:
         $DataSet -> AddPoint($labels, "x-axis-labels");
         $DataSet -> SetAbsciseLabelSerie("x-axis-labels");
 
@@ -216,10 +216,10 @@ class PChartUtil {
 
 	private function calc_output_dir() {
 	    switch ($this -> viewDef -> getViewType()) {
-	        case "Gesamt": return "all";
-	        case "Jahr":   return "yearly";
-	        case "Monat":  return "monthly";
-	        case "Tag":    return "daily";
+	        case "Everything": return "all";
+	        case "Year":   return "yearly";
+	        case "Month":  return "monthly";
+	        case "Day":    return "daily";
 	    }
 	}
 
@@ -227,10 +227,10 @@ class PChartUtil {
 		$date = $this -> viewDef -> getSelectedDate();
 
 	    switch ($this -> viewDef -> getViewType()) {
-	        case "Gesamt": return "all.png";
-	        case "Jahr":   return date("Y", $date).".png";
-	        case "Monat":  return date("Y-m", $date).".png";
-	        case "Tag":    return date("Y-m-d", $date).".png";
+	        case "Everything": return "all.png";
+	        case "Year":   return date("Y", $date).".png";
+	        case "Month":  return date("Y-m", $date).".png";
+	        case "Day":    return date("Y-m-d", $date).".png";
 	    }
 	}
 
@@ -238,37 +238,37 @@ class PChartUtil {
         $date = $this -> viewDef -> getSelectedDate();
 
 	    switch ($this -> viewDef -> getViewType()) {
-	        case "Gesamt": return "Gesamtansicht";
-	        case "Jahr":   return "Jahresansicht ".date("Y", $date);
-	        case "Monat":  return "Monatsansicht ".date("Y-m", $date);
-	        case "Tag":    return "Tagesansicht ".date("Y-m-d", $date);
+	        case "Everything": return "Everything";
+	        case "Year":   return "Year View ".date("Y", $date);
+	        case "Month":  return "Month View ".date("Y-m", $date);
+	        case "Day":    return "Day View ".date("Y-m-d", $date);
 	    }
 	}
 
 	private function calc_value_series_name() {
 	    switch ($this -> viewDef -> getViewType()) {
-	        case "Gesamt": return "Jahresverbrauch";
-	        case "Jahr":   return "Monatsverbrauch";
-	        case "Monat":  return "Tagesverbrauch";
-	        case "Tag":    return "stündlicher Verbrauch";
+	        case "Everything": return "Yearly Consumption";
+	        case "Year":   return "Monthly Consumption";
+	        case "Month":  return "Daily Consumption";
+	        case "Day":    return "Hourly Consumption";
 	    }
 	}
 
 	private function calc_x_axis_name() {
 	    switch ($this -> viewDef -> getViewType()) {
-	        case "Gesamt": return "Jahr";
-	        case "Jahr":   return "Monat";
-	        case "Monat":  return "Kalendertag";
-	        case "Tag":    return "Stunde";
+	        case "Everything": return "Year";
+	        case "Year":   return "Month";
+	        case "Month":  return "Day in Month";
+	        case "Day":    return "Hour";
 	    }
 	}
 
 	private function calc_y_axis_name() {
 	    switch ($this -> viewDef -> getViewType()) {
-	        case "Gesamt":
-	        case "Jahr":
-	        case "Monat":  return "MWh";
-	        case "Tag":    return "kWh";
+	        case "Everything":
+	        case "Year":
+	        case "Month":  return "MWh";
+	        case "Day":    return "kWh";
 	    }
 	}
 }
