@@ -4,7 +4,7 @@
 	 * (c) Andre Ragg 2011
 	 */
 
-	$viewDef = $_REQUEST["at.aquadome.prototype.viewDefinition"];
+	$viewDef = $_REQUEST["com.myapp.energychart.viewDefinition"];
 
     // display the validation errors of the form:
     if (sizeof($viewDef -> getErrors()) >= 0) {
@@ -16,7 +16,6 @@
 	// generate sql statement:
 	$sqlGen = new SqlGenerator($viewDef);
 	$paramData = $sqlGen -> statementParameters();
-	HtmlUtil :: html_dump_query($sqlGen);
 
 
 	// create database connection and setup sql statement:
@@ -68,4 +67,6 @@
 	echo "<img src='".$output_file."' />\n\n";
 
 	HtmlUtil :: render_table($label_array, $value_array);
+	
+	HtmlUtil :: html_dump_query($sqlGen);
 ?>

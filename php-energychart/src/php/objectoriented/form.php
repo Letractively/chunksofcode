@@ -9,7 +9,7 @@
 
 	// TODO: control the inputs below with javascript on value changed!
 
-	$viewDef = $_REQUEST["at.aquadome.prototype.viewDefinition"];
+	$viewDef = $_REQUEST["com.myapp.energychart.viewDefinition"];
 
 ?>
 
@@ -25,13 +25,13 @@
     <br/>
     <!-- end of the viewtype radio buttons -->
 
-    <!-- view type radiobuttons: -->
+    <!-- data source checkboxes: -->
     Datenquelle:
 <?php HtmlUtil :: render_checkboxes_input(
            $viewDef -> getAvailableDatabases(), $viewDef -> getDatabases());
 ?>
     <br/>
-    <!-- end of the viewtype radio buttons -->
+    <!-- end of data source checkboxes -->
 
     <!-- year selectbox: -->
     Jahr:
