@@ -2,26 +2,26 @@
 
 final class ViewDefinition {
 
-	private $availableViewTypes_a;
+    private $availableViewTypes_a;
     private $availableYears_a;
-	private $availableMonths_a;
+    private $availableMonths_a;
     private $availableDays_a;
     private $availableDatabases_a;
 
-	private $viewType_s;
-	private $year_i;
-	private $month_i;
-	private $day_i;
-	private $databases_a;
+    private $viewType_s;
+    private $year_i;
+    private $month_i;
+    private $day_i;
+    private $databases_a;
 
-	private $errors_a;
+    private $errors_a;
 
-	//////////////////  init  ///////////////////
+    //////////////////  init  ///////////////////
 
-	function __construct() {
-        $this -> availableViewTypes_a = array("Gesamt","Jahr","Monat","Tag");
-	    $this -> availableYears_a = ViewDefinition :: fetchAvailableYears();
-	    $this -> availableMonths_a = array(1,2,3,4,5,6,7,8,9,10,11,12);
+    function __construct() {
+        $this -> availableViewTypes_a = array("Everything","Year","Month","Day");
+        $this -> availableYears_a = ViewDefinition :: fetchAvailableYears();
+        $this -> availableMonths_a = array(1,2,3,4,5,6,7,8,9,10,11,12);
         $this -> availableDays_a = array(
                  1,  2,  3,  4,  5,  6,  7,  8,  9,
             10, 11, 12, 13, 14, 15, 16, 17, 18, 19,
@@ -40,21 +40,21 @@ final class ViewDefinition {
         $this -> month_i = -1;
         $this -> day_i = -1;
 
-		$this -> initFromHttpRequest();
-		$this -> correctHttpState();
-	}
+        $this -> initFromHttpRequest();
+        $this -> correctHttpState();
+    }
     private function initFromHttpRequest() {
         if (isset($_REQUEST["queryTyp"])) {
             $this -> setViewType($_REQUEST["queryTyp"]);
         }
-        if (isset($_REQUEST["queryJahr"])) {
-            $this -> setYear($_REQUEST["queryJahr"]);
+        if (isset($_REQUEST["queryYear"])) {
+            $this -> setYear($_REQUEST["queryYear"]);
         }
-        if (isset($_REQUEST["queryMonat"])) {
-            $this -> setMonth($_REQUEST["queryMonat"]);
+        if (isset($_REQUEST["queryMonth"])) {
+            $this -> setMonth($_REQUEST["queryMonth"]);
         }
-        if (isset($_REQUEST["queryTag"])) {
-            $this -> setDay($_REQUEST["queryTag"]);
+        if (isset($_REQUEST["queryDay"])) {
+            $this -> setDay($_REQUEST["queryDay"]);
         }
 
         $allDbs = $this -> availableDatabases_a;
@@ -74,10 +74,13 @@ final class ViewDefinition {
         $days = $this -> availableDays_a;
 
         if (! in_array($this -> viewType_s, $vtypes)) {
-            $this -> viewType_s = $vtypes[0];  // fallback to JahresAnsicht
+            $this -> viewType_s = $vtypes[3];  // fallback to month view
         }
         if (! in_array($this -> year_i, $years)) {
             $this -> year_i = $years[0]; // fallback to most recent year
+            if (is_int($years[1])) {
+                $this -> year_i = $years[0]; // minus one, if available
+            }
         }
         if (! in_array($this -> month_i, $months)) {
             $this -> month_i = date("n"); // fallback to current month
@@ -87,7 +90,6 @@ final class ViewDefinition {
         }
 
         if (sizeof($this -> databases_a) <= 0) {
-//            $this -> errors_a["databases"] = "Keine Datenquelle ausgewählt!";
             array_push($this -> databases_a, // fallback to first database
                        $this -> availableDatabases_a[0]);
         }
@@ -154,39 +156,39 @@ final class ViewDefinition {
     //////////////////  setters  ///////////////////
 
     private function setViewType($viewType) {
-		if (in_array($viewType, $this -> availableViewTypes_a)) {
-			$this -> viewType_s = $viewType;
-		} else {
-			$this -> errors_a["viewtype"] = "Ungültiger Ansichtstyp: ".$viewType;
-		}
-	}
-	private function setYear($year_i) {
+        if (in_array($viewType, $this -> availableViewTypes_a)) {
+            $this -> viewType_s = $viewType;
+        } else {
+            $this -> errors_a["viewtype"] = "Invalid View Type: ".$viewType;
+        }
+    }
+    private function setYear($year_i) {
         $i = 0 + $year_i;
-		if (is_int($i)) {
-			$this -> year_i = $i;
-		} else {
-			$this -> errors_a["year"] = "Ungültiges Jahr: ".$year_i;
-		}
-	}
-	private function setMonth($month_i) {
-		$i = 0 + $month_i;
-		if (is_int($i) && $i < 13 && $i > 0) {
-			$this -> month_i = $month_i;
-		} else {
-			$this -> errors_a["month"] = "Ungültiges Monat: ".$month_i;
-		}
-	}
+        if (is_int($i)) {
+            $this -> year_i = $i;
+        } else {
+            $this -> errors_a["year"] = "Invalid Year: ".$year_i;
+        }
+    }
+    private function setMonth($month_i) {
+        $i = 0 + $month_i;
+        if (is_int($i) && $i < 13 && $i > 0) {
+            $this -> month_i = $month_i;
+        } else {
+            $this -> errors_a["month"] = "Invalid Month: ".$month_i;
+        }
+    }
     private function setDatabase($tables_a) {
 
     }
     private function setDay($day_i) {
         $i = 0 + $day_i;
-		if (is_int($i) && $i > 0 && $i < 32) {
-			$this -> day_i = $i;
-		} else {
-			$this -> errors_a["day"] = "Ungültiger Tag: ".$day_i;
-		}
-	}
+        if (is_int($i) && $i > 0 && $i < 32) {
+            $this -> day_i = $i;
+        } else {
+            $this -> errors_a["day"] = "Invalid Day: ".$day_i;
+        }
+    }
 }
 
 ?>

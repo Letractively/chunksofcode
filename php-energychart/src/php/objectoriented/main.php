@@ -66,7 +66,7 @@
 	echo "\n\n<!-- embed image file: -->\n";
 	echo "<img src='".$output_file."' />\n\n";
 
-	HtmlUtil :: render_table($label_array, $value_array);
+        HtmlUtil :: html_dump_query($sqlGen);
 	
-	HtmlUtil :: html_dump_query($sqlGen);
+        HtmlUtil :: render_table($label_array, $value_array);
 ?>

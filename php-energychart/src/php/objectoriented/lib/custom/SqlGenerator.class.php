@@ -54,19 +54,19 @@ final class SqlGenerator {
 
         // label
         switch ($this -> viewDef -> getViewType()) {
-            case "Gesamt" :$select .= "YEAR(datum)"; break;
-            case "Jahr" :  $select .= "MONTH(datum)"; break;
-            case "Monat" : $select .= "DAY(datum)";   break;
-            case "Tag" :   $select .= "HOUR(zeit)";   break;
+            case "Everything" :$select .= "YEAR(datum)"; break;
+            case "Year" :  $select .= "MONTH(datum)"; break;
+            case "Month" : $select .= "DAY(datum)";   break;
+            case "Day" :   $select .= "HOUR(zeit)";   break;
         }
         $select .= " AS label, \n    ";
 
         // value
         switch ($this -> viewDef -> getViewType()) {
-            case "Gesamt" :$select .= "SUM(kwh_pro15min)/1000"; break;
-            case "Jahr" :  $select .= "SUM(kwh_pro15min)/1000"; break;
-            case "Monat" : $select .= "SUM(kwh_pro15min)/1000"; break;
-            case "Tag" :   $select .= "SUM(kwh_pro15min)";      break;
+            case "Everything" :$select .= "SUM(kwh_pro15min)/1000"; break;
+            case "Year" :  $select .= "SUM(kwh_pro15min)/1000"; break;
+            case "Month" : $select .= "SUM(kwh_pro15min)/1000"; break;
+            case "Day" :   $select .= "SUM(kwh_pro15min)";      break;
         }
         $select.= " AS value \n";
 
@@ -77,10 +77,10 @@ final class SqlGenerator {
         $vd = $this -> viewDef;
         $result = array();
         switch ($vd -> getViewType()) {
-            case "Gesamt" : break;
-            case "Tag" :    $result[":tag"] =   $vd -> getDay();
-            case "Monat" :  $result[":monat"] = $vd -> getMonth();
-            case "Jahr"  :  $result[":jahr"] =  $vd -> getYear();
+            case "Everything" : break;
+            case "Day" :    $result[":tag"] =   $vd -> getDay();
+            case "Month" :  $result[":monat"] = $vd -> getMonth();
+            case "Year"  :  $result[":jahr"] =  $vd -> getYear();
         }
         return $result;
     }
@@ -125,19 +125,19 @@ final class SqlGenerator {
 	private function compute_where_clause() {
 	    $where = "";
         switch ($this -> viewDef -> getViewType()) {
-            case "Gesamt" :
+            case "Everything" :
                 $where .= "(1=1)";
                 break;
-            case "Jahr" :
+            case "Year" :
                 $where = "\n    ";
                 $where .=  "YEAR(datum) = :jahr ";
                 break;
-            case "Monat" :
+            case "Month" :
                 $where = "\n    ";
                 $where .= "YEAR(datum) = :jahr \n    ";
                 $where .= "AND MONTH(datum) = :monat ";
                 break;
-            case "Tag" :
+            case "Day" :
                 $where = "\n    ";
                 $where .= "YEAR(datum) = :jahr \n    ";
                 $where .= "AND MONTH(datum) = :monat \n    ";
@@ -151,10 +151,10 @@ final class SqlGenerator {
 	private function compute_group_by_clause() {
 	    $groupby = "    ";
 	    switch ($this -> viewDef -> getViewType()) {
-	        case "Gesamt" : $groupby .= "YEAR(datum)";  break;
-	        case "Jahr" :   $groupby .= "MONTH(datum)"; break;
-	        case "Monat" :  $groupby .= "DAY(datum)";   break;
-	        case "Tag" :    $groupby .= "HOUR(zeit)";   break;
+	        case "Everything" : $groupby .= "YEAR(datum)";  break;
+	        case "Year" :   $groupby .= "MONTH(datum)"; break;
+	        case "Month" :  $groupby .= "DAY(datum)";   break;
+	        case "Day" :    $groupby .= "HOUR(zeit)";   break;
 	    }
 	    $groupby.= "\n";
 	    return $groupby;
@@ -163,10 +163,10 @@ final class SqlGenerator {
 	private function compute_order_by_clause() {
 	    $orderby = "    ";
 	    switch ($this -> viewDef -> getViewType()) {
-	        case "Gesamt" : $orderby .= "YEAR(datum)";  break;
-	        case "Jahr" :   $orderby .= "MONTH(datum)"; break;
-	        case "Monat" :  $orderby .= "DAY(datum)";   break;
-	        case "Tag" :    $orderby .= "HOUR(zeit)";   break;
+	        case "Everything" : $orderby .= "YEAR(datum)";  break;
+	        case "Year" :   $orderby .= "MONTH(datum)"; break;
+	        case "Month" :  $orderby .= "DAY(datum)";   break;
+	        case "Day" :    $orderby .= "HOUR(zeit)";   break;
 	    }
 	    $orderby.= "\n";
 	    return $orderby;

@@ -58,7 +58,7 @@ final class HtmlUtil {
         echo   "  ";
         echo   "<tr>";
         echo     "<th>label</th>";
-        echo     "<th>wert</th>";
+        echo     "<th>value</th>";
         echo   "<tr>\n";
 
         $len = sizeof($label_array);
