@@ -25,6 +25,7 @@ final class Configuration {
 	// enable this to print debug elements on the page
 	// SET FALSE IN PRODUCTION ENVIRONMENT !
 	const debug_mode = false;
+	const debug_sql = true;
 
 	// the chart image will be rendered with this dimensions:
 	const chart_height = 230;

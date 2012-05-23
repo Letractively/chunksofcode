@@ -1,4 +1,4 @@
-<?
+<?php
 /*
  * this file will initialize the parameters used for the database query
  * if they were set in the http request parameters.
@@ -9,11 +9,11 @@
 	$viewDef = new ViewDefinition();
 
 	// show debug messages:
-	HtmlUtil :: html_debug("chosen Ansicht: "  .$viewDef -> getViewType() );
-	HtmlUtil :: html_debug("chosen Jahr: "     .$viewDef -> getYear()     );
-	HtmlUtil :: html_debug("chosen Monat: "    .$viewDef -> getMonth()    );
-	HtmlUtil :: html_debug("chosen Tag: "      .$viewDef -> getDay()      );
-    HtmlUtil :: html_debug("chosen Databases: ".sizeof($viewDef -> getDatabases()));
+        HtmlUtil :: html_debug("chosen Ansicht: "  .$viewDef -> getViewType() );
+        HtmlUtil :: html_debug("chosen Jahr: "     .$viewDef -> getYear()     );
+        HtmlUtil :: html_debug("chosen Monat: "    .$viewDef -> getMonth()    );
+        HtmlUtil :: html_debug("chosen Tag: "      .$viewDef -> getDay()      );
+        HtmlUtil :: html_debug("chosen Databases: ".sizeof($viewDef -> getDatabases()));
 
 	// show error message and exit when no data is available:
 	if (sizeof($viewDef -> getAvailableYears()) <= 0) {
@@ -22,5 +22,5 @@
 	}
 
 	// save the viewDefinition in the request for further usage:
-	$_REQUEST["at.aquadome.prototype.viewDefinition"] = $viewDef;
+	$_REQUEST["com.myapp.energychart.viewDefinition"] = $viewDef;
 ?>

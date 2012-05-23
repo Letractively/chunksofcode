@@ -118,7 +118,7 @@ final class SqlGenerator {
                 $from .= "UNION ALL \n";
             }
         }
-        $from .= "    ) AS mehrere_tabellen_vereinigt \n";
+        $from .= "    ) AS foo \n";
         return $from;
 	}
 
