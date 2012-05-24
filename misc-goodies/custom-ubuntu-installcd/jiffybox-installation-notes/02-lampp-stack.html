@@ -1,0 +1,194 @@
+First, make sure the lamp-server package is installed.
+<pre>root@jiffybox # apt-get install tasksel
+root@jiffybox # tasksel install lamp-server</pre><br/>
+
+
+<h2>Step 1 - Install the Apache2 webserver</h2>
+
+Important config files:
+<ul>
+    <li>vim /etc/apache2/sites-available/default</li>
+</ul>
+Install webserver package:
+<pre>root@jiffybox # apt-get install apache2</pre>
+Start the service and check if it works properly:
+<pre>root@jiffybox # service apache2 restart # (or '/etc/init.d/apache2 restart')
+root@jiffybox # wget http://localhost -O - 2>/dev/null</pre><br/>
+
+
+<h3>Configure a subdomain</h3>
+We want to bind a subdomain to a file system directory.<br/>
+In this setup, the html documents stored in<br/>
+<b>/data/www-data/toplevel/</b> are accessible from the URL 
+<a href="http://mydomain.ws">http://mydomain.ws</a> , while the htdocs located in<br/>
+<b>/data/www-data/subdomain-test/</b> are accessed through 
+<a href="http://test.mydomain.ws">http://test.mydomain.ws</a> .
+<p>
+    The relevant (DNS) name server settings are:
+    <table>
+        <tr>
+            <th>Hostname</th>
+            <th>Type</th>
+            <th>Priority</th>
+            <th>Target</th>
+        </tr>
+        <tr>
+            <td>mydomain.ws</td>
+            <td>A</td>
+            <td>-</td>
+            <td>141.0.20.92</td>
+        </tr>
+        <tr>
+            <td>test.mydomain.ws</td>
+            <td>A</td>
+            <td>-</td>
+            <td>141.0.20.92</td>
+        </tr>
+    </table>
+</p>
+The binding is defined in <b>/etc/apache2/sites-available/default</b> :
+<pre>
+&lt;VirtualHost *:80&gt;
+        ServerName mydomain.ws
+        ServerAlias www.mydomain.ws
+        ServerAdmin webmaster@localhost
+        DocumentRoot /data/www-data/toplevel
+        
+        &lt;Directory /&gt;
+                Options FollowSymLinks
+                AllowOverride None
+        &lt;/Directory&gt;
+        &lt;Directory /data/www-data/toplevel&gt;
+                Options Indexes FollowSymLinks MultiViews
+                AllowOverride None
+                Order allow,deny
+                allow from all
+        &lt;/Directory&gt;
+
+        ScriptAlias /cgi-bin/ /usr/lib/cgi-bin/
+        &lt;Directory "/usr/lib/cgi-bin"&gt;
+                AllowOverride None
+                Options +ExecCGI -MultiViews +SymLinksIfOwnerMatch
+                Order allow,deny
+                Allow from all
+        &lt;/Directory&gt;
+        
+&lt;/VirtualHost&gt;
+&lt;VirtualHost *:80&gt;
+  ServerName test.mydomain.ws
+  DocumentRoot /data/www-data/subdomain-test
+&lt;/VirtualHost&gt;</pre><br/>
+
+
+
+
+<h2>Step 2 - PHP installation</h2>
+
+Important config files:
+<ul>
+    <li>/etc/php5/apache2/php.ini</li>
+</ul>
+
+Install Apache PHP module:
+<pre>root@jiffybox # apt-get install libapache2-mod-php5</pre>
+
+You should disable the deprecated '&lt;? ' PHP start tags (If you do not use legacy code using them).<br/>
+This will ensure that files that start with '&lt;?xml' can never be executed as code by the PHP interpreter. (security issue)<br/>
+Uncomment/add the following statement in <b>/etc/php5/apache2/php.ini</b> :
+<pre>set 'short_open_tag = Off'</pre>
+
+Start the webserver and test if the module works properly:
+<pre>root@jiffybox # echo '&lt;?php phpinfo(); ?&gt;' &gt; /var/www/test.php
+root@jiffybox # service apache2 restart
+root@jiffybox # wget http://localhost/test.php -O - 2&gt;/dev/null | grep -iEo 'php version 5[^&lt;&gt;]*'
+root@jiffybox # rm /var/www/test.php</pre><br/>
+
+
+<h2>Step 3 - MySQL installation</h2>
+
+Important config files:
+<ul>
+    <li>/etc/mysql/my.cnf</li>
+</ul>
+
+Install the server software, and modules for apache and php:
+<pre>root@jiffybox # apt-get install mysql-server libapache2-mod-auth-mysql php5-mysql</pre>
+
+Test your installation using the password you defined during installation: (exit prompt with '\q' )
+<pre>mysql@jiffybox $ mysql -u root -p</pre>
+
+First you should change your mysql root password:
+<pre>mysql@jiffybox $ mysqladmin -u root -p</pre>
+<br/>
+
+<h4>Enable remote access</h4>
+If you need access to your databases from outside this host, you can 
+comment <span style="color: red;">out</span> the following statement in <b>/etc/mysql/my.cnf</b>.
+If the database should be accessible only by a single host, you can replace 'localhost' with its IP address (or hostname).
+<pre>bind-address = localhost</pre>
+Set firewall exception rule for the mysql port (3306 by default)
+<pre>root@jiffybox # /sbin/iptables -A INPUT -i eth0 -p tcp --destination-port 3306 -j ACCEPT</pre><br/>
+
+
+<h4>Create a database and a mysql user:</h4>
+
+Enter the mysql prompt and setup a db and a user:
+<pre>mysql@jiffybox $ mysql -u root -p
+mysql&gt; UPDATE mysql.user SET Password = PASSWORD('Toppsy-Krets') WHERE User = 'root';
+mysql&gt; FLUSH PRIVILEGES;
+mysql&gt; CREATE DATABASE database1;
+mysql&gt; GRANT SELECT, INSERT, UPDATE, DELETE, CREATE, DROP, INDEX, ALTER, CREATE TEMPORARY TABLES, LOCK TABLES ON database1.* TO 'user1'@'localhost' IDENTIFIED BY 'password1';
+</pre>
+
+To grant remote access to user1, browse to phpmyadmin as root user, 
+go to Privileges and change the host of user1 to "any host",<br/> or enter:
+<pre>mysql@jiffybox $ mysql -u root -p
+mysql&gt; UPDATE mysql.user SET Host = '%' WHERE User = 'user1';
+mysql&gt; FLUSH PRIVILEGES;</pre><br/>
+        
+        
+<h2>Step 4 - Install phpmyadmin</h2>
+
+Important config files:
+<ul>
+    <li>/etc/phpmyadmin/*</li>
+</ul>
+Simply install the phpmyadmin package:
+<pre>root@jiffybox # apt-get install phpmyadmin</pre>
+<br/>
+To enable the phpmyadmin webconsole, add this line to <br/> 
+apache's configuration file <b> /etc/apache2/apache2.conf </b> :
+<pre>Include /etc/phpmyadmin/apache.conf</pre>
+Test the console by restarting your webserver with 
+<pre>root@jiffybox # service apache2 restart</pre>
+and browse to 
+<a href="http://bytesare.us/phpmyadmin">phpmyadmin</a> and try to login
+with your mysql user account(s).
+<br/>
+        
+        
+<h2>Step 5 - Finish the installation</h2>
+
+Restart the server and perform a config check:
+<pre>root@jiffybox # /usr/sbin/apache2ctl stop
+root@jiffybox # /usr/sbin/apache2ctl configtest
+root@jiffybox # /usr/sbin/apache2ctl start</pre>
+
+If you want to use your apache installation only locally (e.g. for development), you can bind
+it by adding/editing the following line in your <b> /etc/apache2/ports.conf </b> file to prevent
+the webserver from handling incoming connection attempts.
+<pre>Listen 127.0.0.1:80</pre>
+
+On public accessible hosts, you should harden your system.
+This can be done easily by installing and running bastille:
+<pre>
+root@jiffybox # apt-get install perl-tk bastille
+root@jiffybox # bastille # and follow the wizard
+</pre>
+There is also a guide for hardening ubuntu systems in 
+<a href="http://ubuntuforums.org/showthread.php?t=1002167">this</a> article.
+<br/>
+
+
+
+
