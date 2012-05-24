@@ -147,6 +147,9 @@ vim /etc/apache2/sites-available/default
 #
 # }}}
 
+
+
+
 # 3.) INSTALLATION OF PHP5 {{{
 ###############################################################################
 #
@@ -164,6 +167,8 @@ wget http://localhost/test.php -O - 2>/dev/null | grep -iEo "php version 5[^<>]*
 rm /var/www/test.php
 #
 # }}}
+
+
 
 # 4.) INSTALLATION OF MYSQL {{{
 ###############################################################################

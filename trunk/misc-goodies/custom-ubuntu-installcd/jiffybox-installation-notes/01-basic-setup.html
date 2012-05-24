@@ -1,0 +1,41 @@
+
+
+        <h2>Step 1 - Convenience / Basic Environment setup</h2>
+For the most comfortable interacting with the system, I use/suggest several tools and programs.
+        <ul>
+            <li>vim (With <a href="http://andre.bytesare.us/goodies/vimrc">my custom vimrc</a> )</li>
+            <li>zsh (With 
+                <a href="http://andre.bytesare.us/goodies/zshrc">my customized grml zshrc</a> )</li>
+            <li>tree</li>
+            <li>zip</li>
+            <li>unzip</li>
+            <li>gzip</li>
+            <li>unrar</li>
+            <li>rsync</li>
+        </ul>
+        
+        <h3>Enable automatic ssh login using a keyfile</h3>
+        
+        Create a initial <b> ~/.ssh/config </b> file on the client, if not yet present:
+        <pre>testuser@clienthost $ { echo 'Host *'; echo 'IdentityFile ~/.ssh/testuser'; } > ~/.ssh/config</pre>
+        
+        On <span style="color: red;">CLIENT</span> machine, create private/public key pair, 
+        if not yet present.<br/>
+        (This will create the files <b>~/.ssh/testuser</b> and <b>~/.ssh/testuser.pub</b> .)
+        <pre>testuser@clienthost $ ssh-keygen -t rsa -f ~/.ssh/testuser</pre>
+        
+        Install your public key on the <span style="color: red;"> REMOTE </span> machine:
+        <pre>testuser@clienthost $ cat ~/.ssh/testuser.pub \
+        | ssh remoteuser@remotehost 'cat >> ~/.ssh/authorized_keys2'</pre>
+
+        <h3>Limit sudo to a single group</h3>
+        
+        Allow members of group chucknorris to execute any command after
+        they have entered their password
+        <pre>root@jiffybox # groupadd chucknorris</pre>
+        Make sure the line
+        <pre>%chucknorris ALL=(ALL) ALL</pre>
+        is contained in the <b>/etc/sudoers</b> file.<br/>
+        Finally, add the desired user(s) to the group:
+        <pre>root@jiffybox # usermod -a -G chucknorris testuser</pre>
+        <br/>
