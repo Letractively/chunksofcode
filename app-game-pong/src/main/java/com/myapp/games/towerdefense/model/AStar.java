@@ -85,7 +85,7 @@ public class AStar {
     
     public List<Point> calculatePointPath(Enemy enemy) {
         synchronized (this) {
-            final Point enemyPos = enemy.absPos();
+            final Point enemyPos = enemy.getAbsPos();
             final Tile enemyTile = modelGrid.getTileAt(enemyPos);
             final Tile goalTile = modelGrid.getTargetTile();
             assert enemy != null;
@@ -93,6 +93,9 @@ public class AStar {
             assert goalTile != null;
     
             List<Point> points = calculatePointPath(enemyTile, goalTile, enemy.canFly());
+            if (points == null) {
+                return null;
+            }
             points.remove(0);
             return points;
         }

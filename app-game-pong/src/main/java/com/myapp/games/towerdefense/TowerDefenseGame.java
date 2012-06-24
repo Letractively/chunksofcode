@@ -21,9 +21,8 @@ public class TowerDefenseGame extends AWTGame {
 
 
     public TowerDefenseGame(int gridHeight, int rows, int cols) {
-        this.model = new GameModel(gridHeight, rows, cols);
+        this.model = new GameModel(gridHeight, rows, cols, this);
         this.view = new TDRenderer(this);
-        
     }
 
     public TowerDefenseGame() {
