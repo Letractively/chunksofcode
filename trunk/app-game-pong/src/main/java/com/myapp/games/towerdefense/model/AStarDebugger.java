@@ -25,30 +25,18 @@ public final class AStarDebugger extends MouseAdapter {
     
     @Override
     public void mouseClicked(MouseEvent e) {
-        System.out.println("AStarDebugger.mouseClicked() ENTERING");
-        
         Point mousePos = e.getPoint();
-        System.out.println("AStarDebugger.mouseClicked() mouse @ "+mousePos);
         
         Grid g = model.getGrid();
         Tile tile = g.getTileAt(mousePos);
-        System.out.println("AStarDebugger.mouseClicked() tile = "+tile);
 
         if (tile == null) {
             return;
         }
         
         int button = e.getButton();
-        System.out.println("AStarDebugger.mouseClicked() button = "+button);
         
         if (button == MouseEvent.BUTTON3) {
-            if (g.hasTower(tile)) {
-                g.setTower(tile.row, tile.col, null);
-            } else {
-                g.setTower(tile.row, tile.col, new Tower());
-            }
-            tilesOfPath = null;    
-            pointsOfPath = null;  
             return;
         }
         

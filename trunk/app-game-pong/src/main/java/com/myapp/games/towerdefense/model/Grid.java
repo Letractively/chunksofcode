@@ -133,11 +133,11 @@ public class Grid implements Iterable<Tile> {
             tileAt.setHasTower(true);
             tilesByTower.put(tower, tileAt);
             Point pos = tileAt.getPos(Location.CENTER);
-            tower.getAbsolutePosition().setLocation(pos);
+            tower.getAbsPos().setLocation(pos);
         }
     }
     
-    boolean hasTower(Tile tile) {
+    public boolean hasTower(Tile tile) {
         Tower tower = tilesByTower.inverse().get(tile);
         return tower != null;
     }

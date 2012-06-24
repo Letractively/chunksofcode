@@ -6,37 +6,63 @@ import java.util.Iterator;
 
 public class Tower {
 
+    private final class TestProjectile extends Projectile {
+        private TestProjectile(Enemy target, Tower firedFrom) {
+            super(target, firedFrom);
+        }
+    }
+
     private double range = 65.0d;
-    private double power = 10.0d;
-    
+    private long fireInterval = 500;
+    private Long lastFireTime = null;
+    private ISelectionStrategy selectionStrategy = new ISelectionStrategy() {
+        
+        @Override
+        public Enemy selectEnemy(Collection<Enemy> inRange) {
+            Enemy furthest = null;
+            for (Iterator<Enemy> i = inRange.iterator(); i.hasNext();) {
+                Enemy e = i.next();
+                if (furthest == null || furthest.getTargetWay() > e.getTargetWay()) {
+                    furthest = e;
+                }
+            }
+            if (furthest == null) {
+                return null;
+            }
+            return furthest;
+        }
+    };;;
     private Point absPos;
-    
+
     public Tower() {
         this.absPos = new Point();
     }
-    
-    public Point getAbsolutePosition() {
+
+    public Point getAbsPos() {
         return absPos;
     }
-    
+
     public double getRange() {
         return range;
     }
 
-    public void shootAt(Collection<Enemy> inRange) {
-        assert ! inRange.isEmpty();
-        
-        // TODO determine target with a strategy pattern
-        Enemy furthes = null;
-        
-        for (Iterator<Enemy> i = inRange.iterator(); i.hasNext();) {
-            Enemy e = i.next();
-            if (furthes == null || furthes.getTargetWay() > e.getTargetWay()) {
-                furthes = e;
+    public Projectile shootAt(Collection<Enemy> inRange, long gameTime) {
+        assert !inRange.isEmpty();
+        if (lastFireTime == null || gameTime > (fireInterval + lastFireTime)) {
+            Enemy selected = selectionStrategy.selectEnemy(inRange);
+            if (selected != null) {
+                lastFireTime = gameTime;
+                return createProjectile(selected);
             }
         }
-        
-        
-//        Projectile shot = new Projectile(this, ); CONTINUE HERE!!!
+        return null;
+    }
+
+    protected Projectile createProjectile(Enemy e) {
+        return new TestProjectile(e, this);
+    }
+    
+    interface ISelectionStrategy {
+        public Enemy selectEnemy(Collection<Enemy> inRange);
     }
 }

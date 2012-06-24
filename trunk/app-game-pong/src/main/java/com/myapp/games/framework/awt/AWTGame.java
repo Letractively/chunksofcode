@@ -7,10 +7,12 @@ import java.awt.event.MouseListener;
 
 import javax.swing.JComponent;
 
+import com.myapp.games.framework.IGameTimeCallback;
 
 
 
-public abstract class AWTGame implements Runnable {
+
+public abstract class AWTGame implements Runnable , IGameTimeCallback{
 
     
     private final class PauseKeyListener extends KeyAdapter {
@@ -119,7 +121,7 @@ public abstract class AWTGame implements Runnable {
         return cycles;
     }
     
-    public long getGameTime() {
+    public final long getGameTime() {
         return gameTime;
     }
     
