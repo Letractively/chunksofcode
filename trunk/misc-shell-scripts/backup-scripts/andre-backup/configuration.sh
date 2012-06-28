@@ -67,6 +67,7 @@ BACKUP_SOURCE_DIRS=(
 	"/media/warez/games"
 	"/media/datadisk/vm"
 	"/media/datadisk/system-backup"
-	"/media/warez/videos"
-	"/media/warez/porn"
+	"/media/movies/doku"
+	"/media/movies/movies"
+	"/media/movies/music"
 )
