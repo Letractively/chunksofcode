@@ -15,12 +15,11 @@ root@jiffybox # # (I am not sure if this will work, you may have to download the
 root@jiffybox # wget http://download.oracle.com/otn-pub/java/jdk/6u31-b04/jre-6u31-linux-x64.bin
 root@jiffybox # /bin/sh jre-6u31-linux-x64.bin
 root@jiffybox # ln -s jre1.6.0_31/ java # create link /usr/local/java -> jre1.6.0_31/
-root@jiffybox # update-alternatives --install "/usr/bin/java" \
-                    "java" "/usr/local/java/bin/java" 1
+root@jiffybox # update-alternatives --install "/usr/bin/java" "java" "/usr/local/java/bin/java" 1
 root@jiffybox # update-alternatives --set java "/usr/local/java/bin/java"
 root@jiffybox # java -version # test installation
     </pre>
-    <br/>
+    
 </p>
 
 
@@ -29,9 +28,9 @@ root@jiffybox # java -version # test installation
 <p>
     To set JAVA_HOME environment variable globally, add this line to <b>/etc/profile</b>
     <pre>JAVA_HOME=/usr/local/java</pre>
-    <br/>
-    (Note that this will not affect running processes.)<br/>
-    <br/>
+    
+    (Note that this will not affect running processes.)
+    
 </p>
 
 
@@ -39,14 +38,14 @@ root@jiffybox # java -version # test installation
 
 <p>
 I prefer to split the tomcat installation into a shared CATALINA_HOME 
-directory and one CATALINA_BASE directory per tomcat instance.<br/>
+directory and one CATALINA_BASE directory per tomcat instance.
 </p>
 
 
 <h4>HOME installation (Setup shared installation)</h4>
 
 <p>
-    In this example, <b> /opt/tomcat </b> is used as home.<br/>
+    In this example, <b> /opt/tomcat </b> is used as home.
     <pre>
 root@jiffybox # cd /opt/
 root@jiffybox # wget http://mirror.sti2.at/apache/tomcat/tomcat-7/v7.0.26/bin/apache-tomcat-7.0.26.zip
@@ -55,7 +54,7 @@ root@jiffybox # chown root:root -R apache-tomcat-7.0.26
 root@jiffybox # chmod o-w -R apache-tomcat-7.0.26
 root@jiffybox # ln -s apache-tomcat-7.0.26 tomcat
     </pre>
-    <br/>
+    
 </p>
 
 
@@ -64,16 +63,15 @@ root@jiffybox # ln -s apache-tomcat-7.0.26 tomcat
 <p>
     In this example, <b> /home/testuser/tomcat_base </b> is used as base.<br/>
     If you want to create multiple instances, you might create a template first.
-    <br/>
+    
     <pre>
 testuser@jiffybox $ mkdir /home/testuser/tomcat_base
 testuser@jiffybox $ cd /home/testuser/tomcat_base
 testuser@jiffybox $ mkdir {bin,conf,logs,temp,webapps,work}
-testuser@jiffybox $ echo '# do whatever you want change in catalina.sh in this file.' \
-                     >> bin/setenv.sh
+testuser@jiffybox $ echo '# do whatever you want change in catalina.sh in this file.' >> bin/setenv.sh
 testuser@jiffybox $ cp /opt/tomcat/conf/{server,web}.xml conf/
     </pre>
-    <br/>
+    
 </p>
 
 <p>
@@ -85,7 +83,7 @@ CATALINA_HOME=/opt/tomcat
 CATALINA_BASE=/home/testuser/tomcat_base
 /bin/sh $CATALINA_HOME/bin/catalina.sh $@
     </pre>
-    <br/>
+    
 </p>
 
 <p>
@@ -94,7 +92,7 @@ CATALINA_BASE=/home/testuser/tomcat_base
 root@jiffybox # chgrp andre /etc/init.d/tomcat-andre.sh
 root@jiffybox # chmod 754 /etc/init.d/tomcat-andre.sh
     </pre>
-    <br/>
+    
 </p>
 
 <p>
@@ -104,7 +102,7 @@ testuser@jiffybox $ cp /data/shared/helloworld.war /home/testuser/tomcat_base/we
 testuser@jiffybox $ /etc/init.d/tomcat-andre.sh start
 testuser@jiffybox $ wget http://localhost:8080/helloworld -O -
     </pre>
-    <br/>
+    
 </p>
 
 
@@ -118,7 +116,7 @@ testuser@jiffybox $ wget http://localhost:8080/helloworld -O -
     via AJP protocol. The HTTP server may act as a load balancer in this case, but in 
     this example, I use only a single worker.<br/>
     For further information, try 
-    <a href="http://tomcat.apache.org/tomcat-3.3-doc/mod_jk-howto.html">this</a> article.<br/>
+    <a href="http://tomcat.apache.org/tomcat-3.3-doc/mod_jk-howto.html">this</a> article.
 </p>
 <p>
     Relevant config files:
@@ -141,7 +139,7 @@ available at http://<b>mydomain.ws</b>/testapp.
 <p>
     Then, register and configure the module in apache configuration.<br/>
     Add the following snippet to file <b> /etc/apache2/apache2.conf </b> :
-    <br/>
+    
     <pre>
 JkWorkersFile /etc/apache2/workers.properties
 JkLogFile /var/log/apache2/mod_jk.log
@@ -149,7 +147,7 @@ JkShmFile /var/log/apache2/mod_jk.shm
 JkLogLevel info
 JkLogStampFormat "[%a %b %d %H:%M:%S %Y] "
     </pre>
-    <br/>
+    
 </p>
 
 <p>
@@ -163,11 +161,10 @@ worker.myfirstworker.type=ajp13
 worker.myfirstworker.host=localhost
 worker.myfirstworker.port=8009
     </pre>
-    <br/>
 </p>
 
 <p>
-    Now it's time to tell the apache config to map the requests incoming to
+    Now it's time to tell the apache config to redirect the requests incoming to
     the /helloworld contextroot to our ajp worker.<br/>
     Edit your <b>/etc/apache2/sites-available/default</b> file:
     <pre>
@@ -179,8 +176,8 @@ worker.myfirstworker.port=8009
     JkMount /helloworld* myfirstworker
 &lt;/VirtualHost&gt;
     </pre>
-    <br/>
-    <br/>
+    
+    
 </p>
 
 
@@ -190,7 +187,7 @@ worker.myfirstworker.port=8009
     Finally, we need to configure the Tomcat instance to enable the AJP connector.
     Make sure the following element is set in <b> /home/testuser/tomcat_base/conf/server.xml </b> :
     <pre>&lt;Connector port="8009" protocol="AJP/1.3" redirectPort="8443" /&gt;</pre>
-    <br/>
+    
 </p>
 
 <p>
@@ -201,11 +198,11 @@ worker.myfirstworker.port=8009
     &lt;Connector port="8080" protocol="HTTP/1.1" redirectPort="8443" /&gt;
 --&gt;
     </pre>
-    <br/>
+    
 </p>
 <p>
     Congratulations, you should now be able to browse your testapplication through
-    http://mydomain.ws/helloworld after restarting the services with:<br/>
+    http://mydomain.ws/helloworld after restarting the services with:
     <pre>
 root@jiffybox # /etc/init.d/apache2 restart
 root@jiffybox # /etc/init.d/testuser-tomcat-1.sh stop

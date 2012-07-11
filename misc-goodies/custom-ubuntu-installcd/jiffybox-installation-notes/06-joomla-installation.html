@@ -1,0 +1,109 @@
+<p>
+This article describes how to perform a Joomla installation,
+and furthermore some tricks that are helpful to improve the setup.
+</p>
+
+
+<h2>Step 1 - Download, Unpack and Setup Joomla</h2>
+<p>
+    Relevant config files:
+    <ul>
+        <li>&lt;JOOMLA-BASE&gt;/installation/models/configuration.php</li>
+    </ul>
+</p>
+<p>
+
+<h3>Prepare Environment</h3>
+    Make sure you already have 
+    <a href="http://bytesare.us/cms/index.php/server-how-to/lampp-setup">
+    installed Apache, PHP and MySQL</a>.<br/>
+    In this example, Joomla will be created at /var/www/joomla in the 
+    filesystem.
+
+<h3>Basic installation</h3>
+    Download Joomla from the 
+    <!--a href="http://joomlacode.org/gf/download/frsrelease/17173/74758/Joomla_2.5.6-Stable-Full_Package.zip"-->
+    official page<!--/a--> and execute the following statements to
+    get joomla running on the server:
+    <pre>root@jiffybox # wget "http://joomlacode.org/gf/download/frsrelease/17173/74758/Joomla_2.5.6-Stable-Full_Package.zip"
+root@jiffybox # mkdir /var/www/joomla
+root@jiffybox # unzip Joomla*.zip -d /var/www/joomla
+root@jiffybox # chown www-data:www-data -R /var/www/
+root@jiffybox # chmod og-rwx -R /var/www/</pre>
+    After this, you need to browse to your joomla page, (In our case
+    it was http://bytesare.us/joomla - joomla according to the directory
+    name in /var/www).<br/>
+    Then follow the setup instructions to finish the base installation.
+</p>
+
+<h3>Install a language pack</h3>
+<p>
+If you plan to use the CMS in another language, you need to install it as an extension.<br/>
+Browse to <a href="http://extensions.joomla.org/extensions/languages/translations-for-joomla">
+an extension provider's page</a>, and download the zipfile. In my case: 
+de-DE_joomla_lang_full_2.5.4v1.zip<br/>
+Extract it. The archive contains (in my case) three plugin zipfiles.
+
+    <pre>me@home $ mkdir /tmp/download
+me@home $ cd /tmp/download
+me@home $ wget "http://sourceforge.net/projects/jgerman/files/Translations/Core/Joomla!%202.5/Joomla!%202.5.6v1/Joomla!%20Installer%20Packages/de-DE_joomla_lang_full_2.5.6v1.zip/download" -O "de-DE_joomla_lang_full_2.5.6v1.zip"
+me@home $ mkdir unzipped
+me@home $ unzip *zip -d unzipped
+me@home $ cd unzipped
+me@home $ ls -l
+admin_de-DE.zip
+site_de-DE.zip
+tinymce_de-DE.zip
+pkg_de-DE.xml</pre>
+</p>
+<p>
+    In <a href="http://bytesare.us/cms/administrator/">Joomla 
+    Administrator Console</a>, goto "Extension" --&gt; "Extension Manager".<br/>
+    Upload the zipfile extension packs you need, and click install.
+    Then activate the extensions in the "Extension" --&gt; "Plug-in Manager"
+    Now you should be able to select German in the language manager.
+<p>
+
+
+<h3>Install content versioning extension</h3>
+<p>
+    Another great extension i do not want to miss is provided by 
+    <a href="http://www.fatica.net/products/simple-content-versioning.html">factiaconsulting</a>.
+    <br/>
+    Every time you change an article, a new revision of the document
+    is created, and you can switch back to every version. If you accidently
+    delete the article's text and clicked on save, you know that it's worth
+    the installation's effort.<br/>
+    Download the three plugins and install them in the "Extension" --&gt; "Plug-in Manager"
+    section of the <a href="http://bytesare.us/cms/administrator/">Administration Console</a>.<br/>
+    Don't forget to activate them in the "Extension" --&gt; "Plug-in Manager".<br/>
+    Nice, now anything you saved anytime will be kept in the history of the article.
+</p>
+
+
+
+
+<h3>Change MySql Database user of the Joomla instance</h3>
+<p>
+    If you decide to change your mysql database user after the installation,
+    you need to perform the following steps.<br/>
+    I assume your joomla database is in the 'joomla' schema.
+<pre>mysql@jiffybox $ mysql -u root -p # login as db admin
+mysql> use mysql;
+mysql> describe user;
+mysql> select host,user,password from user;
+mysql> insert into user (host,user,password) 
+> values ('localhost','joomla-user',password('Toppsy-Krets'));
+mysql> show databases;
+mysql> grant all privileges on joomla.* to joom_bytesareus;
+mysql> flush privileges;
+</pre>
+</p>
+<p>
+    Finally, we need to change <b>/var/www/joomla/configuration.php</b> to
+    make joomla using this user:
+    <pre>
+        public $user = 'joomla-user';
+        public $password = 'Toppsy-Krets';</pre>
+</p>
+

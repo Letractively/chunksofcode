@@ -1,0 +1,135 @@
+Install and setup an FTP server
+
+Important config files:
+*   /etc/vsftpd.conf
+*   /etc/pam.d/vsftpd   
+
+First, install the vsftpd package:
+root@jiffybox # apt-get install vsftpd apache2-utils libpam-pwdfile
+
+
+Create a user that cannot login with a shell, since we want only 
+FTP access for him:
+
+root@jiffybox # useradd -d /home/ftpsecure -m ftpsecure
+root@jiffybox # usermod -a -G ftpsecure ftpsecure
+root@jiffybox # chsh ftpsecure
+Changing the login shell for ftpsecure
+Login Shell [/bin/sh]: /bin/false
+root@ubuntu /etc # passwd ftpsecure
+
+
+Check the /etc/vsftpd.conf config file and look at these entries:
+See also:
+http://vsftpd.beasts.org/vsftpd_conf.html
+I used the defaults in my example, it looks good for a quick start:
+
+root@jiffybox # cat /etc/vsftpd.conf | grep -E "^\s*[^#]"
+listen=YES
+anonymous_enable=NO
+local_enable=YES
+dirmessage_enable=YES
+use_localtime=YES
+xferlog_enable=YES
+connect_from_port_20=YES
+secure_chroot_dir=/var/run/vsftpd/empty
+pam_service_name=vsftpd
+rsa_cert_file=/etc/ssl/private/vsftpd.pem
+setproctitle_enable=YES
+
+
+In this example, we want to allow just specific users to login, so we add this 
+to our /etc/vsftpd.conf to implement some kind of whitelist:
+userlist_deny=NO
+userlist_enable=YES
+userlist_file=/etc/vsftpd.allowed_users
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+root@testkraxn # apt-get install vsftpd apache2-utils libpam-pwdfile
+root@testkraxn # htpasswd -c /etc/vsftpd.d/users ftpuser1
+root@testkraxn # cat /etc/vsftpd.d/users | grep -E "^\s*[^#]"
+auth    required pam_pwdfile.so pwdfile /etc/vsftpd.d/users
+account required pam_permit.so
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+Configuration
+In this example I want the ftp server to provide access various locally 
+hosted websites, which I'm running from /var/www/sites/site1 etc so 
+I don't want anonymous access or for users to be able to access other sites. 
+
+root@testkraxn # apt-get install vsftpd apache2-utils libpam-pwdfile
+
+
+Firstly we need to create a password file for the users. 
+You can use the htpasswd utility that comes with apache, 
+but in it's normal use, it only supports passwords up to 8 
+characters long. If you want to support longer passwords, either 
+use a different PAM module, or use md5-crypt passwords.
+
+
+root@testkraxn ~ # mkdir /etc/vsftpd/
+root@testkraxn ~ # htpasswd -c /etc/vsftpd/passwd ftpuser1
+root@testkraxn ~ # htpasswd /etc/vsftpd/passwd ftpuser2
+
+listen=YES
+anonymous_enable=NO
+local_enable=YES
+virtual_use_local_privs=YES
+write_enable=YES
+connect_from_port_20=YES
+secure_chroot_dir=/var/run/vsftpd
+pam_service_name=vsftpd
+guest_enable=YES
+user_sub_token=$USER
+local_root=/home/ftp-user-homes/$USER
+chroot_local_user=YES
+hide_ids=YES
+setproctitle_enable=YES
+
+
+root@testkraxn ~ # mkdir -p /home/ftp-user-homes/testuser1
+root@testkraxn ~ # mkdir -p /home/ftp-user-homes/testuser2
+
+root@testkraxn ~ # cat /etc/pam.d/vsftpd | grep -E "^\s*[^#]"
+auth    required pam_pwdfile.so pwdfile /etc/vsftpd/passwd
+account required pam_permit.so
+
+
+
+
+
+
+
+
+
+
+
