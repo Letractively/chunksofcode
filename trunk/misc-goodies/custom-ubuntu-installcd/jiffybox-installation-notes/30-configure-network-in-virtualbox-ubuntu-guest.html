@@ -1,0 +1,83 @@
+<h2>How to set up a network connection between the guest and the host</h2>
+
+<p>
+    This will show how to connect to your VirtualBox VM via network without
+    changing your host computer's network settings like setting up a LAN
+    or change your firewall configuration.<br/>
+    Therefore we will use a host-only-adapter as a virtual network visible
+    only for the guest and the host.
+</p>
+<p>
+    In this example I am using one virtual
+    network card using NAT, for the guest's internet access and a second
+    card using host-only to interact with the host computer inside a secure, 
+    isolated network environment.<br/>
+    The guest system and the host are both Ubuntu 12.04 LTS instances.
+</p>
+
+
+<h3>Host Configuration</h3>
+<p>
+    First, add a new "Host-only Network adapter" in your virtualbox UI:
+    Follow File-&lt;Preferences-&lt;Network and make sure there is an
+    adapter definition vboxnet0 with enabled DHCP. If not, create one.
+</p>
+<p>
+    You need to shut down the guest machine before you are allowed to
+    change its settings.<br/>
+    Then go to your machine item and enable a second network Adapter
+    with "Host-only" mode.<br/>
+    That's it for the host side.
+</p>
+
+<h3>Guest Configuration</h3>
+
+Important config files
+<ul><li>/etc/network/interfaces</li></ul>
+
+<p>
+    After starting the machine, we need to configure the guest's network
+    to use the new network adapter. Edit the <b>/etc/network/interfaces</b><br/>
+    Add/edit the eth1 entry:
+    <pre>auto lo
+iface lo inet loopback
+auto eth0
+iface eth0 inet dhcp
+auto eth1
+iface eth1 inet dhcp</pre>
+</p>
+<p>
+    Then restart the network service:
+    <pre>root@guestbox # /etc/init.d/networking restart</pre>
+
+    and check if eth1 is listed at your ifconfig output:
+    <pre>root@guestbox # ifconfig</pre>
+    Okay, done with the guest configuration.
+</p>
+<p>
+
+<h3>Start play around</h3>
+
+The IP address listed at ifconfig at eth1 on the guest is now reachable
+on the host machine and the IP of the host is listed at the vboxnet0 adapter
+in the hosts ifconfig output, if you want to connect from the guest to the
+host.<br/>
+</p>
+
+<p>
+<pre>                         # IP of guests eth1 ifconfig
+andre@buenosaires ~ % ssh tester @192.168.56.101 
+tester @192.168.56.101's password: 
+Welcome to Ubuntu 12.04 LTS</pre>
+<pre>                         # IP of hosts vboxnet0 ifconfig
+tester@guestbox $ ssh andre @192.168.56.1  
+Welcome to Ubuntu 12.04 LTS</pre>
+<p>
+    For maximum comfort, you can name the IP address in your /etc/hosts:
+    <pre>andre@buenosaires ~ % cat /etc/hosts
+127.0.0.1       buenosaires     localhost.localdomain   localhost
+192.168.56.102  vbox-worker-1
+andre@buenosaires ~ % ssh tester @vbox-worker-1
+tester @192.168.56.101's password: 
+Welcome to Ubuntu 12.04 LTS (GNU/Linux 3.2.0-23-generic-pae i686)</pre>
+</p>

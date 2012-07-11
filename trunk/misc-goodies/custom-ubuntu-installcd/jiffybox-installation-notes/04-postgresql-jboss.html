@@ -1,0 +1,204 @@
+
+<p>
+    To provide the platform for a JEE environment, a JBoss application
+    server and a PostgreSQL database will be installed and configured
+    on the system.
+</p>
+
+<h2>Step 1 - Install JBoss Application Server</h2>
+<p>
+    Relevant config files:
+    <ul>
+        <li>&lt;JBOSS_HOME&gt;/standalone/configuration/standalone.xml</li>
+        <li>/etc/environment</li>
+    </ul>
+</p>
+
+<p>
+    A separate jboss-user will be created, which will control the server.
+    The server software is installed in his home directory. This 
+    encapsulation provides more flexibility and a higher level of 
+    security.
+</p>
+
+<p>
+    In this guide, i'll keep things as simple as needed, for further 
+    information consult the 
+    <a href="http://www.jboss.org/jbossas/docs.html">
+    JBoss getting started guide</a>.
+</p>
+
+<h3>Prepare environment</h3>
+<p>
+    Set up a new user called jboss:
+    <pre>root@jiffybox # useradd -d /home/jboss -m jboss
+root@jiffybox # usermod -a -G jboss
+root@jiffybox # chsh jboss # set default shell (i used /bin/zsh)
+root@jiffybox # chown jboss:jboss -R /home/jboss # to be sure</pre>
+</p>
+
+<h3>Install the software.</h3>
+<p>
+    Change to jboss home dir, then download and unpack the installation archive:
+    <pre>jboss@jiffybox # cd /home/jboss
+jboss@jiffybox # wget "http://download.jboss.org/jbossas/7.1/jboss-as-7.1.1.Final/jboss-as-7.1.1.Final.tar.gz"
+jboss@jiffybox # tar -xvf "jboss-as-7.1.1.Final.tar.gz"
+jboss@jiffybox # ln -s jboss-as-7.1.1.Final jboss # use a link to refer to jboss
+jboss@jiffybox # chmod o-rwx -R .
+jboss@jiffybox # chmod g-w -R .</pre>
+</p>
+
+<h3>Finish the installation</h3>
+<p>
+    Set the JBOSS_HOME environment variable in your system:
+    <pre>root@jiffybox # vim /etc/environment</pre>
+    
+    Add the line to the config file <b> /etc/environment </b> 
+    <pre>JBOSS_HOME=/home/jboss/jboss</pre>
+    
+    I referred to the symlink here. <br/>
+    Note, a system restart may be required due to the
+    environment change.
+    </pre>
+</p>
+
+<h3>Start server and test installation.</h3>
+<pre>jboss@jiffybox # cd /home/jboss/jboss/bin/
+jboss@jiffybox # sh standalone.sh &
+jboss@jiffybox # wget localhost:9990 -O - # check if you get a start page</pre>
+
+
+<h3>Setup connectivity to external hosts</h3>
+<p>
+    At first, we need an user to login to the jboss management console in the browser.<br/>
+    Start the jboss util script and follow the instructions:
+    <pre>jboss@jiffybox # cd /home/jboss/jboss/bin/
+jboss@jiffybox # ./add-user.sh</pre>
+</p>
+<p>
+    Edit the <b>/home/jboss/jboss/standalone/configuration/standalone.xml</b>
+    and insert the "any-address" tags as listed:
+<pre>
+&lt;interfaces&gt;
+    &lt;interface name="management"&gt;
+        &lt;!--&lt;inet-address value="${jboss.bind.address.management:127.0.0.1}"/&gt; --&gt;
+        &lt;any-address/&gt;
+    &lt;/interface&gt;
+    &lt;interface name="public"&gt;
+        &lt;!--&lt;inet-address value="${jboss.bind.address:127.0.0.1}"/&gt; --&gt;
+        &lt;any-address/&gt;
+    &lt;/interface&gt;
+    &lt;interface name="unsecure"&gt;
+        &lt;inet-address value="${jboss.bind.address.unsecure:127.0.0.1}"/&gt;
+    &lt;/interface&gt;
+&lt;/interfaces&gt;
+</pre>
+    
+</p>
+
+
+
+<h3>Increase convenience</h3>
+<p>
+I created some handy shell-aliases to control the server
+with more comfort. <br/>
+Those are added to the jboss-user's <b> /home/jboss/.zshrc </b> script:
+<pre>PATH="$PATH:/home/jboss/jboss/bin"
+alias killjboss='ps auxwww | grep -E "(org\.jboss|8080)" | awk '"'"'{print $2}'"'"' | xargs kill -9'
+alias startjboss='~/jboss/bin/standalone.sh > ~/jboss-standalone.out 2> ~/jboss-standaone.err & ; tail -F jboss-standalone.{out,err}'</pre>
+</p>
+<p>
+Now start jboss by typing
+<pre>jboss@jiffybox $ startjboss # (or use the following commands:)
+jboss@jiffybox $ ~/jboss/bin/standalone.sh > ~/jboss-standalone.out 2> ~/jboss-standaone.err &
+jboss@jiffybox $ tail -F jboss-standalone.{out,err}
+</pre>
+Done, you should now be able to login with the created user to the
+<a href="http://bytesare.us:9990/console">JBoss Admin Console</a>
+</p>
+
+
+
+
+
+<h2>Step 2 - Install PostgreSQL database server</h2>
+<p>
+    Relevant config files:
+    <ul>
+        <li>etc/postgresql/8.4/main/postgresql.conf</li>
+        <li>/etc/phppgadmin/apache.conf</li>
+        <li>/etc/apache2/conf.d/ (a link will be created here)</li>
+        <li>/etc/apache2/apache.conf (a link will be created here)</li>
+    </ul>
+</p>
+
+<p>
+    A separate postgresql-user will be created, who will control the server.
+    This encapsulation provides more flexibility and a higher level of 
+    security.
+</p>
+
+<h3>Install the server software</h3>
+<p>
+    PostgreSQL is available as a Ubuntu package, simply install it:
+    <pre>root@jiffybox # apt-get install postgresql</pre>
+    A user called postgres is created during installation.<br/>
+</p>
+
+
+<h3>Setup an user and an example database</h3>
+<p>
+    The postgres user is used to create db users and databases.
+    <pre>root@jiffybox # su - postgres
+postgres@jiffybox $ createuser andre -P
+postgres@jiffybox $ createdb andretest1 -O andre
+postgres@jiffybox $ exit
+root@jiffybox # su - andre
+andre@jiffybox $ psql andretest1 # a psql terminal will open.
+andretest1=> create table test (a integer);
+andretest1=> insert into test (a) values (1), (2);
+andretest1=> select * from test;
+andretest1=> drop table test;</pre>
+    Start the server to apply the configuration changes:
+    <pre>root@jiffybox # /etc/init.d/postgresql-8.4 restart</pre>
+</p>
+
+
+<h3>Enable remote connections (if needed)</h3>
+<p>
+    If you need to access your database from an external host,
+    change your <b>/etc/postgresql/8.4/main/postgresql.conf</b> 
+    as described below.<br/>
+    Note, you need to enable remote access for each user and database.
+    
+    <pre># listen to hosts outside (generally).
+listen_addresses = '*'
+# grant remote connections to db 'andretest1' for user andre
+host andretest1 andre 0.0.0.0/0 md5</pre>
+    Restart the server to apply the configuration changes:
+    <pre>root@jiffybox # /etc/init.d/postgresql-8.4 restart</pre>
+</p>
+
+
+<h3>Install Phppgadmin (optional)</h3>
+<p>
+    Phppgadmin is a web based console for postgresql backends, similar to 
+    PhpMyAdmin. If you do not need it, you can omit this step.<br/>
+    This software is also available as a Ubuntu package:
+    <pre>root@jiffybox # apt-get install phppgadmin</pre>
+    Note, the installation of phppgadmin automatically links <b>/etc/phppgadmin/apache.conf</b>
+    into <b>/etc/apache2/conf.d/</b>.<br/>
+    Therefore no include statement is needed in 
+    in /etc/apache2/apache.conf like in the <i>PhpMyAdmin</i> installation manual.
+</p>
+<p>
+    We want to access this Web-Gui from other hosts so,<br/>
+    edit the <b>/etc/phppgadmin/apache.conf</b> and change this value:
+    <pre>allow from all</pre>
+</p>
+<p>
+    Done, after a server restart (due to the changes in the apache config) with
+    <pre>root@jiffybox # services restart apache2</pre>
+    you should be able to login to <a href="http://bytesare.us/phppgadmin/">Phppgadmin</a>.
+</p>
+
