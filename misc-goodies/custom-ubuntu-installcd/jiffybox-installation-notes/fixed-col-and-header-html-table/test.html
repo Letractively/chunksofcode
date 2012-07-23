@@ -3,21 +3,25 @@
     <head>
         <title>FixedHeaderTable Test</title>
         
+        <meta http-equiv="Content-Type" content="text/html; charset=utf-8" /> 
+        
         <link href="css/fixedheadertable.css" rel="stylesheet" media="screen" />
         <link href="css/custom.css" rel="stylesheet" media="screen" />
         
-<!--    <script src="js/jquery.js"></script>     -->
-        <script src="js/jquery.min.js"></script>
+<!--    <script src="js/jquery-1.7.2.js"></script>   -->
+        <script src="js/jquery-1.7.2.min.js"></script>    
         <script src="js/jquery.fixedheadertable.js"></script>
         
-        <script type="text/javascript"> // <!--
+        <script type="text/javascript">
+            /* <![CDATA[ */
             $(document).ready(function() {
                 $('#myTable03').fixedHeaderTable({
                     altClass : 'odd',
                     footer : true,
                     fixedColumns : 1
                 });
-            }); // -->
+            });
+            /* ]]> */
         </script>
         
         <style type="text/css">
@@ -25,8 +29,15 @@
         
     </head>
     <body>
-        <div class="outerbox">
-            <div class="innerbox">
+<!--         <div class="outerbox"> -->
+<!-- <div style="margin-left: auto; margin-right: auto; margin-top: 20px; width: 1000px;"> -->
+<div style="margin-left: auto; margin-right: auto; margin-top: 20px; width: 100%;">
+
+
+<!--             <div class="innerbox"> -->
+<div style="width: 980px; display: inline; float: left; height: 600px; overflow: auto;">
+
+
                 <table class="bluetable" id="myTable03" cellpadding="0" cellspacing="0">
         		    <thead>
         		        <tr>
@@ -119,8 +130,8 @@
 <tr><td>Fixed50</td><td>a50</td><td>b50</td><td>c50</td><td>d50</td><td>e50</td><td>f50</td><td>g50</td><td>h50</td><td>i50</td><td>j50</td><td>k50</td><td>l50</td><td>m50</td><td>n50</td><td>o50</td><td>p50</td><td>q50</td><td>r50</td><td>s50</td><td>t50</td><td>u50</td><td>v50</td><td>w50</td><td>x50</td><td>y50</td><td>z50</td></tr>
         		    </tbody>
         		</table>
-        	</div>
+        	</div><!-- innerbox -->
         	<div class="clear"></div>
-        </div>
+        </div><!-- outerbox -->
     </body>
 </html>
