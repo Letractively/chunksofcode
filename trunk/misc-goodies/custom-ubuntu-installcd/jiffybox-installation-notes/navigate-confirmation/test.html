@@ -1,0 +1,56 @@
+<html>
+    <head>
+        <meta http-equiv="content-type" content="text/html; charset=utf-8"/>
+        <title>Navigation Test</title>
+        <script type="text/javascript">
+            /* <![CDATA[ */
+//            var dirty = false;
+//            function setDirty(flag) {
+//                dirty = flag;
+//            }
+            window.onbeforeunload =  function(e) { 
+//                if (dirty == true) {
+                    return "Willst wirklich schon verduften?\n"+
+                            "Find ich wirklich schade.\n"+
+                            "Die bereits ausgefüllten Angaben sind dann futsch.";
+//                }
+            }
+            /* ]]> */
+        </script>
+    </head>
+    <body>
+        <h2>Das ist eine tolle Testseite</h2>
+        Der Benutzer wird gefragt, ob er die Seite verlassen will.<br/>
+        Dafür wird ihm eine (reine) Textnachricht angezeigt.<br/>
+        Das passiert wenn er
+        <ul>
+            <li>das Browserfenster schließt</li>
+            <li>den aktuellen Tab schließt</li>
+            <li>auf <a href="http://www.bbc.co.uk">einen Link</a> klickt</li>
+            <li>auf "Back" klickt</li>
+            <li>eine andere URL in die Addressleiste eintippt und Enter drückt</li>
+            <li>die Seite neu lädt (F5)</li>
+        </ul>
+        
+        Folgende Ereignisse werden NICHT als "Verlassen der Seite" gewertet:
+        <ul>
+            <li>Minimieren des Browserfensters</li>
+            <li>Wechseln auf ein anderes Fenster</li>
+            <li>Wechseln auf einen anderen Tab</li>
+        </ul>
+        Im Internet Explorer und im Chrome funktioniert das gut.<br/>
+        Mit Opera gar nicht.<br/>
+        Mit Firefox funktioniert das seit Version 4 nur mehr eingeschränkt,<br/>
+        man kann keinen eigenen Text im Dialog darstellen. <br/>
+        (Warum? Das wird 
+        <a href="https://bugzilla.mozilla.org/show_bug.cgi?id=588292">hier heiß diskutiert.</a>):
+        
+        <!-- TEST: only ask to leave page when user already entered something in the form:
+        <form id="whatever">
+            <input type="text" onchange="setDirty(true);" />
+            <input type="submit" value="Abschicken" />
+        </form>
+        -->
+        <br/>
+    </body>
+</html>
