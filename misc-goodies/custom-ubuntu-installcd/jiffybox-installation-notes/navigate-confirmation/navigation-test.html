@@ -4,6 +4,8 @@
         <title>Navigation Test</title>
         <script type="text/javascript">
             /* <![CDATA[ */
+//            TEST: only ask to leave page when user already 
+//            entered something in the form:
 //            var dirty = false;
 //            function setDirty(flag) {
 //                dirty = flag;
@@ -38,12 +40,14 @@
             <li>Wechseln auf ein anderes Fenster</li>
             <li>Wechseln auf einen anderen Tab</li>
         </ul>
+        
         Im Internet Explorer und im Chrome funktioniert das gut.<br/>
         Mit Opera gar nicht.<br/>
         Mit Firefox funktioniert das seit Version 4 nur mehr eingeschränkt,<br/>
         man kann keinen eigenen Text im Dialog darstellen. <br/>
         (Warum? Das wird 
-        <a href="https://bugzilla.mozilla.org/show_bug.cgi?id=588292">hier heiß diskutiert.</a>):
+        <a href="https://bugzilla.mozilla.org/show_bug.cgi?id=588292">hier</a>
+        heiß diskutiert.):
         
         <!-- TEST: only ask to leave page when user already entered something in the form:
         <form id="whatever">

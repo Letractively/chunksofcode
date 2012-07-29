@@ -1,0 +1,126 @@
+
+http://ipggi.wordpress.com/2011/06/29/implement-a-sftp-service-for-ubuntudebian-with-a-chrooted-isolated-file-directory/
+
+root@testkraxn /home/tester # 
+root@testkraxn /home/tester # groupadd sftponly
+root@testkraxn /home/tester # cat /etc/group | tail -n 1
+sftponly:x:1001:
+root@testkraxn /home/tester # useradd garfield -d / -g 1001 -M -N -o -u 1001
+root@testkraxn /home/tester # cat /etc/passwd | tail -n 1
+garfield:x:1001:1001::/:/bin/sh
+root@testkraxn /home/tester # passwd garfield
+Enter new UNIX password: 
+Retype new UNIX password: 
+passwd: password updated successfully
+root@testkraxn ~tester # chsh garfield
+Changing the login shell for garfield
+Enter the new value, or press ENTER for the default
+        Login Shell [/bin/sh]: /bin/false
+root@testkraxn /home/tester #     
+root@testkraxn /home/tester # cp /etc/ssh/sshd_config /etc/ssh/sshd_config.bak
+root@testkraxn /home/tester # vim /etc/ssh/sshd_config
+*** replace line: *
+Subsystem sftp /usr/lib/openssh/sftp-server
+*** with_ *
+Subsystem sftp internal-sftp
+*** Then, append these lines at the end of the file: *
+Match group sftponly
+    ChrootDirectory /var/www
+    X11Forwarding no
+    AllowTcpForwarding no
+    ForceCommand internal-sftp
+***
+*** my whole config, to be complete: ***
+root@testkraxn /home/tester # cat /etc/ssh/sshd_config | grep -vE '^\s*([#].*|)$'
+Port 22
+Protocol 2
+HostKey /etc/ssh/ssh_host_rsa_key
+HostKey /etc/ssh/ssh_host_dsa_key
+HostKey /etc/ssh/ssh_host_ecdsa_key
+UsePrivilegeSeparation yes
+KeyRegenerationInterval 3600
+ServerKeyBits 768
+SyslogFacility AUTH
+LogLevel INFO
+LoginGraceTime 120
+PermitRootLogin yes
+StrictModes yes
+RSAAuthentication yes
+PubkeyAuthentication yes
+IgnoreRhosts yes
+RhostsRSAAuthentication no
+HostbasedAuthentication no
+PermitEmptyPasswords no
+ChallengeResponseAuthentication no
+X11Forwarding yes
+X11DisplayOffset 10
+PrintMotd no
+PrintLastLog yes
+TCPKeepAlive yes
+AcceptEnv LANG LC_*
+Subsystem sftp internal-sftp
+UsePAM yes
+Match group sftponly
+ChrootDirectory /var/www
+X11Forwarding no
+AllowTcpForwarding no
+ForceCommand internal-sftp
+***
+root@testkraxn /home/tester # 
+root@testkraxn /home/tester # mkdir /var/www
+root@testkraxn /home/tester # mkdir /var/www/test_readonly
+root@testkraxn /home/tester # chmod 755 /var/www/test_readonly
+root@testkraxn /home/tester # 
+root@testkraxn /home/tester # mkdir /var/www/test_readwrite
+root@testkraxn /home/tester # chmod 775 /var/www/test_readwrite
+root@testkraxn /home/tester # chown root:sftponly -R /var/www/test_readwrite 
+root@testkraxn /home/tester # 
+root@testkraxn /home/tester # mkdir /var/www/test_noaccess
+root@testkraxn /home/tester # chmod 700 /var/www/test_noaccess
+root@testkraxn /home/tester # 
+root@testkraxn /home/tester # mkdir /some-other-dir
+root@testkraxn /home/tester # chmod 755 /some-other-dir
+root@testkraxn /home/tester # 
+root@testkraxn /home/tester # echo hi-guys > /some-other-dir/test.txt
+root@testkraxn /home/tester # chmod 644 /some-other-dir/test.txt
+root@testkraxn /home/tester # 
+root@testkraxn /home/tester # mkdir /var/www/test_bindmount
+root@testkraxn /home/tester # mount --bind /some-other-dir /var/www/test_bindmount
+root@testkraxn ~tester #                                            
+root@testkraxn ~tester # service ssh restart                                                  
+
+
+andre@buenosaires ~ % sftp garfield@192.168.56.102
+garfield@192.168.56.102's password: 
+Connected to 192.168.56.102.
+sftp> cd /
+sftp> pwd
+Remote working directory: /
+sftp> ls
+test_bindmount test_noaccess test_readonly test_readwrite  
+sftp> cd test_noaccess
+sftp> pwd
+Remote working directory: /test_noaccess
+sftp> ls
+remote readdir("/test_noaccess"): Permission denied
+sftp> cd /test_readwrite/
+sftp> mkdir foo
+sftp> ls
+foo test.txt      
+sftp> cd /test_readonly/
+sftp> mkdir foo
+Couldn't create directory: Permission denied
+sftp> ls
+test.txt  
+sftp> cd /test_bindmount/
+sftp> pwd
+Remote working directory: /test_bindmount
+sftp> ls
+test.txt  
+sftp> exit
+andre@buenosaires ~ %
+andre@buenosaires ~ % ssh garfield@192.168.56.102
+garfield@192.168.56.102's password: 
+This service allows sftp connections only.
+Connection to 192.168.56.102 closed.
+

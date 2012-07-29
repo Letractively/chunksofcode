@@ -1,135 +1,78 @@
 Install and setup an FTP server
 
-Important config files:
-*   /etc/vsftpd.conf
-*   /etc/pam.d/vsftpd   
-
-First, install the vsftpd package:
-root@jiffybox # apt-get install vsftpd apache2-utils libpam-pwdfile
+http://sigerr.org/linux/setup-vsftpd-custom-multiple-directories-users-accounts-ubuntu-step-by-step
 
 
-Create a user that cannot login with a shell, since we want only 
-FTP access for him:
-
-root@jiffybox # useradd -d /home/ftpsecure -m ftpsecure
-root@jiffybox # usermod -a -G ftpsecure ftpsecure
-root@jiffybox # chsh ftpsecure
-Changing the login shell for ftpsecure
-Login Shell [/bin/sh]: /bin/false
-root@ubuntu /etc # passwd ftpsecure
-
-
-Check the /etc/vsftpd.conf config file and look at these entries:
-See also:
-http://vsftpd.beasts.org/vsftpd_conf.html
-I used the defaults in my example, it looks good for a quick start:
-
-root@jiffybox # cat /etc/vsftpd.conf | grep -E "^\s*[^#]"
+tester@testkraxn:~$ sudo apt-get install vsftpd libpam-pwdfile apache2-utils
+Setting up libapr1 (1.4.6-1) ...
+Setting up libaprutil1 (1.3.12+dfsg-3) ...
+Setting up apache2-utils (2.2.22-1ubuntu1) ...
+Setting up libpam-pwdfile (0.99-4) ...
+Setting up vsftpd (2.3.5-1ubuntu2) ...
+tester@testkraxn:~$ 
+tester@testkraxn:~$ sudo mv /etc/vsftpd.conf /etc/vsftpd.conf.bak
+tester@testkraxn:~$ 
+tester@testkraxn:~$ sudo vim /etc/vsftpd.conf
+tester@testkraxn:~$ 
+tester@testkraxn:~$ cat /etc/vsftpd.conf
 listen=YES
 anonymous_enable=NO
 local_enable=YES
-dirmessage_enable=YES
-use_localtime=YES
-xferlog_enable=YES
-connect_from_port_20=YES
-secure_chroot_dir=/var/run/vsftpd/empty
-pam_service_name=vsftpd
-rsa_cert_file=/etc/ssl/private/vsftpd.pem
-setproctitle_enable=YES
-
-
-In this example, we want to allow just specific users to login, so we add this 
-to our /etc/vsftpd.conf to implement some kind of whitelist:
-userlist_deny=NO
-userlist_enable=YES
-userlist_file=/etc/vsftpd.allowed_users
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-root@testkraxn # apt-get install vsftpd apache2-utils libpam-pwdfile
-root@testkraxn # htpasswd -c /etc/vsftpd.d/users ftpuser1
-root@testkraxn # cat /etc/vsftpd.d/users | grep -E "^\s*[^#]"
-auth    required pam_pwdfile.so pwdfile /etc/vsftpd.d/users
-account required pam_permit.so
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-Configuration
-In this example I want the ftp server to provide access various locally 
-hosted websites, which I'm running from /var/www/sites/site1 etc so 
-I don't want anonymous access or for users to be able to access other sites. 
-
-root@testkraxn # apt-get install vsftpd apache2-utils libpam-pwdfile
-
-
-Firstly we need to create a password file for the users. 
-You can use the htpasswd utility that comes with apache, 
-but in it's normal use, it only supports passwords up to 8 
-characters long. If you want to support longer passwords, either 
-use a different PAM module, or use md5-crypt passwords.
-
-
-root@testkraxn ~ # mkdir /etc/vsftpd/
-root@testkraxn ~ # htpasswd -c /etc/vsftpd/passwd ftpuser1
-root@testkraxn ~ # htpasswd /etc/vsftpd/passwd ftpuser2
-
-listen=YES
-anonymous_enable=NO
-local_enable=YES
-virtual_use_local_privs=YES
 write_enable=YES
-connect_from_port_20=YES
-secure_chroot_dir=/var/run/vsftpd
-pam_service_name=vsftpd
+local_umask=022
+nopriv_user=vsftpd
+virtual_use_local_privs=YES
 guest_enable=YES
 user_sub_token=$USER
-local_root=/home/ftp-user-homes/$USER
+local_root=/var/www/$USER
 chroot_local_user=YES
 hide_ids=YES
-setproctitle_enable=YES
+guest_username=vsftpd
+tester@testkraxn:~$ 
+tester@testkraxn:~$ sudo mkdir /etc/vsftpd
+tester@testkraxn:~$ sudo htpasswd -cd /etc/vsftpd/ftpd.passwd user1
+tester@testkraxn:~$ sudo htpasswd -d /etc/vsftpd/ftpd.passwd user2
+tester@testkraxn:~$ 
 
 
-root@testkraxn ~ # mkdir -p /home/ftp-user-homes/testuser1
-root@testkraxn ~ # mkdir -p /home/ftp-user-homes/testuser2
-
-root@testkraxn ~ # cat /etc/pam.d/vsftpd | grep -E "^\s*[^#]"
-auth    required pam_pwdfile.so pwdfile /etc/vsftpd/passwd
+root@testkraxn ~ # mv /etc/pam.d/vsftpd /etc/pam.d/vsftpd.bak
+root@testkraxn ~ # vim /etc/pam.d/vsftpd
+root@testkraxn ~ # 
+root@testkraxn ~ # cat /etc/pam.d/vsftpd
+auth required pam_pwdfile.so pwdfile /etc/vsftpd/ftpd.passwd
 account required pam_permit.so
+root@testkraxn ~ # 
+root@testkraxn ~ # useradd --home /home/vsftpd --gid nogroup -m --shell /bin/false vsftpd
+root@testkraxn ~ # id vsftpd
+uid=1001(vsftpd) gid=65534(nogroup) groups=65534(nogroup)
+root@testkraxn ~ # 
+root@testkraxn ~ # mkdir -p /var/www/user1
+root@testkraxn ~ # chmod -w /var/www/user1
+root@testkraxn ~ # mkdir /var/www/user1/mystuff
+root@testkraxn ~ # chmod -R 755 /var/www/user1/mystuff
+root@testkraxn ~ # chown -R vsftpd:nogroup /var/www/user1
 
 
 
+andre@buenosaires ~ % ftp 192.168.56.102
+Connected to 192.168.56.102.
+220 (vsFTPd 2.3.5)
+Name (192.168.56.102:andre): user1
+331 Please specify the password.
+Password:
+230 Login successful.
+ftp> pwd
+257 "/"
+ftp> ls
+drwxr-xr-x    2 ftp      ftp          4096 Jul 28 23:13 mystuff
 
 
 
-
-
-
-
-
+andre@buenosaires ~ % ftp 192.168.56.102
+Connected to 192.168.56.102.
+220 (vsFTPd 2.3.5)
+Name (192.168.56.102:andre): tester
+331 Please specify the password.
+Password:
+530 Login incorrect.
+Login failed.
