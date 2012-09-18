@@ -105,8 +105,8 @@ final class ViewDefinition {
 
          // query available years from database:
          $sql = "SELECT distinct YEAR(Zeit) FROM ";
-         $sql += Configuration :: tableA;
-         $sql += " ORDER BY 1 desc";
+         $sql .= Configuration :: tableA;
+         $sql .= " ORDER BY 1 desc";
          $result = mysql_query($sql);      // XXX hardcoded table name
          if (! $result) {
          	echo "query: ".$sql;
