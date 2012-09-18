@@ -54,10 +54,10 @@ final class SqlGenerator {
 
         // label
         switch ($this -> viewDef -> getViewType()) {
-            case "Everything" :$select .= "YEAR(datum)"; break;
-            case "Year" :  $select .= "MONTH(datum)"; break;
-            case "Month" : $select .= "DAY(datum)";   break;
-            case "Day" :   $select .= "HOUR(zeit)";   break;
+            case "Everything" :$select .= "YEAR(Zeit)"; break;
+            case "Year" :  $select .= "MONTH(Zeit)"; break;
+            case "Month" : $select .= "DAY(Zeit)";   break;
+            case "Day" :   $select .= "HOUR(Zeit)";   break;
         }
         $select .= " AS label, \n    ";
 
@@ -130,18 +130,18 @@ final class SqlGenerator {
                 break;
             case "Year" :
                 $where = "\n    ";
-                $where .=  "YEAR(datum) = :jahr ";
+                $where .=  "YEAR(Zeit) = :jahr ";
                 break;
             case "Month" :
                 $where = "\n    ";
-                $where .= "YEAR(datum) = :jahr \n    ";
-                $where .= "AND MONTH(datum) = :monat ";
+                $where .= "YEAR(Zeit) = :jahr \n    ";
+                $where .= "AND MONTH(Zeit) = :monat ";
                 break;
             case "Day" :
                 $where = "\n    ";
-                $where .= "YEAR(datum) = :jahr \n    ";
-                $where .= "AND MONTH(datum) = :monat \n    ";
-                $where .= "AND DAY(datum) = :tag ";
+                $where .= "YEAR(Zeit) = :jahr \n    ";
+                $where .= "AND MONTH(Zeit) = :monat \n    ";
+                $where .= "AND DAY(Zeit) = :tag ";
                 break;
         }
 	    $where.= "\n";
@@ -151,10 +151,10 @@ final class SqlGenerator {
 	private function compute_group_by_clause() {
 	    $groupby = "    ";
 	    switch ($this -> viewDef -> getViewType()) {
-	        case "Everything" : $groupby .= "YEAR(datum)";  break;
-	        case "Year" :   $groupby .= "MONTH(datum)"; break;
-	        case "Month" :  $groupby .= "DAY(datum)";   break;
-	        case "Day" :    $groupby .= "HOUR(zeit)";   break;
+	        case "Everything" : $groupby .= "YEAR(Zeit)";  break;
+	        case "Year" :   $groupby .= "MONTH(Zeit)"; break;
+	        case "Month" :  $groupby .= "DAY(Zeit)";   break;
+	        case "Day" :    $groupby .= "HOUR(Zeit)";   break;
 	    }
 	    $groupby.= "\n";
 	    return $groupby;
@@ -163,10 +163,10 @@ final class SqlGenerator {
 	private function compute_order_by_clause() {
 	    $orderby = "    ";
 	    switch ($this -> viewDef -> getViewType()) {
-	        case "Everything" : $orderby .= "YEAR(datum)";  break;
-	        case "Year" :   $orderby .= "MONTH(datum)"; break;
-	        case "Month" :  $orderby .= "DAY(datum)";   break;
-	        case "Day" :    $orderby .= "HOUR(zeit)";   break;
+	        case "Everything" : $orderby .= "YEAR(Zeit)";  break;
+	        case "Year" :   $orderby .= "MONTH(Zeit)"; break;
+	        case "Month" :  $orderby .= "DAY(Zeit)";   break;
+	        case "Day" :    $orderby .= "HOUR(Zeit)";   break;
 	    }
 	    $orderby.= "\n";
 	    return $orderby;
