@@ -109,6 +109,7 @@ final class ViewDefinition {
          if (! $result) {
             echo "ERROR: ".mysql_error();
          }
+         echo "result:".$result;
          $years = array();
 
          for ($i = 0; ; $i++) {
