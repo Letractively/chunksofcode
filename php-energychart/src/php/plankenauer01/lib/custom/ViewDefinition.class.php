@@ -109,6 +109,7 @@ final class ViewDefinition {
          $sql += " ORDER BY 1 desc";
          $result = mysql_query($sql);      // XXX hardcoded table name
          if (! $result) {
+         	echo "query: ".$sql;
             echo "ERROR: ".mysql_error();
          }
          echo "result:".$result;
