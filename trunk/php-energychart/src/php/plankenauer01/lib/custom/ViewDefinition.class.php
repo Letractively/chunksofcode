@@ -104,7 +104,9 @@ final class ViewDefinition {
         mysql_select_db(Configuration :: db_schema);
 
          // query available years from database:
-         $sql = "SELECT distinct YEAR(datum) FROM leistung_kw ORDER BY 1 desc";
+         $sql = "SELECT distinct YEAR(Zeit) FROM ";
+         $sql += Configuration :: tableA;
+         $sql += " ORDER BY 1 desc";
          $result = mysql_query($sql);      // XXX hardcoded table name
          if (! $result) {
             echo "ERROR: ".mysql_error();
