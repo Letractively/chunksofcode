@@ -52,8 +52,8 @@ final class Configuration {
 
 	public static function getDatabases() {
 	    return array(
-            "KW_Leistung"  => Configuration :: tableA,
-            "KW_Leistung2" => Configuration :: tableB
+            "kw_leistung1"  => Configuration :: tableA,
+            "kw_leistung2" => Configuration :: tableB
 	    );
 	}
 }
