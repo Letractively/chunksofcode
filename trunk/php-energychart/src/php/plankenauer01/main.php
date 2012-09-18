@@ -16,18 +16,20 @@
 	// generate sql statement:
 	$sqlGen = new SqlGenerator($viewDef);
 	$paramData = $sqlGen -> statementParameters();
-
+	$sqlStatement = $sqlGen -> createSqlStatement();
 
 	// create database connection and setup sql statement:
 	$db = new PDO(
-	    "mysql:dbname=".Configuration :: db_schema.";".
-	          "host=".Configuration :: db_host.";"
-	    , Configuration::db_username , Configuration::db_password
+	    "mysql:".
+			"dbname=".Configuration :: db_schema.";".
+	        "host=".Configuration :: db_host.";"
+	    , Configuration::db_username 
+		, Configuration::db_password
 	);
-	$pStmt = $db -> prepare($sqlGen -> createSqlStatement());
+	
+	$pStmt = $db -> prepare($sqlStatement);
 	$pStmt -> bindColumn("label", $label);
 	$pStmt -> bindColumn("value", $value);
-
 
 	// execute statement:
 	if ( ! $pStmt -> execute($paramData)) {
@@ -61,7 +63,7 @@
 	$output_file = $pchartUtil -> draw_chart($label_array, $value_array);
 	HtmlUtil :: html_debug("image was rendered to: ".$output_file);
 
-
+	
 	// embed the rendered picture:
 	echo "\n\n<!-- embed image file: -->\n";
 	echo "<img src='".$output_file."' />\n\n";
