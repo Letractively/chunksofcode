@@ -39,8 +39,8 @@ final class Configuration {
 	const chart_image_target = "./rendered_images"; // XXX: needs to end with a "/"
 
 	// the names of the tables where to select the data from:
-    const tableA = "leistung_kw";
-    const tableB = "leistung_kw2";
+    const tableA = "fmcontrol_kw_leistung1";
+    const tableB = "fmcontrol_kw_leistung2";
 
 
 
