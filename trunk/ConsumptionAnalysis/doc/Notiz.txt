@@ -1,0 +1,37 @@
+config file:
+
+-Verbindung zu mysql (hostname, benutzer, passwort)-> Eingabe zwuingend erforderlich
+
+-name 
+-titel
+-beschreibungstext
+
+
+Variable Einstellungen
+
+-Namen Datenbanken zur auswahl stehend
+-Tabellen zur auswahl stehend
+-Werte zur auswahl stehehend - wenn definiert, kann er die definierten waehlen, wenn nicht dann stehen alle spalten zur auswahl
+-Datum (von bis) Datumsformat - auch heute moeglich
+-Zeitraum (Uhrzeit von bis) - default 0-24
+- allgemeiner filter zb TARIF ist Tag
+
+
+Graikeinstellung - variable Einstellung ja/nein
+
+-Liniengrafik
+-Balknegrafik
+-Kuchengrafik
+-Kombigrafik (linien, balken, usw.)
+-Tachometer
+
+-farbcodes - default
+-fmcontrol_leistung1.kw_pro_15min - farbcode
+
+
+Tabelleinstellung - variable Einstellung ja/nein
+
+
+
+systemeinstellungen
+-ausdruck mit dem das datum selektiert wird
