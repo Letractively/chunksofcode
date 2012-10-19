@@ -11,7 +11,7 @@ public class Window implements Comparable<Window> {
     private final String title;
     private final Integer pid;
 
-    
+
     public Window(String winid, String title, int pid) {
         if (pid < 0) {
             throw new RuntimeException(pid + " < 0");
@@ -75,6 +75,7 @@ public class Window implements Comparable<Window> {
 
     @Override
     public String toString() {
-        return "WindowState[winid="+getWinId()+", title="+getWinTitle()+", pid="+pid+"]";
+        return "WindowState[winid=" + getWinId() + ", title=" + getWinTitle() + ", pid="
+                + pid + "]";
     }
 }

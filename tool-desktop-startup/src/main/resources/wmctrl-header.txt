@@ -1,0 +1,4 @@
+windowId   desktop
+|          |  procId x    y    w    h    hostname    window title
+|          |  |      |    |    |    |    |           |
+|          |  |      |    |    |    |    |           |
