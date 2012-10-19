@@ -1,6 +1,6 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
     xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
-    
+
     <name>tool-desktop-startup</name>
     <packaging>jar</packaging>
     <modelVersion>4.0.0</modelVersion>
@@ -10,9 +10,9 @@
     <version>0.0.2</version>
 
     <parent>
-      <groupId>com.myapp.maven</groupId>
-      <artifactId>compile-pom</artifactId>
-      <version>1.0</version>
+        <groupId>com.myapp.maven</groupId>
+        <artifactId>compile-pom</artifactId>
+        <version>1.0</version>
     </parent>
 
     <dependencies>
@@ -22,4 +22,58 @@
             <version>0.0.3</version>
         </dependency>
     </dependencies>
+
+    <properties>
+        <commandline.mainclass>com.myapp.tool.gnomestart.CommandLineMain</commandline.mainclass>
+    </properties>
+
+    <build>
+        <plugins>
+
+            <!-- copy jars into target/lib folder -->
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-dependency-plugin</artifactId>
+                <executions>
+                    <execution>
+                        <id>copy-dependencies</id>
+                        <phase>process-resources</phase>
+                        <goals>
+                            <goal>copy-dependencies</goal>
+                        </goals>
+                        <configuration>
+                            <outputDirectory>${project.basedir}/target/lib</outputDirectory>
+                            <overWriteReleases>false</overWriteReleases>
+                            <overWriteSnapshots>false</overWriteSnapshots>
+                            <overWriteIfNewer>true</overWriteIfNewer>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-resources-plugin</artifactId>
+
+                <!-- copy config files to a folder: -->
+                <executions>
+                    <execution>
+                        <id>copy-resources</id>
+                        <phase>process-resources</phase>
+                        <goals>
+                            <goal>copy-resources</goal>
+                        </goals>
+                        <configuration>
+                            <outputDirectory>${project.basedir}/target</outputDirectory>
+                            <resources>
+                                <resource>
+                                    <directory>${project.basedir}/src/main/filteredresources</directory>
+                                    <filtering>true</filtering>
+                                </resource>
+                            </resources>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+        </plugins>
+    </build>
 </project>

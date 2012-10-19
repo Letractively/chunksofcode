@@ -10,7 +10,7 @@ public final class Proc implements Comparable<Proc> {
     private final Integer pid;
     private final String command;
 
-    
+
     public Proc(int pid, String command) {
         if (pid < 0) {
             throw new RuntimeException(pid + " < 0");
@@ -25,18 +25,19 @@ public final class Proc implements Comparable<Proc> {
 
     @Override
     public String toString() {
-        return "ProcessState[pid="+pid+", cmd="+command.trim().replaceFirst(" .*$", " ...")+"]";
+        return "ProcessState[pid=" + pid + ", cmd="
+                + command.trim().replaceFirst(" .*$", " ...") + "]";
     }
 
     @Override
     public int compareTo(Proc o) {
         return pid.compareTo(o.pid);
     }
-    
+
     public String getCommand() {
         return command;
     }
-    
+
     public Integer getPid() {
         return pid;
     }
