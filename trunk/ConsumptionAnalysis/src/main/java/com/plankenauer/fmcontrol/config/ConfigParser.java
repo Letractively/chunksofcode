@@ -4,34 +4,45 @@ import static com.plankenauer.fmcontrol.config.Constants.CK_CONNECTION_HOSTNAME;
 import static com.plankenauer.fmcontrol.config.Constants.CK_CONNECTION_PASSWORD;
 import static com.plankenauer.fmcontrol.config.Constants.CK_CONNECTION_PORTNUMBER;
 import static com.plankenauer.fmcontrol.config.Constants.CK_CONNECTION_USER;
-import static com.plankenauer.fmcontrol.config.Constants.CK_DATA_SCHEMAS_CHOOSEABLE;
-import static com.plankenauer.fmcontrol.config.Constants.CK_DATA_SCHEMAS_FIXED;
 import static com.plankenauer.fmcontrol.config.Constants.CK_DATA_FILTER_DATE_BOUNDS;
 import static com.plankenauer.fmcontrol.config.Constants.CK_DATA_FILTER_DAYTIME_BOUNDS;
 import static com.plankenauer.fmcontrol.config.Constants.CK_DATA_FILTER_SQL_FILTER;
+import static com.plankenauer.fmcontrol.config.Constants.CK_DATA_GROUP_TYPE;
 import static com.plankenauer.fmcontrol.config.Constants.CK_DATA_TABLES_CHOOSEABLE;
 import static com.plankenauer.fmcontrol.config.Constants.CK_DATA_TABLES_FIXED;
-import static com.plankenauer.fmcontrol.config.Constants.CK_DATA_VALUES_CHOOSEABLE;
-import static com.plankenauer.fmcontrol.config.Constants.CK_DATA_VALUES_FIXED;
 import static com.plankenauer.fmcontrol.config.Constants.CK_DESCRIPTION;
+import static com.plankenauer.fmcontrol.config.Constants.CK_TABLEDEF_DATE_COLUMN;
+import static com.plankenauer.fmcontrol.config.Constants.CK_TABLEDEF_SCHEMA;
+import static com.plankenauer.fmcontrol.config.Constants.CK_TABLEDEF_TABLE;
+import static com.plankenauer.fmcontrol.config.Constants.CK_TABLEDEF_TIME_COLUMN;
+import static com.plankenauer.fmcontrol.config.Constants.CK_TABLEDEF_VALUE_COLUMN_FACTOR;
+import static com.plankenauer.fmcontrol.config.Constants.CK_TABLEDEF_VALUE_COLUMN_PATTERN;
+import static com.plankenauer.fmcontrol.config.Constants.CK_TABLEDEF_VALUE_LABEL_PATTERN;
 import static com.plankenauer.fmcontrol.config.Constants.CK_TITLE;
 
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Calendar;
 import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Properties;
+import java.util.Set;
 import java.util.TreeMap;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import org.apache.log4j.Logger;
+
+import com.plankenauer.fmcontrol.jdbc.Connect;
+import com.plankenauer.fmcontrol.jdbc.Connect.DBCol;
 
 
 
@@ -94,16 +105,67 @@ public class ConfigParser
         final String debugString = Str.getDebugString(map, configId);
         ConfigParser cp = new ConfigParser(map);
 
-        Config config = cp.init(configId);
-        if (config != null) {
-            config.setDebugString(debugString);
-            return config;
+        Exception ex = null;
+
+        try {
+            Config config = cp.init(configId);
+            if (config != null) {
+                config.setDebugString(debugString);
+                cp.fetchTableTypes(config);
+                return config;
+            }
+
+        } catch (Exception e) {
+            ex = e;
         }
 
-        ConfigException ce = new ConfigException("Die Konfiguration ist fehlerhaft!");
+        ConfigException ce;
+        if (ex == null) {
+            ce = new ConfigException("Die Konfiguration ist fehlerhaft!");
+        } else {
+            ce = new ConfigException("Die Konfiguration ist fehlerhaft!", ex);
+        }
+
         ce.setConfigErrors(cp.errors);
         ce.setDebugString(debugString);
         throw ce;
+    }
+
+
+    private void fetchTableTypes(Config config) {
+        DataSelectionConfig dsc = config.getDatasource();
+        List<Table> tables = dsc.getTables();
+        List<String> tableNames = Table.tableNames(tables);
+        Connect connect = new Connect(config);
+        List<DBCol> dbcols;
+
+        try {
+            dbcols = connect.fetchAllColumnsDetailed(tableNames);
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
+
+        for (Table t : tables) {
+            Map<String, DBCol> types = lookupColumnTypes(dbcols,
+                                                         t.getQualifiedTableName());
+            List<String> errors2 = t.bindDBCol(types);
+            if (errors2 != null) {
+                errors.addAll(errors2);
+            }
+        }
+    }
+
+    private static Map<String, DBCol> lookupColumnTypes(List<DBCol> dbcols,
+                                                        String qualified) {
+        Map<String, DBCol> m = new TreeMap<>();
+        for (Iterator<DBCol> iterator = dbcols.iterator(); iterator.hasNext();) {
+            final DBCol col = iterator.next();
+
+            if (col.getQualifiedName().toLowerCase().startsWith(qualified.toLowerCase())) {
+                m.put(col.getColname().toLowerCase(), col);
+            }
+        }
+        return m;
     }
 
     private Config init(String configId) {
@@ -150,12 +212,38 @@ public class ConfigParser
             return null;
         }
 
-        List<String> schemasChooseable = parseList(CK_DATA_SCHEMAS_CHOOSEABLE, false);
-        List<String> schemasFixed = parseList(CK_DATA_SCHEMAS_FIXED, false);
         List<String> tablesChooseable = parseList(CK_DATA_TABLES_CHOOSEABLE, false);
         List<String> tablesFixed = parseList(CK_DATA_TABLES_FIXED, false);
-        List<String> columnsChooseable = parseList(CK_DATA_VALUES_CHOOSEABLE, false);
-        List<String> columnsFixed = parseList(CK_DATA_VALUES_FIXED, false);
+        List<String> tables = tablesFixed != null ? tablesFixed : tablesChooseable;
+
+        if (tables == null) {
+            errors.add("Es muss entweder " + CK_DATA_TABLES_CHOOSEABLE + " oder "
+                    + CK_DATA_TABLES_FIXED + " gesetzt sein!");
+        }
+
+        Map<Integer, String> columnLabels = parseColumnLabels();
+        List<Table> tableObjects = parseTableDefinitions(tables, columnLabels);
+
+        if (tableObjects.isEmpty()) {
+            errors.add("Es wurde keine einzige Tabelle definiert!");
+        }
+
+        String groupByStr = parseProperty(CK_DATA_GROUP_TYPE, true);
+        Constants.GroupByType groupBy = null;
+        try {
+            groupBy = Constants.GroupByType.valueOf(groupByStr);
+            log.debug(CK_DATA_GROUP_TYPE + "=" + groupByStr);
+        } catch (Exception e) {
+            log.error(CK_DATA_GROUP_TYPE + "=" + groupByStr);
+        }
+
+        if (groupBy == null) {
+            errors.add(CK_DATA_GROUP_TYPE + " muss eins von "
+                    + Arrays.toString(Constants.GroupByType.values()) + " sein!");
+        }
+
+        // every table needs the same number of value columns, so validate this here:
+        validateValueColumnIntegrity(tableObjects);
 
         Calendar dateBoundsStart = parseDateBoundary(CK_DATA_FILTER_DATE_BOUNDS, false, 1);
         Calendar dateBoundsEnd = parseDateBoundary(CK_DATA_FILTER_DATE_BOUNDS, false, 2);
@@ -167,21 +255,141 @@ public class ConfigParser
         DataSelectionConfig dsCfg = null;
 
         if (errors.size() == errorCount) {
-            dsCfg = new DataSelectionConfig(schemasChooseable,
-                                            schemasFixed,
-                                            tablesChooseable,
-                                            tablesFixed,
-                                            columnsChooseable,
-                                            columnsFixed,
-                                            dateBoundsStart,
+            dsCfg = new DataSelectionConfig(dateBoundsStart,
                                             dateBoundsEnd,
                                             dayTimeStart,
                                             dayTimeEnd,
-                                            filterExpr);
+                                            filterExpr,
+                                            tableObjects,
+                                            groupBy);
         }
 
         return dsCfg;
     }
+
+    private Map<Integer, String> parseColumnLabels() {
+        Map<Integer, String> columnLabels = new HashMap<>();
+
+        for (int i = 1;; i++) {
+            String labelNameKey = key("", CK_TABLEDEF_VALUE_LABEL_PATTERN, i);
+            String labelName = map.get(labelNameKey);
+
+            if (labelName != null) {
+                columnLabels.put(i, labelName);
+                continue;
+            }
+
+            break;
+        }
+
+        if (columnLabels.isEmpty()) {
+            errors.add("Es ist keine einzige Wertespalte mit einem Label versehen. --> "
+                    + CK_TABLEDEF_VALUE_LABEL_PATTERN);
+        }
+
+        return columnLabels;
+    }
+
+    private static String key(String keyPrefix, String keySuffix, Object hashReplacement) {
+        String key = keyPrefix + keySuffix;
+        String result = key.replaceFirst("[#]", String.valueOf(hashReplacement));
+        return result;
+    }
+
+    private List<Table> parseTableDefinitions(List<String> tableAliases,
+                                              Map<Integer, String> columnLabels) {
+        List<Table> result = new ArrayList<>(2);
+
+        for (String alias : tableAliases) {
+            String schema = parseProperty(alias + CK_TABLEDEF_SCHEMA, true);
+            String tabname = parseProperty(alias + CK_TABLEDEF_TABLE, true);
+            String dateCol = parseProperty(alias + CK_TABLEDEF_DATE_COLUMN, true);
+            String timeCol = parseProperty(alias + CK_TABLEDEF_TIME_COLUMN, true);
+
+            Map<Integer, String> valueColumns = new HashMap<>(4);
+            Map<Integer, Double> valueFactors = new HashMap<>(4);
+
+            for (int i = 1;; i++) {
+                String columnNameKey = key(alias, CK_TABLEDEF_VALUE_COLUMN_PATTERN, i);
+                String columnName = map.get(columnNameKey);
+
+                if (columnName != null) {
+                    valueColumns.put(Integer.valueOf(i), columnName);
+                    String factorKey = key(alias, CK_TABLEDEF_VALUE_COLUMN_FACTOR, i);
+                    String factor = map.get(factorKey);
+
+                    if (factor != null) {
+                        try {
+                            Double f = Double.valueOf(factor.trim().replaceAll(",", "."));
+                            valueFactors.put(Integer.valueOf(i), f);
+                        } catch (NumberFormatException e) {
+                            errors.add("Die Variable "
+                                    + factorKey
+                                    + " fehlt oder ist keine gültige Gleitkommazahl (z.b. 2.34) - "
+                                    + e.getMessage());
+                        }
+                    }
+
+                    continue;
+                }
+
+                break;
+            }
+
+            if (valueColumns.isEmpty()) {
+                errors.add("Für TabellenDefinition " + alias
+                        + " wurde keine einzige Wertespalte definiert!");
+                continue;
+            }
+
+
+            try {
+                Table table = new Table(alias,
+                                        schema,
+                                        tabname,
+                                        valueColumns,
+                                        valueFactors,
+                                        dateCol,
+                                        timeCol,
+                                        columnLabels);
+                result.add(table);
+            } catch (ConfigException e) {
+                errors.add(e.getMessage());
+                continue;
+            }
+        }
+
+        return result;
+    }
+
+
+    private void validateValueColumnIntegrity(List<Table> result) {
+        Set<Integer> allValueColumns = new HashSet<>(4);
+
+        for (Table t : result) {
+            Set<Integer> valueColumns = t.getValueColumnExpr().keySet();
+            allValueColumns.addAll(valueColumns);
+
+            Set<Integer> columnLabels = t.getColumnLabels().keySet();
+            if (! columnLabels.containsAll(valueColumns)) {
+                errors.add("Es ist nicht für alle Wertespalten ein Label gesetzt. "
+                        + "Die Tabelle " + t.getAlias()
+                        + " hat eine spalte value-#.column definiert, "
+                        + "dazu gibt es aber kein Label. Die Variable "
+                        + CK_TABLEDEF_VALUE_LABEL_PATTERN + " fehlt.");
+            }
+        }
+
+        for (Table t : result) {
+            if (! t.getValueColumnExpr().keySet().containsAll(allValueColumns)) {
+                errors.add("Eine der Wertespalten " + t.getAlias()
+                        + CK_TABLEDEF_VALUE_COLUMN_PATTERN + " ist nicht definiert. "
+                        + "In einer der anderen Tabellendefinitionen schon! Die Anzahl "
+                        + "und Nummerierung muss in allen Tabellen gleich sein.");
+            }
+        }
+    }
+
 
     private Calendar parseDayTime(String key, boolean nullIsInvalid, int index) {
         String asString = parseProperty(key, nullIsInvalid);

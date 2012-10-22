@@ -13,7 +13,7 @@ public final class Config implements Serializable
     private final String description;
 
     private final ConnectionConfig connection;
-    private final DataSelectionConfig datasource;
+    private final DataSelectionConfig datasource; 
 
     private transient String debugString = null;
 

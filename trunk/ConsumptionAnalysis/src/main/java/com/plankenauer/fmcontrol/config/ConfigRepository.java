@@ -3,15 +3,73 @@ package com.plankenauer.fmcontrol.config;
 import java.io.File;
 import java.io.FileFilter;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
-import java.util.Map;
-import java.util.TreeMap;
 
-public class ConfigRepository
+public final class ConfigRepository
 {
 
+    public final class ParseResultHolder
+    {
+
+        private final String project;
+        private final String fileName;
+        private final String repoRoot;
+        private final Config config;
+        private final ConfigException error;
+
+        public ParseResultHolder(String repoRoot,
+                                 String project,
+                                 String fileName,
+                                 Config config,
+                                 ConfigException error) {
+            this.project = project;
+            this.fileName = fileName;
+            this.config = config;
+            this.error = error;
+            this.repoRoot = repoRoot;
+        }
+
+        public Config getConfig() {
+            return config;
+        }
+
+        public ConfigException getError() {
+            return error;
+        }
+
+        public String getProject() {
+            return project;
+        }
+
+        public String getRepoRoot() {
+            return repoRoot;
+        }
+
+        public String getFileName() {
+            return fileName;
+        }
+    }
+
+    private static final class IsFileFilter implements FileFilter
+    {
+        public boolean accept(File pathname) {
+            return pathname.isFile()
+//                    && pathname.canRead()
+            ;
+        }
+    }
+
+    private static final class IsDirFilter implements FileFilter
+    {
+        public boolean accept(File pathname) {
+            return pathname.isDirectory() && pathname.canRead();
+        }
+    }
+
+
+
     private final File repositoryRoot;
+
 
 
     public ConfigRepository(File repositoryRoot) {
@@ -21,65 +79,78 @@ public class ConfigRepository
         this.repositoryRoot = repositoryRoot;
     }
 
+
     public ConfigRepository(String repositoryRootPath) {
         this(new File(repositoryRootPath));
     }
 
-    public Config parseConfig(String project, String configFileName) throws ConfigException {
+
+
+    public List<String> getAllProjectNames() {
+        File[] dirs = repositoryRoot.listFiles(new IsDirFilter());
+        List<String> l = new ArrayList<>();
+
+        if (dirs != null) {
+            for (File d : dirs) {
+                l.add(d.getName());
+            }
+        }
+        
+        return l;
+    }
+
+    public List<String> getAllQueryNames(String project) {
+        File projDir = new File(repositoryRoot, project);
+        File[] files = projDir.listFiles(new IsFileFilter());
+        List<String> l = new ArrayList<>();
+
+        for (File d : files) {
+            l.add(d.getName());
+        }
+
+        return l;
+    }
+
+    public List<ParseResultHolder> parseEverything() {
+        List<ParseResultHolder> result = new ArrayList<>();
+
+        for (String project : getAllProjectNames()) {
+            for (String query : getAllQueryNames(project)) {
+                ParseResultHolder h = parseConfigHolder(project, query);
+                result.add(h);
+            }
+        }
+
+        return result;
+    }
+
+    public ParseResultHolder parseConfigHolder(String project, String configFileName) {
         File projectDir = new File(repositoryRoot, project);
         File configFile = new File(projectDir, configFileName);
 
-        return ConfigParser.parseConfig(configFileName, configFile);
-    }
-    
-    public Map<String,Config> parseAllValidConfigs(String project) {
+        Config cfg = null;
+        ConfigException error = null;
+
         try {
-            return parseAllConfigs(project, true);
+            cfg = ConfigParser.parseConfig(configFileName, configFile);
         } catch (ConfigException e) {
-            Map<String,Config> none = Collections.emptyMap();
-            return none;
+            error = e;
         }
+
+        return new ParseResultHolder(repositoryRoot.getAbsolutePath(),
+                                     project,
+                                     configFileName,
+                                     cfg,
+                                     error);
     }
-    public Map<String,Config> parseAllConfigs(String project) throws ConfigException {
-        return parseAllConfigs(project, false);
-    }
 
-    private Map<String,Config> parseAllConfigs(String project, boolean ignoreInvalid) throws ConfigException {
-        Map<String,Config> configs = new TreeMap<>();
-        List<ConfigException> failureList = new ArrayList<>();
-        File projectDir = new File(repositoryRoot, project);
+    public Config parseConfig(String project, String filename) throws ConfigException {
+        ParseResultHolder h = parseConfigHolder(project, filename);
 
-        for (File configFile : projectDir.listFiles(new FileFilter() {
-            @Override
-            public boolean accept(File f) {
-                return f.isFile();
-            }
-        })) {
-            File f = new File(projectDir, configFile.getName());
-            Config parsed;
-
-            try {
-                parsed = ConfigParser.parseConfig(f.getName(), f);
-                configs.put(f.getName(), parsed);
-
-            } catch (ConfigException e) {
-                failureList.add(e);
-            } catch (Exception e) {
-                e.printStackTrace();
-                throw e;
-            }
+        if (h.error != null) {
+            throw h.error;
         }
 
-        if (ignoreInvalid) {
-            return configs;
-        }
-        
-        if (! failureList.isEmpty()) {
-            String trace = Str.dumpErrorMsgs(failureList);
-            ConfigException summaryError = new ConfigException(trace);
-            throw summaryError;
-        }
-
-        return configs;
+        return h.config;
     }
 }
