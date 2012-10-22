@@ -1,6 +1,12 @@
 package com.plankenauer.fmcontrol.web;
 
+import javax.naming.Context;
+import javax.naming.InitialContext;
+
+import org.apache.log4j.Logger;
 import org.apache.wicket.protocol.http.WebApplication;
+
+import com.plankenauer.fmcontrol.config.ConfigRepository;
 
 /**
  * Application object for your web application. If you want to run this application without deploying, run the Start class.
@@ -9,6 +15,40 @@ import org.apache.wicket.protocol.http.WebApplication;
  */
 public class WicketApplication extends WebApplication
 {
+    private static Logger log = Logger.getLogger(WicketApplication.class);
+
+    private static ConfigRepository globalRepo = null;
+
+
+    public ConfigRepository getGlobalConfigRepo() {
+        if (globalRepo == null) {
+            synchronized (WicketApplication.class) {
+                if (globalRepo == null) {
+                    log.debug("creating global config repository...");
+                    String path = null;
+                    
+                    try {
+                        InitialContext ic = new InitialContext();
+                        Context c = (Context) ic.lookup("java:comp/env");
+                        path = (String) c.lookup("plankenauer/configRepository");
+                        log.debug("looked up path: "+path);
+                        
+                    } catch (Exception e) {
+                        log.error("error during jndi lookup: "+e);
+                        path = "C:\\abfragen";
+                        log.error("using fallback: "+path);
+                    }
+                    
+                    log.info("global repository path: "+path);
+                    globalRepo = new ConfigRepository(path);
+                }
+            }
+        }
+
+        return globalRepo;
+    }
+
+
     /**
      * @see org.apache.wicket.Application#getHomePage()
      */

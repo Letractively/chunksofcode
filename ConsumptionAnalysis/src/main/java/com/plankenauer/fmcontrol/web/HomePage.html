@@ -2,35 +2,51 @@
 <html xmlns:wicket="http://wicket.apache.org">
 <head>
 <meta charset="utf-8" />
-<title>Apache Wicket Quickstart</title>
+<title>Auswertungen Übersichtsseite</title>
 
 <link
-	href='http://fonts.googleapis.com/css?family=Yanone+Kaffeesatz:regular,bold'
-	rel='stylesheet' type='text/css' />
-	
+    href='http://fonts.googleapis.com/css?family=Yanone+Kaffeesatz:regular,bold'
+    rel='stylesheet' type='text/css' />
+
 <link rel="stylesheet" href="style.css" type="text/css" media="screen"
-	title="Stylesheet" />
+    title="Stylesheet" />
 </head>
 <body>
-	<div id="hd">
-		<div id="logo">
-			<img src="logo.png" width="50px" height="50px" alt="Wicket Logo" />
-			<h1>Apache Wicket</h1>
-		</div>
-	</div>
-	<div id="bd">
-		<h2>Startseite</h2>
-		<p>Your quick start works! This project is especially useful to
-			start developing your Wicket application or to create a test case for
-			a bug report.</p>
-		<p>
-			Please mention the correct Wicket version:
-			<wicket:container wicket:id="version">wicket version</wicket:container>.
-		</p>
-		
-		
-		
-	</div>
-	<div id="ft"></div>
+    
+    <div id="hd">
+        <div id="logo">
+            <img src="logo.png" width="50px" height="50px" alt="Wicket Logo" />
+            <h1>Auswertungen</h1>
+        </div>
+    </div>
+    
+    <div id="bd">
+        <h2>Startseite</h2>
+
+        <p>
+            Hier ist eine Übersicht über alle zur Zeit verfügbaren
+            Abfragen:
+        </p>
+
+        <span wicket:id="queryList" id="queryList">
+            <p>
+                <span wicket:id="queryProject">the project of the query</span> 
+                -
+                <span wicket:id="queryName">the name of the query</span>
+                -
+                <span wicket:id="queryStatus">the status of the query</span>
+            </p>
+            <pre class="preformatted-errormsg" wicket:id="queryErrors">
+                the errors of the query
+            </pre>
+        </span>
+
+        <p>
+            Wicket version:
+            <wicket:container wicket:id="version">wicket version</wicket:container>
+            .
+        </p>
+    </div>
+    <div id="ft"></div>
 </body>
 </html>

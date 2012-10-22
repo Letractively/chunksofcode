@@ -78,6 +78,11 @@ body {
 	box-shadow: 0px 0px 10px #888;
 }
 
+.preformatted-errormsg {
+	font-size: 8pt;
+	color: red;
+}
+
 a,a:visited,a:hover,a:active {
 	color: #6493D2;
 }

@@ -97,7 +97,7 @@ final class Str
                 File f = new File(e.getConfigFilePath());
                 bui.append(f.getName());
                 bui.append(NL);
-                bui.append("in directory: ");
+                bui.append("In Verzeichnis: ");
                 bui.append(f.getParentFile().getAbsolutePath());
                 bui.append(NL);
             }

@@ -1,25 +1,21 @@
 package com.plankenauer.fmcontrol.jdbc;
 
 import java.sql.Connection;
-import java.sql.DriverManager;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
-import java.util.Properties;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import net.sf.log4jdbc.ConnectionSpy;
-import net.sf.log4jdbc.DriverSpy;
 
 import org.apache.log4j.Logger;
+import org.hibernate.pretty.Formatter;
 
 import com.plankenauer.fmcontrol.config.Config;
-import com.plankenauer.fmcontrol.config.ConnectionConfig;
-import com.plankenauer.fmcontrol.config.DataSelectionConfig;
 
 public class Connect
 {
@@ -33,44 +29,6 @@ public class Connect
         this.config = config;
     }
 
-    public List<String> getAllColumns() throws Exception {
-        try {
-            DataSelectionConfig src = config.getDatasource();
-            List<String> configuredSchemas = src.getSchemas();
-            List<String> configuredTables = src.getTables();
-            List<String> configuredColumns = src.getColumns();
-
-            List<String> schemas;
-            if (configuredSchemas == null) {
-                schemas = fetchAllSchemas();
-            } else {
-                checkSchemas(configuredSchemas);
-                schemas = configuredSchemas;
-            }
-
-
-            List<String> qualifiedTableNames;
-            if (configuredTables == null) {
-                qualifiedTableNames = fetchAllTables(schemas);
-            } else {
-                qualifiedTableNames = checkTables(schemas, configuredTables);
-            }
-
-
-            List<String> qualifiedColumnNames;
-            if (configuredColumns == null) {
-                qualifiedColumnNames = fetchAllColumns(qualifiedTableNames);
-            } else {
-                qualifiedColumnNames = checkColumns(qualifiedTableNames,
-                                                    configuredColumns);
-            }
-
-            return qualifiedColumnNames;
-
-        } finally {
-            close(connection);
-        }
-    }
 
     public boolean isConnectable() {
         Exception failReason = whyNotConnectable();
@@ -84,88 +42,18 @@ public class Connect
     }
 
     public Exception whyNotConnectable() {
-        Connection c = null;
         try {
-            c = initConnection(config.getConnection(), true);
+            ConnectionCache.getSingleton().obtain(config.getConnection()).getConnection();
         } catch (Exception e) {
             return e;
-        } finally {
-            close(c);
         }
         return null;
     }
 
-    private void checkSchemas(List<String> schemas) throws Exception {
-        List<String> allSchemas = fetchAllSchemas();
-
-        for (String schemaToCheck : schemas) {
-            boolean found = false;
-            for (String a : allSchemas) {
-                if (a.equalsIgnoreCase(schemaToCheck)) {
-                    found = true;
-                    break;
-                }
-            }
-            if (! found) {
-                throw new RuntimeException("Schema " + schemaToCheck
-                        + " existiert nicht in der Datenbank!");
-            }
-        }
-    }
-
-    /**
-     * @return a list with qualified table names
-     */
-    private List<String>
-            checkTables(List<String> schemas, List<String> tables) throws Exception {
-        List<String> qualifiedTableNames = new ArrayList<>();
-        List<String> allTables = fetchAllTables(schemas);
-
-        for (String tableToCheck : tables) {
-            boolean found = false;
-            for (String dbtab : allTables) {
-                if (dbtab.toLowerCase().endsWith(tableToCheck.toLowerCase())) {
-                    found = true;
-                    qualifiedTableNames.add(dbtab);
-                    break;
-                }
-            }
-            if (! found) {
-                throw new RuntimeException("Tabelle " + tableToCheck
-                        + " existiert nicht einer der Datenbanken " + schemas + "!");
-            }
-        }
-
-        return qualifiedTableNames;
-    }
-
-    private List<String> checkColumns(List<String> qualifiedTableNames,
-                                      List<String> columns) throws Exception {
-        List<String> qualifiedColumnNames = new ArrayList<>();
-        List<String> allColumns = fetchAllColumns(qualifiedTableNames);
-
-        for (String toCheck : columns) {
-            boolean found = false;
-            for (String dbcol : allColumns) {
-                if (dbcol.toLowerCase().endsWith(toCheck.toLowerCase())) {
-                    found = true;
-                    qualifiedColumnNames.add(dbcol);
-                }
-            }
-            if (! found) {
-                throw new RuntimeException("Spalte " + toCheck
-                        + " existiert nicht in einer der Tabellen "
-                        + qualifiedColumnNames + "!");
-            }
-        }
-
-        return qualifiedColumnNames;
-    }
-
-    private List<String> fetchAllSchemas() throws Exception {
+    public List<String> fetchAllSchemas() throws Exception {
         final List<String> result = new ArrayList<>();
 
-        executeWorker(new SqlWorker() {
+        executeWorkerWithoutLogging(new SqlWorker() {
             @Override
             public void run(Connection c) throws Exception {
                 Statement s = c.createStatement();
@@ -186,7 +74,7 @@ public class Connect
         return result;
     }
 
-    private List<String> fetchAllTables(final List<String> schemas) throws Exception {
+    public List<String> fetchAllTables(final List<String> schemas) throws Exception {
         final List<String> result = new ArrayList<>();
 
         final StringBuilder sb = new StringBuilder();
@@ -214,7 +102,7 @@ public class Connect
         }
         sb.append(")");
 
-        executeWorker(new SqlWorker() {
+        executeWorkerWithoutLogging(new SqlWorker() {
             @Override
             public void run(Connection c) throws Exception {
                 Statement statement = c.createStatement();
@@ -240,10 +128,58 @@ public class Connect
         return result;
     }
 
-    private List<String>
-            fetchAllColumns(final List<String> qualifiedTableNames) throws Exception {
 
+    public static final class DBCol
+    {
+        private final String schema;
+        private final String table;
+        private final String colname;
+        private final String type;
+
+        public DBCol(String schema, String table, String colname, String type) {
+            super();
+            this.schema = schema;
+            this.table = table;
+            this.colname = colname;
+            this.type = type;
+        }
+
+        public String getSchema() {
+            return schema;
+        }
+
+        public String getTable() {
+            return table;
+        }
+
+        public String getColname() {
+            return colname;
+        }
+
+        public String getType() {
+            return type;
+        }
+
+        public String getQualifiedName() {
+            return schema + "." + table + "." + colname;
+        }
+    }
+
+    public List<String>
+            fetchAllColumns(final List<String> qualifiedTableNames) throws Exception {
         final List<String> result = new ArrayList<>();
+
+        List<DBCol> detailed = fetchAllColumnsDetailed(qualifiedTableNames);
+        for (DBCol dbCol : detailed) {
+            result.add(dbCol.getQualifiedName());
+        }
+
+        return result;
+    }
+
+    public List<DBCol>
+            fetchAllColumnsDetailed(List<String> qualifiedTableNames) throws Exception {
+        final List<DBCol> result = new ArrayList<>();
         final StringBuilder sql = new StringBuilder();
 
         sql.append("select c.TABLE_SCHEMA, c.TABLE_NAME, c.COLUMN_NAME, c.COLUMN_TYPE ");
@@ -281,7 +217,7 @@ public class Connect
 
         log.trace(sql.toString());
 
-        executeWorker(new SqlWorker() {
+        executeWorkerWithoutLogging(new SqlWorker() {
             @Override
             public void run(Connection c) throws Exception {
                 PreparedStatement ps = c.prepareStatement(sql.toString());
@@ -295,7 +231,7 @@ public class Connect
 
                     String qualified = schema2 + "." + table2 + "." + column;
                     log.trace("adding column: " + qualified + " (" + type + ")");
-                    result.add(qualified);
+                    result.add(new DBCol(schema2, table2, column, type));
                 }
 
                 columns.close();
@@ -307,82 +243,99 @@ public class Connect
         return result;
     }
 
+//    private static final ConnectionCache cache = new ConnectionCache();
     private Connection connection = null;
 
-    public void executeWorker(SqlWorker worker) throws Exception {
+    public void executeWorkerWithLogging(SqlWorker worker) throws Exception {
+        executeWorkerImpl(worker, true);
+    }
+
+    public void executeWorkerWithoutLogging(SqlWorker worker) throws Exception {
+        executeWorkerImpl(worker, false);
+    }
+ 
+    private void
+            executeWorkerImpl(SqlWorker worker, boolean withLog4Jdbc) throws Exception {
         if (connection == null) {
             synchronized (this) {
                 if (connection == null) {
-                    connection = initConnection(config.getConnection(), false);
+                    connection = ConnectionCache.getSingleton()
+                                                .obtain(config.getConnection())
+                                                .getConnection();
                 }
             }
         }
-        worker.run(connection);
+        Connection workWith = connection;
+        if (withLog4Jdbc) {
+            workWith = new ConnectionSpy(connection);
+        }
+        worker.run(workWith);
     }
 
-    private static Connection
-            initConnection(ConnectionConfig cc, boolean connectivityTest) throws Exception {
-        Class.forName("com.mysql.jdbc.Driver");
-        Connection c = null;
 
-        if (! connectivityTest) { // do not use log4jdbc when performing a connectivity test
-            try {
-                c = initLog4jdbcConnection(cc);
-            } catch (Exception e) {
-                log.warn("could not init log4jdbc, use plain connection instead.", e);
-            }
-        }
 
-        String user = cc.getUser();
-        String password = cc.getPassword();
-        String hostname = cc.getHostname();
-        int portnumber = cc.getPortnumber();
-        String url = "jdbc:mysql://" + hostname + ":" + portnumber;
+    // test sql formatter
+    public static void main(String[] args) {
+        final String STRING = ("select "
+                + "daycol as Tag,                                                  "
+                + "monthcol as Monat,                                              "
+                + "yearcol as Jahr,                                                "
+                + "sum(value1col) as Verbrauch,                                    "
+                + "sum(value2col) as Preis                                         "
+                + "from                                                              "
+                + "(                                                                 "
+                + "    (                                                             "
+                + "        select                                                    "
+                + "            YEAR(STR_TO_DATE(L.Datum,'%d.%m.%Y')) as yearcol,     "
+                + "            MONTH(STR_TO_DATE(L.Datum,'%d.%m.%Y')) as monthcol,   "
+                + "            DAY(STR_TO_DATE(L.Datum,'%d.%m.%Y')) as daycol,       "
+                + "            sum(L.kWh_pro15min) as value1col,                     "
+                + "            sum(L.kWh_Preis) as value2col                         "
+                + "        from                                                      "
+                + "            fm_control.fmcontrol_kw_leistungb L                   "
+                + "        where                                                     "
+                + "            YEAR(STR_TO_DATE(L.Datum,'%d.%m.%Y')) = 2012          "
+                + "            and MONTH(STR_TO_DATE(L.Datum,'%d.%m.%Y')) = 2        "
+                + "        group by                                                  "
+                + "            DAY(STR_TO_DATE(L.Datum,'%d.%m.%Y')),                 "
+                + "            YEAR(STR_TO_DATE(L.Datum,'%d.%m.%Y')),                "
+                + "            MONTH(STR_TO_DATE(L.Datum,'%d.%m.%Y'))                "
+                + "    )                                                             "
+                + "    union                                                         "
+                + "    (                                                             "
+                + "        select                                                    "
+                + "            YEAR(STR_TO_DATE(L.Datum,'%d.%m.%Y')) as yearcol,     "
+                + "            MONTH(STR_TO_DATE(L.Datum,'%d.%m.%Y')) as monthcol,   "
+                + "            DAY(STR_TO_DATE(L.Datum,'%d.%m.%Y')) as daycol,       "
+                + "            sum(L.kWh_pro15min) as value1col,                     "
+                + "            0 as value2col                                        "
+                + "        from                                                      "
+                + "            fm_control.fmcontrol_kw_leistung L                    "
+                + "        where                                                     "
+                + "            YEAR(STR_TO_DATE(L.Datum,'%d.%m.%Y')) = 2012          "
+                + "            and MONTH(STR_TO_DATE(L.Datum,'%d.%m.%Y')) = 2        "
+                + "        group by                                                  "
+                + "            DAY(STR_TO_DATE(L.Datum,'%d.%m.%Y')),                 "
+                + "            YEAR(STR_TO_DATE(L.Datum,'%d.%m.%Y')),                "
+                + "            MONTH(STR_TO_DATE(L.Datum,'%d.%m.%Y'))                "
+                + "    )                                                             "
+                + ") as foo                                                          "
+                + "group by                                                          "
+                + "daycol,                                                           "
+                + "yearcol,                                                          "
+                + "monthcol                                                          "
+                + "order by                                                          "
+                + "daycol,                                                           "
+                + "yearcol,                                                          "
+                + "monthcol                                                          "
+                + ";                                                                 ").replaceAll("\\s+",
+                                                                                                   " ");
 
-        if (c == null) {
-            c = DriverManager.getConnection(url, user, password);
-        }
 
-        return c;
+        System.out.println(STRING);
+        System.out.println("--------------------------------------------");
+        Formatter f = new Formatter(STRING);
+        System.out.println(f.format());
     }
 
-    private static Connection
-            initLog4jdbcConnection(ConnectionConfig cc) throws Exception {
-        String user = cc.getUser();
-        String password = cc.getPassword();
-        String hostname = cc.getHostname();
-        int portnumber = cc.getPortnumber();
-
-        String url2 = "jdbc:log4jdbc:mysql://" + hostname + ":" + portnumber;
-        log.debug("url: " + url2);
-        DriverSpy driverSpy = new DriverSpy();
-
-        if (driverSpy.acceptsURL(url2)) {
-            log.debug("URL is accepted so we are good to move on");
-            Properties connProps = new Properties();
-            connProps.setProperty("user", user);
-            connProps.setProperty("password", password);
-            ConnectionSpy connn = (ConnectionSpy) driverSpy.connect(url2, connProps);
-            log.debug("Connection established. DB version is: "
-                    + driverSpy.getMajorVersion() + "." + driverSpy.getMinorVersion());
-
-            return connn;
-        }
-        return null;
-    }
-
-    private static void close(Connection... connections) {
-        if (connections == null || connections.length <= 0) {
-            return;
-        }
-        for (Connection c : connections) {
-            if (c == null) {
-                continue;
-            }
-            try {
-                c.close();
-            } catch (Exception e) {
-            }
-        }
-    }
 }

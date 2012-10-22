@@ -1,21 +1,23 @@
 package com.plankenauer.fmcontrol.config;
 
-import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
 
 import java.io.File;
-import java.util.List;
-import java.util.Map;
+import java.sql.Connection;
+import java.sql.ResultSet;
+import java.sql.Statement;
 
 import org.apache.log4j.Logger;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
 import com.plankenauer.fmcontrol.jdbc.Connect;
+import com.plankenauer.fmcontrol.jdbc.SqlWorker;
+import com.plankenauer.fmcontrol.sql.QueryBuilder;
 
 public class ConfigTest
 {
+    
     private static final String PROJECT01 = "project01";
     private static final String ABFRAGE01 = "ABFRAGE01.properties";
     private static final String ABFRAGE02 = "ABFRAGE02.properties";
@@ -24,9 +26,8 @@ public class ConfigTest
     private static final String ABFRAGE05 = "ABFRAGE05.properties";
     private static final String ABFRAGE20 = "ABFRAGE20.properties";
 
+    
     private static final Logger log = Logger.getLogger(ConfigTest.class);
-    private static final String NL = System.getProperty("line.separator");
-
     private static ConfigRepository repo;
 
 
@@ -45,111 +46,214 @@ public class ConfigTest
 
     }
 
-    @Test
-    public void test2() throws Exception {
-        try {
-            repo.parseAllConfigs(PROJECT01);
-            fail("error expected in " + ABFRAGE05);
-
-        } catch (ConfigException expected) {
-            String m = expected.getMessage();
-            assertTrue(m, m.contains(ABFRAGE05));
-            assertTrue(m,
-                       m.contains("Erforderlicher Konfigurationseintrag fehlt: '"
-                               + Constants.CK_CONNECTION_HOSTNAME + "'"));
-        }
-
-        Map<String, Config> allConfigs = repo.parseAllValidConfigs(PROJECT01);
-        assertTrue(String.valueOf(allConfigs), allConfigs.size() == 5);
-
-        for (Config c : allConfigs.values()) {
-            assertFalse(String.valueOf(allConfigs),
-                        c.getName().equalsIgnoreCase(ABFRAGE05));
-        }
-        for (String c : allConfigs.keySet()) {
-            assertFalse(String.valueOf(allConfigs), c.equalsIgnoreCase(ABFRAGE05));
-        }
-
-        log.info("EXITING");
-    }
 
     @Test
     public void testAbfrage01() throws Exception {
         String abfrage = ABFRAGE01;
-        Config c1 = repo.parseConfig(PROJECT01, abfrage);
-        assertTrue(c1 != null);
-
-        Connect connect = new Connect(c1);
-        if (connect.isConnectable()) {
-            List<String> columns = connect.getAllColumns();
-            log.info("columns of " + abfrage + ": " + dumpColumnSet(columns));
+        Config c1 = null;
+        try {
+            c1 = repo.parseConfig(PROJECT01, abfrage);
+        } catch (ConfigException ce) {
+            handleConfigException(ce);
         }
 
-//      GNUPlot plot = new GNUPlot(true);
+        assertTrue(c1 != null);
+        Connect connect = new Connect(c1);
+        if (! connect.isConnectable()) {
+            return;
+        }
+
+        QueryBuilder queryBuilder = new QueryBuilder(c1);
+        final String query = queryBuilder.generateQuery();
+
+        connect.executeWorkerWithLogging(new SqlWorker() {
+            @Override
+            public void run(Connection c) throws Exception {
+                Statement statement = c.createStatement();
+                ResultSet result = statement.executeQuery(query);
+                int columnCount = result.getMetaData().getColumnCount();
+                while (result.next()) {
+                    for (int i = 1; i <= columnCount; i++) {
+                        result.getObject(i);
+                    }
+                }
+            }
+        });
     }
+
 
     @Test
     public void testAbfrage02() throws Exception {
         String abfrage = ABFRAGE02;
-        Config c2 = repo.parseConfig(PROJECT01, abfrage);
-        assertTrue(c2 != null);
-
-        Connect connect = new Connect(c2);
-        if (connect.isConnectable()) {
-            List<String> columns = connect.getAllColumns();
-            log.info("columns of " + abfrage + ": " + dumpColumnSet(columns));
+        Config c1 = null;
+        try {
+            c1 = repo.parseConfig(PROJECT01, abfrage);
+        } catch (ConfigException ce) {
+            handleConfigException(ce);
         }
+
+        assertTrue(c1 != null);
+        Connect connect = new Connect(c1);
+        if (! connect.isConnectable()) {
+            return;
+        }
+
+        QueryBuilder queryBuilder = new QueryBuilder(c1);
+        final String query = queryBuilder.generateQuery();
+
+        connect.executeWorkerWithLogging(new SqlWorker() {
+            @Override
+            public void run(Connection c) throws Exception {
+                Statement statement = c.createStatement();
+                ResultSet result = statement.executeQuery(query);
+                int columnCount = result.getMetaData().getColumnCount();
+                while (result.next()) {
+                    for (int i = 1; i <= columnCount; i++) {
+                        result.getObject(i);
+                    }
+                }
+            }
+        });
     }
 
     @Test
     public void testAbfrage03() throws Exception {
         String abfrage = ABFRAGE03;
-        Config c3 = repo.parseConfig(PROJECT01, abfrage);
-        assertTrue(c3 != null);
-
-        Connect connect = new Connect(c3);
-        if (connect.isConnectable()) {
-            List<String> columns = connect.getAllColumns();
-            log.info("columns of " + abfrage + ": " + columns.size());
+        Config c1 = null;
+        try {
+            c1 = repo.parseConfig(PROJECT01, abfrage);
+        } catch (ConfigException ce) {
+            handleConfigException(ce);
         }
+
+        assertTrue(c1 != null);
+        Connect connect = new Connect(c1);
+        if (! connect.isConnectable()) {
+            return;
+        }
+
+        QueryBuilder queryBuilder = new QueryBuilder(c1);
+        final String query = queryBuilder.generateQuery();
+
+        connect.executeWorkerWithLogging(new SqlWorker() {
+            @Override
+            public void run(Connection c) throws Exception {
+                Statement statement = c.createStatement();
+                ResultSet result = statement.executeQuery(query);
+                int columnCount = result.getMetaData().getColumnCount();
+                while (result.next()) {
+                    for (int i = 1; i <= columnCount; i++) {
+                        result.getObject(i);
+                    }
+                }
+            }
+        });
     }
 
     @Test
     public void testAbfrage04() throws Exception {
         String abfrage = ABFRAGE04;
-        Config c4 = repo.parseConfig(PROJECT01, abfrage);
-        assertTrue(c4 != null);
-
-        Connect connect = new Connect(c4);
-
-        if (connect.isConnectable()) {
-            List<String> columns = connect.getAllColumns();
-            log.info("columns of " + abfrage + ": " + columns.size());
+        Config c1 = null;
+        try {
+            c1 = repo.parseConfig(PROJECT01, abfrage);
+        } catch (ConfigException ce) {
+            handleConfigException(ce);
         }
+
+        assertTrue(c1 != null);
+        Connect connect = new Connect(c1);
+        if (! connect.isConnectable()) {
+            return;
+        }
+
+        QueryBuilder queryBuilder = new QueryBuilder(c1);
+        final String query = queryBuilder.generateQuery();
+
+        connect.executeWorkerWithLogging(new SqlWorker() {
+            @Override
+            public void run(Connection c) throws Exception {
+                Statement statement = c.createStatement();
+                ResultSet result = statement.executeQuery(query);
+                int columnCount = result.getMetaData().getColumnCount();
+                while (result.next()) {
+                    for (int i = 1; i <= columnCount; i++) {
+                        result.getObject(i);
+                    }
+                }
+            }
+        });
     }
 
-    @Test
+//  @Test
+  public void testAbfrage05() throws Exception {
+      String abfrage = ABFRAGE05;
+      Config c1 = null;
+      try {
+          c1 = repo.parseConfig(PROJECT01, abfrage);
+      } catch (ConfigException ce) {
+          handleConfigException(ce);
+      }
+
+      assertTrue(c1 != null);
+      Connect connect = new Connect(c1);
+      if (! connect.isConnectable()) {
+          return;
+      }
+
+      QueryBuilder queryBuilder = new QueryBuilder(c1);
+      final String query = queryBuilder.generateQuery();
+
+      connect.executeWorkerWithLogging(new SqlWorker() {
+          @Override
+          public void run(Connection c) throws Exception {
+              Statement statement = c.createStatement();
+              ResultSet result = statement.executeQuery(query);
+              int columnCount = result.getMetaData().getColumnCount();
+              while (result.next()) {
+                  for (int i = 1; i <= columnCount; i++) {
+                      result.getObject(i);
+                  }
+              }
+          }
+      });
+  }
+
+//    @Test
     public void testAbfrage20() throws Exception {
         String abfrage = ABFRAGE20;
-        Config cfg = repo.parseConfig(PROJECT01, abfrage);
-        assertTrue(cfg != null);
-
-        Connect connect = new Connect(cfg);
-        if (connect.isConnectable()) {
-            List<String> columns = connect.getAllColumns();
-            log.info("columns of " + abfrage + ": " + columns.size());
+        Config c1 = null;
+        try {
+            c1 = repo.parseConfig(PROJECT01, abfrage);
+        } catch (ConfigException ce) {
+            handleConfigException(ce);
         }
+
+        assertTrue(c1 != null);
+        Connect connect = new Connect(c1);
+        if (! connect.isConnectable()) {
+            return;
+        }
+
+        QueryBuilder queryBuilder = new QueryBuilder(c1);
+        final String query = queryBuilder.generateQuery();
+
+        connect.executeWorkerWithLogging(new SqlWorker() {
+            @Override
+            public void run(Connection c) throws Exception {
+                Statement statement = c.createStatement();
+                ResultSet result = statement.executeQuery(query);
+                int columnCount = result.getMetaData().getColumnCount();
+                while (result.next()) {
+                    for (int i = 1; i <= columnCount; i++) {
+                        result.getObject(i);
+                    }
+                }
+            }
+        });
     }
 
-    private static String dumpColumnSet(List<String> cols) {
-        StringBuilder bui = new StringBuilder();
-        bui.append("[");
-        for (String col : cols) {
-            bui.append(NL);
-            bui.append(col);
-        }
-        bui.append(NL);
-        bui.append("]");
-        return bui.toString();
+    private void handleConfigException(ConfigException ce) throws ConfigException {
+        log.error(ce.getErrorString(), ce);
+        throw ce;
     }
 }
