@@ -1,5 +1,6 @@
 package com.plankenauer.fmcontrol.jdbc;
 
+import java.io.Serializable;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -13,12 +14,14 @@ import java.util.regex.Pattern;
 import net.sf.log4jdbc.ConnectionSpy;
 
 import org.apache.log4j.Logger;
-import org.hibernate.pretty.Formatter;
+//import org.hibernate.pretty.Formatter;
 
 import com.plankenauer.fmcontrol.config.Config;
 
-public class Connect
+public class Connect implements Serializable
 {
+    private static final long serialVersionUID = - 7688925558037396238L;
+    
     private static final Object NL = System.getProperty("line.separator");
     private static final Logger log = Logger.getLogger(Connect.class);
 
@@ -129,8 +132,10 @@ public class Connect
     }
 
 
-    public static final class DBCol
+    public static final class DBCol implements Serializable
     {
+        private static final long serialVersionUID = 2809174772068887114L;
+        
         private final String schema;
         private final String table;
         private final String colname;
@@ -162,6 +167,10 @@ public class Connect
 
         public String getQualifiedName() {
             return schema + "." + table + "." + colname;
+        }
+        
+        public String toString() {
+            return "DBCol["+table + "." + colname+" "+getType()+"]";
         }
     }
 
@@ -267,7 +276,8 @@ public class Connect
         }
         Connection workWith = connection;
         if (withLog4Jdbc) {
-            workWith = new ConnectionSpy(connection);
+            ConnectionSpy spy = new ConnectionSpy(connection);
+            workWith = spy;
         }
         worker.run(workWith);
     }
@@ -334,8 +344,8 @@ public class Connect
 
         System.out.println(STRING);
         System.out.println("--------------------------------------------");
-        Formatter f = new Formatter(STRING);
-        System.out.println(f.format());
+//        Formatter f = new Formatter(STRING);
+//        System.out.println(f.format());
     }
 
 }

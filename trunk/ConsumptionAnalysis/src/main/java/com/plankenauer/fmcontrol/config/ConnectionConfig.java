@@ -10,6 +10,8 @@ public final class ConnectionConfig implements Serializable
     private final int portnumber;
     private final String user;
     private final String password;
+    private Config config = null;
+
 
     public ConnectionConfig(String hostname, int portnumber, String user, String password) {
         this.hostname = hostname;
@@ -47,6 +49,18 @@ public final class ConnectionConfig implements Serializable
         return builder.toString();
     }
 
+    void setConfig(Config config) {
+        synchronized (this) {
+            if (this.config != null) {
+                throw new RuntimeException("cannot set multiple times");
+            }
+            this.config = config;
+        }
+    }
+
+    Config getConfig() {
+        return config;
+    }
 
 
 }

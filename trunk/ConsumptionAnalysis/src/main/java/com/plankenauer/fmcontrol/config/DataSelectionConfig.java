@@ -13,23 +13,22 @@ import com.plankenauer.fmcontrol.config.Constants.GroupByType;
 public class DataSelectionConfig implements Serializable
 {
 
+
+//    private static final Logger log = Logger.getLogger(DataSelectionConfig.class);
     private static final long serialVersionUID = 1470288040217770328L;
 
-    private final Long dateBoundsStartValue;
-    private final Long dateBoundsEndValue;
-    private final Long dayTimeBoundsStartValue;
-    private final Long dayTimeBoundsEndValue;
-    private final GroupByType groupBy;
-    private final String filterExpr;
+    private Long dateBoundsStartValue;
+    private Long dateBoundsEndValue;
+    private Long dayTimeBoundsStartValue;
+    private Long dayTimeBoundsEndValue;
+    private GroupByType groupBy;
     private final List<Table> tableObjects;
-
-
+    private Config config = null;
 
     public DataSelectionConfig(Calendar dateBoundsStart,
                                Calendar dateBoundsEnd,
                                Calendar dayTimeBoundsStart,
                                Calendar dayTimeBoundsEnd,
-                               String filterExpr,
                                List<Table> tableObjects,
                                GroupByType groupBy) {
         this.dateBoundsStartValue = cal2val(dateBoundsStart);
@@ -37,12 +36,18 @@ public class DataSelectionConfig implements Serializable
         this.dayTimeBoundsStartValue = cal2val(dayTimeBoundsStart);
         this.dayTimeBoundsEndValue = cal2val(dayTimeBoundsEnd);
         this.tableObjects = readonly(tableObjects);
-        this.filterExpr = filterExpr;
         this.groupBy = groupBy;
     }
 
     public GroupByType getGroupBy() {
         return groupBy;
+    }
+
+    public void setGroupBy(GroupByType gb) {
+        if (gb == null) {
+            return;
+        }
+        groupBy = gb;
     }
 
     /**
@@ -110,14 +115,6 @@ public class DataSelectionConfig implements Serializable
         return Long.valueOf(cal.getTimeInMillis());
     }
 
-    /**
-     * an sql where expression that is used to narrow the data selection.<br>
-     * e.g. <pre>Tarif = 'Tag' AND DAYOFWEEK(Datum) != 2</pre> 
-     */
-    public String getFilterExpr() {
-        return filterExpr;
-    }
-
     @Override
     public String toString() {
         StringBuilder builder = new StringBuilder();
@@ -146,11 +143,61 @@ public class DataSelectionConfig implements Serializable
             builder.append(tableObjects);
             builder.append(", ");
         }
-        if (filterExpr != null) {
-            builder.append("filterExpr=");
-            builder.append(filterExpr);
-        }
         builder.append("]");
         return builder.toString();
+    }
+
+
+    public void setDateBoundsEnd(Long time) {
+        this.dateBoundsEndValue = time;
+    }
+
+    public void setDateBoundsEnd(Date time) {
+        Long l = timeAsLongOrNull(time);
+        this.dateBoundsEndValue = l;
+    }
+
+    public void setDateBoundsStart(Date time) {
+        Long l = timeAsLongOrNull(time);
+        this.dateBoundsStartValue = l;
+    }
+
+    public void setDateBoundsStart(Long time) {
+        this.dateBoundsStartValue = time;
+    }
+
+    private static Long timeAsLongOrNull(Date time) {
+        Long timeAsLong = null;
+        if (time != null) {
+            timeAsLong = time.getTime();
+        }
+        return timeAsLong;
+    }
+
+    public void setDayTimeBoundsEnd(Date time) {
+        Long l = timeAsLongOrNull(time);
+        this.dayTimeBoundsEndValue = l;
+    }
+
+    public void setDayTimeBoundsStart(Date time) {
+        Long l = timeAsLongOrNull(time);
+        this.dayTimeBoundsStartValue = l;
+    }
+
+
+    final void setConfig(Config config) {
+        synchronized (this) {
+            if (this.config != null) {
+                throw new RuntimeException("cannot set multiple times");
+            }
+            this.config = config;
+            for (Table t : tableObjects) {
+                t.setConfig(this.config);
+            }
+        }
+    }
+
+    final Config getConfig() {
+        return config;
     }
 }

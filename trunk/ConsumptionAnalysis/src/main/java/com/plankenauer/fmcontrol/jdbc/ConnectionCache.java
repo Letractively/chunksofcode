@@ -30,7 +30,7 @@ public final class ConnectionCache
     }
 
 
-    private static final Logger log = Logger.getLogger(Connect.class);
+    private static final Logger log = Logger.getLogger(ConnectionCache.class);
     private Map<String, ConnectionHolder> cache = new HashMap<>();
 
 

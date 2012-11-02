@@ -1,6 +1,9 @@
 package com.plankenauer.fmcontrol.config;
 
 import java.io.Serializable;
+import java.util.List;
+
+import com.plankenauer.fmcontrol.sql.QueryBuilder;
 
 
 public final class Config implements Serializable
@@ -13,7 +16,8 @@ public final class Config implements Serializable
     private final String description;
 
     private final ConnectionConfig connection;
-    private final DataSelectionConfig datasource; 
+    private final DataSelectionConfig datasource;
+    private final UiSettings uiSettings;
 
     private transient String debugString = null;
 
@@ -21,12 +25,22 @@ public final class Config implements Serializable
                   String title,
                   String description,
                   ConnectionConfig connection,
-                  DataSelectionConfig datasource) {
+                  DataSelectionConfig datasource,
+                  UiSettings uiSettings) {
         this.name = name;
         this.title = title;
         this.description = description;
         this.connection = connection;
         this.datasource = datasource;
+        this.uiSettings = uiSettings;
+
+        this.connection.setConfig(this);
+        this.datasource.setConfig(this);
+        this.uiSettings.setConfig(this);
+    }
+
+    public UiSettings getUiSettings() {
+        return uiSettings;
     }
 
     public String getName() {
@@ -71,5 +85,21 @@ public final class Config implements Serializable
 
     void setDebugString(String debugString) {
         this.debugString = debugString;
+    }
+
+    public String createSqlQuery() {
+        return new QueryBuilder(this).generateQuery();
+    }
+    
+
+    public static final class DataRow
+    {
+        // TODO
+    }
+
+
+    public List<DataRow> selectData() {
+        // TODO
+        return null;
     }
 }

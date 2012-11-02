@@ -31,12 +31,6 @@
     <modelVersion>4.0.0</modelVersion>
     <packaging>war</packaging>
 
-
-    <organization>
-        <name>Plankenauer Services GmbH</name>
-        <url>http://www.plankenauer.com</url>
-    </organization>
-
     <licenses>
         <license>
             <name>The Apache Software License, Version 2.0</name>
@@ -46,14 +40,14 @@
     </licenses>
 
     <properties>
-        <wicket.version>6.0.0</wicket.version>
+        <wicket.version>6.1.0</wicket.version>
         <jetty.version>7.6.3.v20120416</jetty.version>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 
-        <testdatabase.hostname>nasenhost</testdatabase.hostname>   
-        <testdatabase.portnumber>3306</testdatabase.portnumber> 
-        <testdatabase.username>root</testdatabase.username>   
-        <testdatabase.password>secr3t</testdatabase.password>   
+        <testdatabase.hostname>derhostname</testdatabase.hostname>
+        <testdatabase.portnumber>3306</testdatabase.portnumber>
+        <testdatabase.username>root</testdatabase.username>
+        <testdatabase.password>daspasswort</testdatabase.password>
     </properties>
 
     <dependencies>
@@ -73,11 +67,6 @@
             <version>0.2.7</version>
         </dependency>
 
-      <dependency>
-        <groupId>org.hibernate</groupId>
-        <artifactId>hibernate</artifactId>
-        <version>3.1rc2</version>
-      </dependency>
 
         <!-- WICKET DEPENDENCIES -->
         <dependency>
@@ -85,13 +74,34 @@
             <artifactId>wicket-core</artifactId>
             <version>${wicket.version}</version>
         </dependency>
-        <!-- OPTIONAL DEPENDENCY 
-        <dependency> 
-            <groupId>org.apache.wicket</groupId> 
-            <artifactId>wicket-extensions</artifactId>
-            <version>${wicket.version}</version> 
+        <dependency>
+            <groupId>org.apache.wicket</groupId>
+            <artifactId>wicket-util</artifactId>
+            <version>${wicket.version}</version>
         </dependency>
-        -->
+        
+        <dependency>
+            <groupId>com.googlecode.wicket-jquery-ui</groupId>
+            <artifactId>jquery-ui-core</artifactId>
+            <version>${wicket.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>com.googlecode.wicket-jquery-ui</groupId>
+            <artifactId>jquery-ui-calendar</artifactId>
+            <version>${wicket.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>com.googlecode.wicket-jquery-ui</groupId>
+            <artifactId>jquery-ui-kendo</artifactId>
+            <version>${wicket.version}</version>
+        </dependency>
+        
+        <!-- OPTIONAL DEPENDENCY --> 
+        <dependency>
+            <groupId>org.apache.wicket</groupId>
+            <artifactId>wicket-extensions</artifactId>
+            <version>${wicket.version}</version>
+        </dependency>
 
         <!-- LOGGING DEPENDENCIES - LOG4J -->
         <dependency>

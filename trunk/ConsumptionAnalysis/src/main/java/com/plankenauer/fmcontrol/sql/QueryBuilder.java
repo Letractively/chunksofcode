@@ -2,13 +2,12 @@ package com.plankenauer.fmcontrol.sql;
 
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-
-import org.apache.log4j.Logger;
 
 import com.plankenauer.fmcontrol.config.Config;
 import com.plankenauer.fmcontrol.config.Constants.GroupByType;
@@ -29,13 +28,12 @@ public class QueryBuilder
     private static final String INNER_DAYCOL_NAME = "daycol";
     private static final String INNER_HOURCOL_NAME = "hourcol";
 
-    private static final Logger log = Logger.getLogger(QueryBuilder.class);
     static final String NL = System.getProperty("line.separator");
     private static DateFormat TIME_FORMAT = new SimpleDateFormat("HH:mm:ss");
 
 
     private int indent = 0;
-    private String indentString = "    ";
+    private String indentString = "  ";
 
     private final Config config;
     private final DataSelectionConfig dsc;
@@ -68,11 +66,14 @@ public class QueryBuilder
     }
 
     private void groupBy() {
+        GroupByType groupBy = dsc.getGroupBy();
+        if (groupBy == GroupByType.TOTAL) {
+            return;
+        }
         bui.append(newLine());
         bui.append("group by ");
         indent++;
 
-        GroupByType groupBy = dsc.getGroupBy();
         final int len = bui.length();
 
         switch (groupBy) { // fall through
@@ -94,11 +95,14 @@ public class QueryBuilder
     }
 
     private void orderBy() {
+        GroupByType groupBy = dsc.getGroupBy();
+        if (groupBy == GroupByType.TOTAL) {
+            return;
+        }
         bui.append(newLine());
         bui.append("order by ");
         indent++;
 
-        GroupByType groupBy = dsc.getGroupBy();
         final int len = bui.length();
 
         switch (groupBy) { // fall through
@@ -153,6 +157,9 @@ public class QueryBuilder
 
         for (Iterator<Integer> itr = valueColIndexes.iterator(); itr.hasNext();) {
             Integer i = itr.next();
+            if (! config.getUiSettings().isColumnChosen(i)) {
+                continue;
+            }
             bui.append(newLine());
             bui.append("sum(");
             bui.append(anyTable.getInnerQueryLabel(i));
@@ -176,9 +183,17 @@ public class QueryBuilder
         indent++;
 
         List<Table> tables = dsc.getTables();
+        List<Table> chosenTables = new ArrayList<>(); 
         int i = 1;
+        
+        for (Iterator<Table> itr = tables.iterator(); itr.hasNext();) {
+            Table t = itr.next();
+            if (config.getUiSettings().isTableChosen(t)) {
+                chosenTables.add(t);
+            }
+        }
 
-        for (Iterator<Table> itr = tables.iterator(); itr.hasNext(); i++) {
+        for (Iterator<Table> itr = chosenTables.iterator(); itr.hasNext(); i++) {
             Table t = itr.next();
             final String alias = generateAlias(i, t);
 
@@ -300,7 +315,7 @@ public class QueryBuilder
         bui.append(" STR_TO_DATE('");
         bui.append(calendar.get(Calendar.DAY_OF_MONTH));
         bui.append(".");
-        bui.append(calendar.get(Calendar.MONTH));
+        bui.append(1 + calendar.get(Calendar.MONTH));
         bui.append(".");
         bui.append(calendar.get(Calendar.YEAR));
         bui.append("', '%d.%m.%Y') ");
@@ -341,26 +356,20 @@ public class QueryBuilder
             Map.Entry<Integer, String> e = itr.next();
             String valueExpr = e.getValue();
 
-            Double number = null;
-            try {
-                number = Double.parseDouble(valueExpr);
-            } catch (Exception ex) {
-                if (log.isTraceEnabled()) {
-                    log.trace("Not a Number, must be a column: "
-                            + t.getQualifiedTableName() + "." + valueExpr);
-                }
+            if (! config.getUiSettings().isColumnChosen(e.getKey())) {
+                continue;
             }
 
             bui.append(newLine());
             Integer colIndex = e.getKey();
-            if (number != null) {
-                bui.append(number);
+
+            if (Table.isLiteralValue(valueExpr)) {
+                bui.append(valueExpr);
                 bui.append(" ");
+
             } else {
                 bui.append("SUM(");
-                bui.append(alias);
-                bui.append(".");
-                bui.append(valCols.get(colIndex));
+                bui.append(t.getAliasedValueExpr(alias, valueExpr));
                 bui.append(") ");
             }
 
@@ -411,16 +420,25 @@ public class QueryBuilder
             addTimeConstraint(t, alias, len, calendar, "<=");
         }
 
+        if (len == bui.length()) {
+            bui.append(newLine());
+            bui.append("(1=1)");
+        }
+
         indent--;
     }
 
     private void innerGroupBy(Table t, final String alias) {
+        GroupByType groupBy = dsc.getGroupBy();
+        if (groupBy == GroupByType.TOTAL) {
+            return;
+        }
         bui.append(newLine());
         bui.append("group by ");
         indent++;
         final int len = bui.length();
 
-        switch (dsc.getGroupBy()) { // fall-through
+        switch (groupBy) { // fall-through
             case HOUR: {
                 bui.insert(len, newLine() + createTimeExpression(t, "HOUR", alias) + ", ");
             }
