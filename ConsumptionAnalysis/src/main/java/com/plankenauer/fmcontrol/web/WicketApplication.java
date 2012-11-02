@@ -1,5 +1,7 @@
 package com.plankenauer.fmcontrol.web;
 
+import java.io.File;
+
 import javax.naming.Context;
 import javax.naming.InitialContext;
 
@@ -26,20 +28,30 @@ public class WicketApplication extends WebApplication
                 if (globalRepo == null) {
                     log.debug("creating global config repository...");
                     String path = null;
-                    
+
                     try {
                         InitialContext ic = new InitialContext();
                         Context c = (Context) ic.lookup("java:comp/env");
                         path = (String) c.lookup("plankenauer/configRepository");
-                        log.debug("looked up path: "+path);
-                        
+                        log.debug("looked up path: " + path);
+
                     } catch (Exception e) {
-                        log.error("error during jndi lookup: "+e);
-                        path = "C:\\abfragen";
-                        log.error("using fallback: "+path);
+                        log.error("error during jndi lookup: " + e);
+                        String fallback = "C:\\config-repository";
+
+                        if (new File(path).isDirectory()) {
+                            path = fallback;
+                            log.error("using fallback: " + fallback);
+                        } else {
+                            fallback = "/home/andrer/workspace/ConsumptionAnalysis/target/test-classes/testConfigRepository";
+                            if (new File(path).isDirectory()) {
+                                path = fallback;
+                                log.error("using fallback2: " + fallback);
+                            }
+                        }
                     }
-                    
-                    log.info("global repository path: "+path);
+
+                    log.info("global repository path: " + path);
                     globalRepo = new ConfigRepository(path);
                 }
             }
@@ -47,7 +59,6 @@ public class WicketApplication extends WebApplication
 
         return globalRepo;
     }
-
 
     /**
      * @see org.apache.wicket.Application#getHomePage()
@@ -65,5 +76,20 @@ public class WicketApplication extends WebApplication
         super.init();
 
         // add your configuration here
+
+
+        mountPage("/top", HomePage.class);
+        mountPage("/query", DisplayQueryPage.class);
+
+
+//        IJQueryLibrarySettings librarySettings = new JQueryLibrarySettings();
+//        librarySettings.setJQueryUIReference(new JQueryPluginResourceReference(WicketApplication.class,
+//                                                                               "jquery-ui-1.8.23.js"));
+//        librarySettings.setJQueryReference(new PackageResourceReference(WicketApplication.class,
+//                                                                        "jquery-1.8.0.js"));
+//        this.setJavaScriptLibrarySettings(librarySettings);
+
+
+        getMarkupSettings().setStripWicketTags(true);
     }
 }

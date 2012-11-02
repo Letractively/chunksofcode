@@ -1,6 +1,6 @@
 body,p,li,a {
-	font-family: georgia, times, serif;
-	font-size: 13pt;
+	font-size: 12pt;
+    font-family: "Arial","Helvetica","Verdana","sans-serif";
 }
 
 h1,h2,h3 {
@@ -83,8 +83,63 @@ body {
 	color: red;
 }
 
+.preformatted-debug {
+	font-size: 8pt;
+	color: green;
+	border-color: green;
+	border: 1px dotted;
+	height: 300px;
+	overflow-y:scroll;
+}
+
+.filterFormContainer {
+    font-size: 12px;
+    font-family: "Arial","Helvetica","Verdana","sans-serif";
+}
+
+.feedbackMessagesContainer {
+    font-size: 12px;
+    font-family: "Arial","Helvetica","Verdana","sans-serif";
+}
+
+.ui-selectable .ui-selecting {
+    background: #f0f0f0;
+    font-style: italic;
+    color: black;
+}
+
+.ui-selectable .ui-selected {
+    font-weight: bold;
+    color: black;
+}
+
+.ui-selectable {
+    list-style-type: none;
+    margin: 1px;
+    padding: 0;
+    width: 90%;
+    color: gray;
+}
+
+.ui-selectable li {
+    margin: 1px;
+    padding: 1px;
+    x-height: 0.9em;
+    font-size: 12px;
+    border: 1px solid #eaeaea;
+}
+
+
+
 a,a:visited,a:hover,a:active {
 	color: #6493D2;
+}
+
+table.dataview {
+    margin-bottom: 10px;
+    border-bottom: 1px solid #0079d6;
+    font-size: 1em;
+    font-family: arial;
 }
 
 h2 {
@@ -100,3 +155,4 @@ h3 {
 	font-size: 24pt;
 	color: #092E67;
 }
+

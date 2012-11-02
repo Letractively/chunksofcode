@@ -2,14 +2,26 @@ package com.plankenauer.fmcontrol.config;
 
 import java.io.File;
 import java.io.FileFilter;
+import java.io.Serializable;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
-public final class ConfigRepository
+import com.plankenauer.fmcontrol.util.NumericStringComparator;
+
+public final class ConfigRepository implements Serializable
 {
 
-    public final class ParseResultHolder
+    private static final long serialVersionUID = 699540086117853733L;
+
+
+    public static final class ParseResultHolder implements
+                                               Comparable<ParseResultHolder>,
+                                               Serializable
     {
+        private static final long serialVersionUID = 4270594958412013116L;
+
+        private final NumericStringComparator cmp = new NumericStringComparator(false);
 
         private final String project;
         private final String fileName;
@@ -48,6 +60,52 @@ public final class ConfigRepository
         public String getFileName() {
             return fileName;
         }
+
+        @Override
+        public int compareTo(ParseResultHolder o2) {
+            String s1 = project + "/" + fileName;
+            String s2 = o2.project + "/" + o2.fileName;
+            return cmp.compare(s1, s2);
+        }
+
+        @Override
+        public int hashCode() {
+            final int prime = 31;
+            int result = 1;
+            result = prime * result + ((fileName == null) ? 0 : fileName.hashCode());
+            result = prime * result + ((project == null) ? 0 : project.hashCode());
+            return result;
+        }
+
+        @Override
+        public boolean equals(Object obj) {
+            if (this == obj) {
+                return true;
+            }
+            if (obj == null) {
+                return false;
+            }
+            if (! (obj instanceof ParseResultHolder)) {
+                return false;
+            }
+            ParseResultHolder other = (ParseResultHolder) obj;
+            if (fileName == null) {
+                if (other.fileName != null) {
+                    return false;
+                }
+            } else if (! fileName.equals(other.fileName)) {
+                return false;
+            }
+            if (project == null) {
+                if (other.project != null) {
+                    return false;
+                }
+            } else if (! project.equals(other.project)) {
+                return false;
+            }
+            return true;
+        }
+
     }
 
     private static final class IsFileFilter implements FileFilter
@@ -95,7 +153,7 @@ public final class ConfigRepository
                 l.add(d.getName());
             }
         }
-        
+
         return l;
     }
 
@@ -121,10 +179,17 @@ public final class ConfigRepository
             }
         }
 
+        Collections.sort(result);
         return result;
     }
 
     public ParseResultHolder parseConfigHolder(String project, String configFileName) {
+        if (project == null) {
+            throw new RuntimeException("Der Parameter 'project' ist zwingend erforderlich!");
+        }
+        if (configFileName == null) {
+            throw new RuntimeException("Der Parameter 'configFileName' ist zwingend erforderlich!");
+        }
         File projectDir = new File(repositoryRoot, project);
         File configFile = new File(projectDir, configFileName);
 

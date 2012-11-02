@@ -6,11 +6,11 @@ import static com.plankenauer.fmcontrol.config.Constants.CK_CONNECTION_PORTNUMBE
 import static com.plankenauer.fmcontrol.config.Constants.CK_CONNECTION_USER;
 import static com.plankenauer.fmcontrol.config.Constants.CK_DATA_FILTER_DATE_BOUNDS;
 import static com.plankenauer.fmcontrol.config.Constants.CK_DATA_FILTER_DAYTIME_BOUNDS;
-import static com.plankenauer.fmcontrol.config.Constants.CK_DATA_FILTER_SQL_FILTER;
 import static com.plankenauer.fmcontrol.config.Constants.CK_DATA_GROUP_TYPE;
-import static com.plankenauer.fmcontrol.config.Constants.CK_DATA_TABLES_CHOOSEABLE;
-import static com.plankenauer.fmcontrol.config.Constants.CK_DATA_TABLES_FIXED;
+import static com.plankenauer.fmcontrol.config.Constants.CK_DATA_TABLES;
 import static com.plankenauer.fmcontrol.config.Constants.CK_DESCRIPTION;
+import static com.plankenauer.fmcontrol.config.Constants.CK_DISPLAY_DEBUG_DUMPSQL;
+import static com.plankenauer.fmcontrol.config.Constants.CK_DISPLAY_RESULT_TABLE;
 import static com.plankenauer.fmcontrol.config.Constants.CK_TABLEDEF_DATE_COLUMN;
 import static com.plankenauer.fmcontrol.config.Constants.CK_TABLEDEF_SCHEMA;
 import static com.plankenauer.fmcontrol.config.Constants.CK_TABLEDEF_TABLE;
@@ -19,10 +19,16 @@ import static com.plankenauer.fmcontrol.config.Constants.CK_TABLEDEF_VALUE_COLUM
 import static com.plankenauer.fmcontrol.config.Constants.CK_TABLEDEF_VALUE_COLUMN_PATTERN;
 import static com.plankenauer.fmcontrol.config.Constants.CK_TABLEDEF_VALUE_LABEL_PATTERN;
 import static com.plankenauer.fmcontrol.config.Constants.CK_TITLE;
+import static com.plankenauer.fmcontrol.config.Constants.CK_USER_CAN_CHANGE_COLUMNS;
+import static com.plankenauer.fmcontrol.config.Constants.CK_USER_CAN_CHANGE_DATE_BOUNDS;
+import static com.plankenauer.fmcontrol.config.Constants.CK_USER_CAN_CHANGE_DAYTIME_BOUNDS;
+import static com.plankenauer.fmcontrol.config.Constants.CK_USER_CAN_CHANGE_GROUPBY;
+import static com.plankenauer.fmcontrol.config.Constants.CK_USER_CAN_CHANGE_TABLES;
 
+import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileInputStream;
-import java.io.IOException;
+import java.io.InputStreamReader;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Calendar;
@@ -51,6 +57,7 @@ public class ConfigParser
 
     private static final Logger log = Logger.getLogger(Config.class);
 
+
     private final Map<String, String> map;
     private final List<String> errors = new ArrayList<>();
 
@@ -67,23 +74,93 @@ public class ConfigParser
     }
 
     public static Config parseConfig(String configId, File file) throws ConfigException {
-        Properties p = new Properties();
 
         try {
-            p.load(new FileInputStream(file));
+
+            Properties p = read(file);
+//            FileInputStream fis = new FileInputStream(file);
+//            p.load(fis);
+
             return parseConfig(configId, p);
 
         } catch (ConfigException e) {
             e.setConfigFilePath(file.getPath());
             throw e;
 
-        } catch (IOException e) {
+        } catch (Exception e) {
             String msg = "Probleme beim Lesen der Datei: '" + file + "' - "
                     + e.getMessage();
             log.error(msg, e);
             throw new ConfigException(msg, e);
 
         }
+    }
+
+//    public static String
+//            fixBrokenUmlauts(final String brokenString, Properties badValues) {
+//        String s = brokenString;
+//        for (String correct : new String[] { "Ä", "ä", "Ö", "ö", "Ü", "ü", "ß" }) {
+//            String bad = badValues.getProperty(correct);
+//
+//            s = brokenString.replace(bad, correct);
+//        }
+//        return s;
+//    }
+
+    private static Properties read(File f) throws Exception {
+        Properties result = new Properties();
+
+        InputStreamReader isr = new InputStreamReader(new FileInputStream(f), "UTF-8");
+        BufferedReader br = new BufferedReader(isr);
+
+        Matcher m = Pattern.compile("(?x) ^ \\s* ([-._a-zA-Z0-9]+) \\s* [=] \\s* (.*) $")
+                           .matcher("foo");
+        String currentKey = null;
+        boolean inMultiLineExpr = false;
+        StringBuilder multiLineValue = new StringBuilder();
+
+        for (String line = null; (line = br.readLine()) != null;) {
+            if (! inMultiLineExpr) {
+                if (line.matches("^\\s*([#].*|)$")) {
+                    continue;
+                }
+
+                if (m.reset(line).matches()) {
+                    String key = m.group(1);
+                    String val = m.group(2);
+
+                    if (val.endsWith("\\")) { // start of a multiline expr
+                        currentKey = key;
+                        inMultiLineExpr = true;
+                        int endIndex = val.length() - 1;
+                        endIndex = endIndex < 0 ? 0 : endIndex;
+                        multiLineValue.setLength(0);
+                        multiLineValue.append(val.substring(0, endIndex));
+                        continue;
+                    }
+                    result.setProperty(key, val);
+                }
+                continue;
+            }
+
+            if (line.endsWith("\\")) { // multiline expr continues
+                int endIndex = line.length() - 1;
+                endIndex = endIndex < 0 ? 0 : endIndex;
+                multiLineValue.append(line.substring(0, endIndex));
+                continue;
+
+            }
+
+            // end of a multiline expr
+            multiLineValue.append(line);
+            String val = multiLineValue.toString();
+            result.setProperty(currentKey, val);
+            inMultiLineExpr = false;
+        }
+
+        log.debug("description: " + result.getProperty("description"));
+
+        return result;
     }
 
     // may be needed publicly in the future
@@ -99,6 +176,13 @@ public class ConfigParser
         return parseConfig(configId, m);
     }
 
+
+//    protected static void
+//            put(Map<String, String> replaceMap, String ue) throws UnsupportedEncodingException {
+//        String broken = new String(ue.getBytes("UTF-8"), "ISO-8859-1");
+//        replaceMap.put(broken, ue);
+//    }
+
     // may be needed publicly in the future
     private static Config
             parseConfig(String configId, Map<String, String> map) throws ConfigException {
@@ -112,7 +196,9 @@ public class ConfigParser
             if (config != null) {
                 config.setDebugString(debugString);
                 cp.fetchTableTypes(config);
-                return config;
+                if (cp.errors.isEmpty()) {
+                    return config;
+                }
             }
 
         } catch (Exception e) {
@@ -148,6 +234,13 @@ public class ConfigParser
         for (Table t : tables) {
             Map<String, DBCol> types = lookupColumnTypes(dbcols,
                                                          t.getQualifiedTableName());
+            if (types.isEmpty()) {
+                errors.add("Es scheint keine Spalte für Tabelle " + t.getAlias() + " ("
+                        + t.getQualifiedTableName()
+                        + ") zu geben, oder die Tabelle existiert nicht.");
+                continue;
+            }
+
             List<String> errors2 = t.bindDBCol(types);
             if (errors2 != null) {
                 errors.addAll(errors2);
@@ -155,14 +248,19 @@ public class ConfigParser
         }
     }
 
+    /**
+     * @return a map where the keys are all lowercase.
+     */
     private static Map<String, DBCol> lookupColumnTypes(List<DBCol> dbcols,
                                                         String qualified) {
         Map<String, DBCol> m = new TreeMap<>();
-        for (Iterator<DBCol> iterator = dbcols.iterator(); iterator.hasNext();) {
-            final DBCol col = iterator.next();
+        final String qualifiedLower = qualified.toLowerCase();
 
-            if (col.getQualifiedName().toLowerCase().startsWith(qualified.toLowerCase())) {
-                m.put(col.getColname().toLowerCase(), col);
+        for (Iterator<DBCol> iterator = dbcols.iterator(); iterator.hasNext();) {
+            final DBCol dbCol = iterator.next();
+
+            if (dbCol.getQualifiedName().toLowerCase().startsWith(qualifiedLower)) {
+                m.put(dbCol.getColname().toLowerCase(), dbCol);
             }
         }
         return m;
@@ -179,15 +277,51 @@ public class ConfigParser
 
         ConnectionConfig connection = parseConn();
         DataSelectionConfig datasource = parseDataSrc();
+        UiSettings uiSettings = parseUiSettings();
 
         if (errors.size() == errorCount) {
-            Config c = new Config(configId, title, description, connection, datasource);
+            Config c = new Config(configId,
+                                  title,
+                                  description,
+                                  connection,
+                                  datasource,
+                                  uiSettings);
             return c;
         }
 
         return null;
     }
 
+
+    private UiSettings parseUiSettings() {
+        boolean showSqlDebug = parseBoolean(CK_DISPLAY_DEBUG_DUMPSQL, false);
+        boolean showResultTable = parseBoolean(CK_DISPLAY_RESULT_TABLE, false);
+
+        Boolean dateBoundsAreChangeable = parseBooleanOrNull(CK_USER_CAN_CHANGE_DATE_BOUNDS);
+        Boolean daytimeBoundsAreChangeable = parseBooleanOrNull(CK_USER_CAN_CHANGE_DAYTIME_BOUNDS);
+        Boolean tablesAreChangeable = parseBooleanOrNull(CK_USER_CAN_CHANGE_TABLES);
+        Boolean valueColumnsAreChangeable = parseBooleanOrNull(CK_USER_CAN_CHANGE_COLUMNS);
+        Boolean groupbyChangeable = parseBooleanOrNull(CK_USER_CAN_CHANGE_GROUPBY);
+
+        UiSettings settings = new UiSettings(showSqlDebug,
+                                             showResultTable,
+                                             dateBoundsAreChangeable,
+                                             daytimeBoundsAreChangeable,
+                                             tablesAreChangeable,
+                                             valueColumnsAreChangeable,
+                                             groupbyChangeable);
+        return settings;
+    }
+
+    public Boolean parseBooleanOrNull(String key) {
+        String valStr = parseProperty(key, false);
+        return valStr == null ? null : Boolean.valueOf(valStr);
+    }
+
+    public boolean parseBoolean(String key, boolean nullIsInvalid) {
+        String valStr = parseProperty(key, nullIsInvalid);
+        return valStr == null ? false : Boolean.parseBoolean(valStr);
+    }
 
     private ConnectionConfig parseConn() {
         final int errorCount = errors.size();
@@ -212,15 +346,7 @@ public class ConfigParser
             return null;
         }
 
-        List<String> tablesChooseable = parseList(CK_DATA_TABLES_CHOOSEABLE, false);
-        List<String> tablesFixed = parseList(CK_DATA_TABLES_FIXED, false);
-        List<String> tables = tablesFixed != null ? tablesFixed : tablesChooseable;
-
-        if (tables == null) {
-            errors.add("Es muss entweder " + CK_DATA_TABLES_CHOOSEABLE + " oder "
-                    + CK_DATA_TABLES_FIXED + " gesetzt sein!");
-        }
-
+        List<String> tables = parseList(CK_DATA_TABLES, true);
         Map<Integer, String> columnLabels = parseColumnLabels();
         List<Table> tableObjects = parseTableDefinitions(tables, columnLabels);
 
@@ -250,7 +376,7 @@ public class ConfigParser
 
         Calendar dayTimeStart = parseDayTime(CK_DATA_FILTER_DAYTIME_BOUNDS, false, 1);
         Calendar dayTimeEnd = parseDayTime(CK_DATA_FILTER_DAYTIME_BOUNDS, false, 2);
-        String filterExpr = parseProperty(CK_DATA_FILTER_SQL_FILTER, false);
+//        String filterExpr = parseProperty(CK_DATA_FILTER_SQL_FILTER, false);
 
         DataSelectionConfig dsCfg = null;
 
@@ -259,7 +385,7 @@ public class ConfigParser
                                             dateBoundsEnd,
                                             dayTimeStart,
                                             dayTimeEnd,
-                                            filterExpr,
+//                                            filterExpr,
                                             tableObjects,
                                             groupBy);
         }
@@ -548,4 +674,43 @@ public class ConfigParser
         }
         return trim;
     }
+
+//    public static void main(String args[]) throws UnsupportedEncodingException {
+//        //In some cases a hack works. But best is to prevent it from ever happening.
+//        String good = "ü";
+//        String bad = new String("ü".getBytes("UTF-8"), "ISO-8859-1");
+//
+//        //this line demonstrates what the "broken" string should look like if it is reversible.
+//        String broken = breakString(good, bad);
+//
+//        //here we show that it is fixable if broken like breakString() does it.
+//        fixString(good, broken);
+//
+//        //this line attempts to fix the string, but it is not fixable unless broken in the same way as breakString()
+//        fixString(good, bad);
+//    }
+
+//    private static String fixString(String bad) throws UnsupportedEncodingException {
+//        byte[] bytes = bad.getBytes("latin1"); //read the Java bytes as if they were latin1 (if this works, it should result in the same number of bytes as java characters; if using UTF8, it would be more bytes)
+//        String fixed = new String(bytes, "UTF8"); //take the raw bytes, and try to convert them to a string as if they were UTF8
+//        System.out.println("Good: " + good);
+//        System.out.println("Bad: " + bad);
+//        System.out.println("bytes1.length: " + bytes.length);
+//        System.out.println("fixed: " + fixed);
+//        System.out.println();
+//        return fixed;
+//    }
+
+//    private static String breakString(String good, String bad) throws UnsupportedEncodingException {
+//        byte[] bytes = good.getBytes("UTF8");
+//        String broken = new String(bytes, "latin1");
+//
+//        System.out.println("Good: " + good);
+//        System.out.println("Bad: " + bad);
+//        System.out.println("bytes1.length: " + bytes.length);
+//        System.out.println("broken: " + broken);
+//        System.out.println();
+//
+//        return broken;
+//    }
 }
