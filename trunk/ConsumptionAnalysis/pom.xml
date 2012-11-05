@@ -44,10 +44,10 @@
         <jetty.version>7.6.3.v20120416</jetty.version>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 
-        <testdatabase.hostname>derhostname</testdatabase.hostname>
+        <testdatabase.hostname>web4fm.dyndns.biz</testdatabase.hostname>
         <testdatabase.portnumber>3306</testdatabase.portnumber>
         <testdatabase.username>root</testdatabase.username>
-        <testdatabase.password>daspasswort</testdatabase.password>
+        <testdatabase.password>andre</testdatabase.password>
     </properties>
 
     <dependencies>

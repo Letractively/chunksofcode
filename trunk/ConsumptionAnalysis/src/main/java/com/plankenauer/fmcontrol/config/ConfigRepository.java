@@ -7,7 +7,6 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
-import com.plankenauer.fmcontrol.util.NumericStringComparator;
 
 public final class ConfigRepository implements Serializable
 {
@@ -200,6 +199,9 @@ public final class ConfigRepository implements Serializable
             cfg = ConfigParser.parseConfig(configFileName, configFile);
         } catch (ConfigException e) {
             error = e;
+        } catch (Exception e) {
+            error = new ConfigException("Ein genereller Fehler ist aufgetreten: "
+                    + e.getMessage(), e);
         }
 
         return new ParseResultHolder(repositoryRoot.getAbsolutePath(),
