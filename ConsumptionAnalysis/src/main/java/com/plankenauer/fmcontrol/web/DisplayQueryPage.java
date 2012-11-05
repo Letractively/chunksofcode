@@ -124,6 +124,7 @@ public class DisplayQueryPage extends BasePage implements Constants
             };
         } else {
             l = new Label("querySql", "foo");
+            l.setOutputMarkupId(true);
             l.setVisible(false);
         }
         l.setOutputMarkupId(true);
