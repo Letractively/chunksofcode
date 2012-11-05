@@ -182,6 +182,7 @@ public class DisplayQueryPage extends BasePage implements Constants
         if (! config.getUiSettings().isDateBoundsChangeable()) {
             // only show a info string containing the date bounds
             Label label = new Label("dateBoundsPicker", getDateInfoString());
+            label.setOutputMarkupId(true);
             return label;
         }
 
@@ -193,6 +194,7 @@ public class DisplayQueryPage extends BasePage implements Constants
         if (! config.getUiSettings().isDaytimeBoundsChangeable()) {
             // only show a info string containing the daytime bounds
             Label label = new Label("dayTimeBoundsPicker", getDayTimeInfoString());
+            label.setOutputMarkupId(true);
             return label;
         }
 
@@ -205,6 +207,7 @@ public class DisplayQueryPage extends BasePage implements Constants
         if (! config.getUiSettings().isTableSelectionChangeable()
                 || config.getDatasource().getTables().size() <= 1) {
             Label label = new Label("tablePicker");
+            label.setOutputMarkupId(true);
             label.setVisible(false);
             return label;
         }
@@ -217,6 +220,7 @@ public class DisplayQueryPage extends BasePage implements Constants
         if (! config.getUiSettings().isColumnsSelectionChangeable()
                 || config.getDatasource().getTables().get(0).getValueColumnExpr().size() <= 1) {
             Label label = new Label("columnPicker");
+            label.setOutputMarkupId(true);
             label.setVisible(false);
             return label;
         }
@@ -229,6 +233,7 @@ public class DisplayQueryPage extends BasePage implements Constants
         if (! config.getUiSettings().isGroupbyChangeable()) {
             Label label = new Label("groupbyPicker");
             label.setVisible(false);
+            label.setOutputMarkupId(true);
             return label;
         }
 
