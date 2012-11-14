@@ -1,0 +1,30 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+    "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml"
+    xmlns:wicket="http://wicket.sourceforge.net/" xml:lang="en" lang="en">
+
+<head>
+    <wicket:head>
+        <script type="text/javascript">
+            // hack to select all tables initially:
+            Wicket.Event.add(window, "domready", function(e) {
+                $("#columnSelectionContainer ul li").addClass("ui-selected");
+            });
+        </script>
+    </wicket:head>
+</head>
+
+<body>
+    <wicket:panel>
+        <div id="columnSelectionContainer">
+            <ul wicket:id="selectable">
+                <li wicket:id="items">
+                    <span wicket:id="item">[label]</span>
+                </li>
+            </ul>
+        </div>
+    </wicket:panel>
+</body>
+
+</html>

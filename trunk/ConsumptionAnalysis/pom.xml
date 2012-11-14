@@ -44,10 +44,10 @@
         <jetty.version>7.6.3.v20120416</jetty.version>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 
-        <testdatabase.hostname>derhostname</testdatabase.hostname>
-        <testdatabase.portnumber>3306</testdatabase.portnumber>
-        <testdatabase.username>root</testdatabase.username>
-        <testdatabase.password>daspasswort</testdatabase.password>
+        <!-- <testdatabase.hostname>web4fm.dyndns.biz</testdatabase.hostname> -->
+        <!-- <testdatabase.portnumber>3306</testdatabase.portnumber> -->
+        <!-- <testdatabase.username>root</testdatabase.username> -->
+        <!-- <testdatabase.password>andre</testdatabase.password> -->
     </properties>
 
     <dependencies>
@@ -79,7 +79,7 @@
             <artifactId>wicket-util</artifactId>
             <version>${wicket.version}</version>
         </dependency>
-        
+
         <dependency>
             <groupId>com.googlecode.wicket-jquery-ui</groupId>
             <artifactId>jquery-ui-core</artifactId>
@@ -95,8 +95,8 @@
             <artifactId>jquery-ui-kendo</artifactId>
             <version>${wicket.version}</version>
         </dependency>
-        
-        <!-- OPTIONAL DEPENDENCY --> 
+
+        <!-- OPTIONAL DEPENDENCY -->
         <dependency>
             <groupId>org.apache.wicket</groupId>
             <artifactId>wicket-extensions</artifactId>
@@ -217,6 +217,34 @@
                 <configuration>
                     <downloadSources>true</downloadSources>
                 </configuration>
+            </plugin>
+            <!-- <plugin> -->
+            <!-- <groupId>org.codehaus.mojo</groupId> -->
+            <!-- <artifactId>properties-maven-plugin</artifactId> -->
+            <!-- <version>1.0-alpha-2</version> -->
+            <!-- <configuration> -->
+            <!-- <files> -->
+            <!-- <file>${project.basedir}/my-build.properties</file> -->
+            <!-- </files> -->
+            <!-- </configuration> -->
+            <!-- </plugin> -->
+            <plugin>
+                <groupId>org.codehaus.mojo</groupId>
+                <artifactId>properties-maven-plugin</artifactId>
+                <version>1.0-alpha-1</version>
+                <executions>
+                    <execution>
+                        <phase>initialize</phase>
+                        <goals>
+                            <goal>read-project-properties</goal>
+                        </goals>
+                        <configuration>
+                            <files>
+                                <file>${project.basedir}/my-build.properties</file>
+                            </files>
+                        </configuration>
+                    </execution>
+                </executions>
             </plugin>
         </plugins>
     </build>
