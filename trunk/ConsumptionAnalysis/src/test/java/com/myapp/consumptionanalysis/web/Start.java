@@ -54,7 +54,7 @@ public class Start
         bb.setServer(server);
         bb.setContextPath("/");
         bb.setWar("src/main/webapp");
-        bb.setAttribute("plankenauer/configRepository", "/home/andrer/workspace/ConsumptionAnalysis/target/test-classes/testConfigRepository");
+        bb.setAttribute("plankenauer/configRepository", "/home/andrer/workspace/ConsumptionAnalysis/target/test-classes/tesstConfigRepository");
         
         // START JMX SERVER
         // MBeanServer mBeanServer = ManagementFactory.getPlatformMBeanServer();
