@@ -16,7 +16,6 @@
     <link type="text/css" href="css/kendo/kendo.common.css" media="all" rel="stylesheet"/> 
     <link type="text/css" href="css/kendo/kendo.default.css" media="all" rel="stylesheet" />
     
-    
 </head>
 <body>
 
@@ -55,14 +54,12 @@
             <span wicket:id="groupbyPicker"></span>
         </div>
     </form>
-        
-    <pre wicket:id="querySql" class="preformatted-debug">
-        the query as sql string
-    </pre>
     
     <div class="filterFormContainer">
         <div wicket:id="feedback"></div>
     </div>
+    
+    <div wicket:id="chartContainer"></div>
     
     <a href="#" wicket:id="topLink">
         <wicket:container wicket:id="topLinkName">
@@ -75,6 +72,10 @@
             reload this page
         </wicket:container>
     </a>
+    
+    <pre wicket:id="querySql" class="preformatted-debug">
+        the query as sql string
+    </pre>
 </div>
 
 <div id="ft"></div>

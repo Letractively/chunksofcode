@@ -44,7 +44,7 @@ public class GroupByPickerPanel extends Panel
         super(id);
         this.queryPage = queryPage2;
 
-        GroupByType initial = queryPage.getConfig().getDatasource().getGroupBy();
+        GroupByType initial = queryPage.getConfig().getSelectionConfig().getGroupBy();
         Model<String> initialValue = Model.of(getName(initial));
 
         AjaxDropDownList<String> dropDownList;
@@ -62,7 +62,7 @@ public class GroupByPickerPanel extends Panel
                     if (gb == null) {
                         throw new RuntimeException("choice=" + choice);
                     }
-                    queryPage.getConfig().getDatasource().setGroupBy(gb);
+                    queryPage.getConfig().getSelectionConfig().setGroupBy(gb);
                 }
 
                 target.add(queryPage.getComponentsToUpdateAfterAjax());

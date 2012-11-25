@@ -1,7 +1,6 @@
 package com.myapp.consumptionanalysis.web.querypage.datetime;
 
 import java.util.ArrayList;
-import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
 
@@ -11,7 +10,7 @@ import org.apache.wicket.model.Model;
 
 import com.googlecode.wicket.jquery.ui.Options;
 import com.googlecode.wicket.jquery.ui.kendo.datetime.TimePicker;
-import com.myapp.consumptionanalysis.util.StringUtils;
+import com.myapp.consumptionanalysis.util.DateUtils;
 import com.myapp.consumptionanalysis.web.querypage.DisplayQueryPage;
 
 @SuppressWarnings("serial")
@@ -49,8 +48,8 @@ public class DayTimeBoundsPickerPanel extends BoundsPickerPanel
 
     @Override
     protected void initCustomComponents() {
-        Model<Date> startModel = createModel(dataSrcCfg().getDayTimeBoundsStart());
-        Model<Date> endModel = createModel(dataSrcCfg().getDayTimeBoundsEnd());
+        Model<Date> startModel = Model.of(dataSrcCfg().getDayTimeBoundsStartDate());
+        Model<Date> endModel = Model.of(dataSrcCfg().getDayTimeBoundsEndDate());
 
         timeStartPicker = new MyTimePicker("dayTimeStartPicker", startModel);
         timeEndPicker = new MyTimePicker("dayTimeEndPicker", endModel);
@@ -59,21 +58,10 @@ public class DayTimeBoundsPickerPanel extends BoundsPickerPanel
         add(timeEndPicker);
     }
 
-
-    private Model<Date> createModel(Calendar c) {
-        Model<Date> model;
-        if (c != null) {
-            model = Model.of(c.getTime());
-        } else {
-            model = Model.of((Date) null);
-        }
-        return model;
-    }
-
     @Override
     protected boolean isAjaxCheckboxCheckedInitially() {
-        boolean startConstraint = null != dataSrcCfg().getDayTimeBoundsStart();
-        boolean endConstraint = null != dataSrcCfg().getDayTimeBoundsEnd();
+        boolean startConstraint = null != dataSrcCfg().getDayTimeBoundsStartDate();
+        boolean endConstraint = null != dataSrcCfg().getDayTimeBoundsEndDate();
         return startConstraint || endConstraint;
     }
 
@@ -87,7 +75,7 @@ public class DayTimeBoundsPickerPanel extends BoundsPickerPanel
         } else {
             info("Tageszeitbegrenzung aus.");
         }
-        
+
         List<Component> needAsyncUpdate = new ArrayList<>();
         needAsyncUpdate.add(timeStartPicker);
         needAsyncUpdate.add(timeEndPicker);
@@ -120,10 +108,10 @@ public class DayTimeBoundsPickerPanel extends BoundsPickerPanel
     protected List<Component> ajaxButtonWasClicked() {
         List<Component> needAsyncUpdate = new ArrayList<>();
         Date start = timeStartPicker.getModelObject();
-        Date oldStart = asDate(dataSrcCfg().getDayTimeBoundsStart());
+        Date oldStart = dataSrcCfg().getDayTimeBoundsStartDate();
 
         Date end = timeEndPicker.getModelObject();
-        Date oldEnd = asDate(dataSrcCfg().getDayTimeBoundsEnd());
+        Date oldEnd = dataSrcCfg().getDayTimeBoundsEndDate();
 
         String error = validateValue(start, end);
 
@@ -140,7 +128,7 @@ public class DayTimeBoundsPickerPanel extends BoundsPickerPanel
 
             if (dayTimesAreDifferent(start, oldStart)) {
                 msg.append("Beginn: ");
-                msg.append(start == null ? "-" : StringUtils.formatDayTime(start));
+                msg.append(start == null ? "-" : DateUtils.formatDayTime(start));
                 msg.append(" ");
 
                 applyStartValueToConfig();
@@ -151,7 +139,7 @@ public class DayTimeBoundsPickerPanel extends BoundsPickerPanel
                     msg.append(", ");
                 }
                 msg.append("Ende: ");
-                msg.append(end == null ? "-" : StringUtils.formatDayTime(end));
+                msg.append(end == null ? "-" : DateUtils.formatDayTime(end));
 
                 applyEndValueToConfig();
             }
@@ -177,24 +165,12 @@ public class DayTimeBoundsPickerPanel extends BoundsPickerPanel
         if (start == null || oldStart == null) {
             different = start != oldStart;
         } else {
-            Date newDate = normalizeDayTime(start);
-            Date oldDate = normalizeDayTime(oldStart);
+            Date newDate = DateUtils.normalizeDayTimeDate(start);
+            Date oldDate = DateUtils.normalizeDayTimeDate(oldStart);
             different = newDate.getTime() != oldDate.getTime();
         }
         log.debug("comparinson: " + (different ? "different" : "equal"));
         return different;
-    }
-
-
-
-    private static Date normalizeDayTime(Date start) {
-        Calendar cal = Calendar.getInstance();
-        cal.setTime(start);
-        cal.set(Calendar.YEAR, 2000);
-        cal.set(Calendar.MONDAY, 1);
-        cal.set(Calendar.DAY_OF_MONTH, 1);
-        cal.set(Calendar.MILLISECOND, 0);
-        return cal.getTime();
     }
 
 
@@ -204,22 +180,12 @@ public class DayTimeBoundsPickerPanel extends BoundsPickerPanel
             return null;
         }
 
-        Calendar s = Calendar.getInstance();
-        s.setTime(start);
-        s.set(Calendar.YEAR, 2000);
-        s.set(Calendar.MONTH, 1);
-        s.set(Calendar.DAY_OF_MONTH, 1);
+        start = DateUtils.normalizeDayTimeDate(start);
+        end = DateUtils.normalizeDayTimeDate(end);
 
-        Calendar e = Calendar.getInstance();
-        e.setTime(end);
-        e.set(Calendar.YEAR, 2000);
-        e.set(Calendar.MONTH, 1);
-        e.set(Calendar.DAY_OF_MONTH, 1);
-
-        if (s.getTime().before(e.getTime())) {
-            return null;
+        if (start.after(end)) {
+            return "Das Ende darf nicht vor dem Start liegen.";
         }
-
-        return "Der Start muss vor dem Ende liegen.";
+        return null;
     }
 }

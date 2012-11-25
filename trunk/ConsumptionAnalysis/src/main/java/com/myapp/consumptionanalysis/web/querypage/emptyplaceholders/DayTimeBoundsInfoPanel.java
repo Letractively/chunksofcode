@@ -17,7 +17,7 @@ public class DayTimeBoundsInfoPanel extends Panel
         super(id);
 
         Config config = queryPage2.getConfig();
-        String text = config.getDatasource().getDayTimeBoundsString();
+        String text = config.getSelectionConfig().getDayTimeBoundsString();
 
         add(new Label("dayTimeBoundsInfo", text));
         setOutputMarkupId(true); // avoid js errors

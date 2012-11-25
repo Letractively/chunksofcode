@@ -1,4 +1,4 @@
-package com.myapp.consumptionanalysis.config;
+package com.myapp.consumptionanalysis.util;
 
 import java.math.BigInteger;
 import java.util.Comparator;

@@ -15,7 +15,7 @@ public class GroupByInfoPanel extends Panel
     public GroupByInfoPanel(String id, DisplayQueryPage queryPage2) {
         super(id);
 
-        String text= queryPage2.getConfig().getDatasource().getGroupByString();
+        String text= queryPage2.getConfig().getSelectionConfig().getGroupByString();
         add(new Label("groupByInfo", text));
         setOutputMarkupId(true); // avoid js errors
     }

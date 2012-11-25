@@ -1,9 +1,8 @@
 package com.myapp.consumptionanalysis.config;
 
 import java.io.Serializable;
-import java.util.List;
 
-import com.myapp.consumptionanalysis.sql.QueryBuilder;
+import com.myapp.consumptionanalysis.chart.barchart.BarChartQueryBuilder;
 
 
 public final class Config implements Serializable
@@ -59,7 +58,7 @@ public final class Config implements Serializable
         return connection;
     }
 
-    public DataSelectionConfig getDatasource() {
+    public DataSelectionConfig getSelectionConfig() {
         return datasource;
     }
 
@@ -88,18 +87,6 @@ public final class Config implements Serializable
     }
 
     public String createSqlQuery() {
-        return new QueryBuilder(this).generateQuery();
-    }
-    
-
-    public static final class DataRow
-    {
-        // TODO
-    }
-
-
-    public List<DataRow> selectData() {
-        // TODO
-        return null;
+        return new BarChartQueryBuilder(this).generateQuery();
     }
 }

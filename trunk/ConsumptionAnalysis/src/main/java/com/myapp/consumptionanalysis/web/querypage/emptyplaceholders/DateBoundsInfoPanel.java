@@ -17,7 +17,7 @@ public class DateBoundsInfoPanel extends Panel
         super(id);
 
         Config config = queryPage2.getConfig();
-        String text = config.getDatasource().getDateBoundsString();
+        String text = config.getSelectionConfig().getDateBoundsString();
 
         add(new Label("dateBoundsInfoLabel", text));
         setOutputMarkupId(true); // avoid js errors
