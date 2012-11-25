@@ -120,7 +120,7 @@ public class UiSettings implements Serializable
             }
             this.config = config;
 
-            List<Table> tables = config.getDatasource().getTables();
+            List<Table> tables = config.getSelectionConfig().getTables();
             chosenTables.clear();
             chosenTables.addAll(tables);
 

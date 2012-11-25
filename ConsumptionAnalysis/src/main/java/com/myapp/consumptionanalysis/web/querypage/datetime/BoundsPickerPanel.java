@@ -2,8 +2,6 @@ package com.myapp.consumptionanalysis.web.querypage.datetime;
 
 
 
-import java.util.Calendar;
-import java.util.Date;
 import java.util.List;
 
 import org.apache.log4j.Logger;
@@ -155,14 +153,8 @@ public abstract class BoundsPickerPanel extends Panel
     protected abstract void unsetEndValueInConfig();
 
 
-    protected static Date asDate(Calendar cal) {
-        if (cal == null) {
-            return null;
-        }
-        return cal.getTime();
-    }
 
     protected DataSelectionConfig dataSrcCfg() {
-        return queryPage.getConfig().getDatasource();
+        return queryPage.getConfig().getSelectionConfig();
     }
 }

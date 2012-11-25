@@ -34,7 +34,7 @@ public class TablePickerPanel extends Panel
     }
 
     private void initComponents() {
-        final List<Table> tables = queryPage.getConfig().getDatasource().getTables();
+        final List<Table> tables = queryPage.getConfig().getSelectionConfig().getTables();
         final UiSettings uiSettings = queryPage.getConfig().getUiSettings();
 
         final Selectable<Table> selectable = new Selectable<Table>("selectable", tables) {
@@ -43,13 +43,13 @@ public class TablePickerPanel extends Panel
                 uiSettings.removeAllChosenTables();
 
                 if (items.isEmpty()) { // set all
-                    for (Table t : queryPage.getConfig().getDatasource().getTables()) {
+                    for (Table t : queryPage.getConfig().getSelectionConfig().getTables()) {
                         uiSettings.addChosenTable(t);
                     }
                     List<Table> selectedItems = getSelectedItems();
                     if (selectedItems != null) {
                         selectedItems.clear();
-                        selectedItems.addAll(queryPage.getConfig().getDatasource().getTables());
+                        selectedItems.addAll(queryPage.getConfig().getSelectionConfig().getTables());
                     }
                     info("Alle Tabellen wurden ausgewählt.");
                     target.add(this);

@@ -34,7 +34,7 @@ public class ColumnPickerPanel extends Panel
 
     private void initComponents() {
         final Config cfg = queryPage.getConfig();
-        final Table anyTable = cfg.getDatasource().getTables().get(0);
+        final Table anyTable = cfg.getSelectionConfig().getTables().get(0);
         final List<String> valueNames = new ArrayList<>();
 
         final Map<String, Integer> reverseMap = new HashMap<String, Integer>() {

@@ -11,7 +11,7 @@ import java.util.TreeMap;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import com.myapp.consumptionanalysis.jdbc.Connect.DBCol;
+import com.myapp.consumptionanalysis.sql.Connect.DBCol;
 
 public final class Table implements Serializable, Comparable<Table>
 {

@@ -95,6 +95,7 @@ body {
 .filterFormContainer {
     font-size: 12px;
     font-family: "Arial","Helvetica","Verdana","sans-serif";
+    padding: 3px 0 5px 0;
 }
 
 .feedbackMessagesContainer {
@@ -128,8 +129,6 @@ body {
     font-size: 12px;
     border: 1px solid #eaeaea;
 }
-
-
 
 a,a:visited,a:hover,a:active {
 	color: #6493D2;

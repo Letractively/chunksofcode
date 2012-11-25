@@ -3,7 +3,6 @@ package com.myapp.consumptionanalysis.config;
 
 
 import java.io.Serializable;
-import java.util.Calendar;
 import java.util.Collections;
 import java.util.Date;
 import java.util.Iterator;
@@ -12,34 +11,43 @@ import java.util.List;
 import org.apache.log4j.Logger;
 
 import com.myapp.consumptionanalysis.config.Constants.GroupByType;
-import com.myapp.consumptionanalysis.util.StringUtils;
+import com.myapp.consumptionanalysis.util.DateUtils;
 
 public class DataSelectionConfig implements Serializable
 {
 
-    @SuppressWarnings("unused")
-    private static final Logger log = Logger.getLogger(DataSelectionConfig.class);
+
     private static final long serialVersionUID = 1470288040217770328L;
 
-    private Long dateBoundsStartValue;
-    private Long dateBoundsEndValue;
-    private Long dayTimeBoundsStartValue;
-    private Long dayTimeBoundsEndValue;
+    @SuppressWarnings("unused")
+    private static final Logger log = Logger.getLogger(DataSelectionConfig.class);
+
+    private Date dateBoundsStart;
+    private Date dateBoundsEnd;
+    private Date dayTimeBoundsStart;
+    private Date dayTimeBoundsEnd;
+
     private GroupByType groupBy;
     private final List<Table> tableObjects;
     private Config config = null;
 
-    public DataSelectionConfig(Calendar dateBoundsStart,
-                               Calendar dateBoundsEnd,
-                               Calendar dayTimeBoundsStart,
-                               Calendar dayTimeBoundsEnd,
-                               List<Table> tableObjects,
+    private DataSelectionConfig(List<Table> tables) {
+        this.tableObjects = readonly(tables);
+    }
+
+    public DataSelectionConfig(List<Table> tables,
+                               Date dateBoundsStart,
+                               Date dateBoundsEnd,
+                               Date dayTimeBoundsStart,
+                               Date dayTimeBoundsEnd,
                                GroupByType groupBy) {
-        this.dateBoundsStartValue = cal2val(dateBoundsStart);
-        this.dateBoundsEndValue = cal2val(dateBoundsEnd);
-        this.dayTimeBoundsStartValue = cal2val(dayTimeBoundsStart);
-        this.dayTimeBoundsEndValue = cal2val(dayTimeBoundsEnd);
-        this.tableObjects = readonly(tableObjects);
+        this(tables);
+
+        setDateBoundsStart(dateBoundsStart);
+        setDateBoundsEnd(dateBoundsEnd);
+        setDayTimeBoundsStart(dayTimeBoundsStart);
+        setDayTimeBoundsEnd(dayTimeBoundsEnd);
+
         this.groupBy = groupBy;
     }
 
@@ -64,114 +72,47 @@ public class DataSelectionConfig implements Serializable
     /**
      * defines the bounds of the date (not the daytime!) we are selecting data
      */
-    public Calendar getDateBoundsStart() {
-        return val2cal(dateBoundsStartValue);
+    public Date getDateBoundsStartDate() {
+        return dateBoundsStart;
     }
 
     /**
      * defines the bounds of the date (not the daytime!) we are selecting data
      */
-    public Calendar getDateBoundsEnd() {
-        return val2cal(dateBoundsEndValue);
+    public Date getDateBoundsEndDate() {
+        return dateBoundsEnd;
     }
 
     /**
      * defines the bounds of the daytime we are selecting data
      */
-    public Calendar getDayTimeBoundsEnd() {
-        return val2cal(dayTimeBoundsEndValue);
+    public Date getDayTimeBoundsEndDate() {
+        return dayTimeBoundsEnd;
     }
 
     /**
      * defines the bounds of the daytime we are selecting data
      */
-    public Calendar getDayTimeBoundsStart() {
-        return val2cal(dayTimeBoundsStartValue);
-    }
-
-    public String getDateBoundsString() {
-        return getDateBoundsString(this);
-    }
-
-    public String getDayTimeBoundsString() {
-        return getDayTimeBoundsString(this);
-    }
-
-    public String getGroupByString() {
-        return getGroupByString(this);
-    }
-
-    public String getTableSelectionString() {
-        return getTableSelectionString(this);
-    }
-
-    protected static <T> List<T> readonly(List<T> l) {
-        if (l == null) {
-            return null;
-        }
-        return Collections.unmodifiableList(l);
-    }
-
-    protected static List<String> getItems(List<String> fixed, List<String> chooseable) {
-        if (fixed != null) {
-            return fixed;
-        }
-        return chooseable;
-    }
-
-    protected Calendar val2cal(Long time) {
-        if (time == null) {
-            return null;
-        }
-        Calendar instance = Calendar.getInstance();
-        instance.setTime(new Date(time));
-        return instance;
-    }
-
-    protected static Long cal2val(Calendar cal) {
-        if (cal == null) {
-            return null;
-        }
-        return Long.valueOf(cal.getTimeInMillis());
-    }
-
-
-    public void setDateBoundsEnd(Long time) {
-        this.dateBoundsEndValue = time;
+    public Date getDayTimeBoundsStartDate() {
+        return dayTimeBoundsStart;
     }
 
     public void setDateBoundsEnd(Date time) {
-        Long l = timeAsLongOrNull(time);
-        this.dateBoundsEndValue = l;
+        this.dateBoundsEnd = DateUtils.normalizeDateBoundDate(time);
     }
+
 
     public void setDateBoundsStart(Date time) {
-        Long l = timeAsLongOrNull(time);
-        this.dateBoundsStartValue = l;
-    }
-
-    public void setDateBoundsStart(Long time) {
-        this.dateBoundsStartValue = time;
-    }
-
-    private static Long timeAsLongOrNull(Date time) {
-        Long timeAsLong = null;
-        if (time != null) {
-            timeAsLong = time.getTime();
-        }
-        return timeAsLong;
+        dateBoundsStart = DateUtils.normalizeDateBoundDate(time);
     }
 
     public void setDayTimeBoundsEnd(Date time) {
-        Long l = timeAsLongOrNull(time);
-        this.dayTimeBoundsEndValue = l;
+        dayTimeBoundsEnd = DateUtils.normalizeDayTimeDate(time);
     }
 
     public void setDayTimeBoundsStart(Date time) {
-        Long l = timeAsLongOrNull(time);
-        this.dayTimeBoundsStartValue = l;
+        dayTimeBoundsStart = DateUtils.normalizeDayTimeDate(time);
     }
-
 
     final void setConfig(Config config) {
         synchronized (this) {
@@ -191,45 +132,85 @@ public class DataSelectionConfig implements Serializable
 
 
 
+    private static <T> List<T> readonly(List<T> l) {
+        if (l == null) {
+            return null;
+        }
+        return Collections.unmodifiableList(l);
+    }
+
+
+
     /////////////////// STRING STUFF /////////////////
+    //////////////////  AND HELPERS ///////////////
 
 
 
     @Override
     public String toString() {
-        StringBuilder builder = new StringBuilder();
-        builder.append("DataSelectionConfig [");
-        if (dateBoundsStartValue != null) {
-            builder.append("dateBounds={");
-            builder.append(Str.dayToString(val2cal(dateBoundsStartValue)));
-            builder.append(" - ");
-            builder.append(Str.dayToString(val2cal(dateBoundsEndValue)));
-            builder.append("}, ");
+        StringBuilder b = new StringBuilder();
+        b.append("DataSelectionConfig [");
+
+
+        b.append("dateBounds={");
+        if (dateBoundsStart != null) {
+            b.append(DateUtils.dayToString(dateBoundsStart));
         }
-        if (dayTimeBoundsStartValue != null) {
-            builder.append("dayTimeBounds={");
-            builder.append(Str.daytimeToString(val2cal(dayTimeBoundsStartValue)));
-            builder.append(" - ");
-            builder.append(Str.daytimeToString(val2cal(dayTimeBoundsEndValue)));
-            builder.append("}, ");
+        b.append(" - ");
+        if (dateBoundsEnd != null) {
+            b.append(DateUtils.dayToString(dateBoundsEnd));
         }
+        b.append("}, ");
+
+
+        b.append("dayTimeBounds={");
+        if (dayTimeBoundsStart != null) {
+            b.append(DateUtils.daytimeToString(dayTimeBoundsStart));
+        }
+        b.append(" - ");
+        if (dayTimeBoundsEnd != null) {
+            b.append(DateUtils.daytimeToString(dayTimeBoundsEnd));
+        }
+        b.append("}, ");
+
+
+        b.append("groupBy=");
         if (groupBy != null) {
-            builder.append("groupBy=");
-            builder.append(groupBy);
-            builder.append(", ");
+            b.append(groupBy);
         }
+        b.append(", ");
+
+
+        b.append("tableObjects=");
         if (tableObjects != null) {
-            builder.append("tableObjects=");
-            builder.append(tableObjects);
-            builder.append(", ");
+            b.append(tableObjects);
         }
-        builder.append("]");
-        return builder.toString();
+
+
+        b.append("]");
+        return b.toString();
     }
 
+    public String getDateBoundsString() {
+        return getDateBoundsString(this);
+    }
+
+    public String getDayTimeBoundsString() {
+        return getDayTimeBoundsString(this);
+    }
+
+    public String getGroupByString() {
+        return getGroupByString(this);
+    }
+
+    public String getTableSelectionString() {
+        return getTableSelectionString(this);
+    }
+
+
     static String getDateBoundsString(DataSelectionConfig config) {
-        final Calendar boundsStart = config.getDateBoundsStart();
-        final Calendar boundsEnd = config.getDateBoundsEnd();
+        final Date boundsStart = config.getDateBoundsStartDate();
+        final Date boundsEnd = config.getDateBoundsEndDate();
 
         StringBuilder msg = new StringBuilder();
         msg.append("Zeitraum: ");
@@ -239,12 +220,12 @@ public class DataSelectionConfig implements Serializable
         }
         if (boundsStart != null) {
             msg.append("von ");
-            msg.append(StringUtils.formatDate(boundsStart.getTime()));
+            msg.append(DateUtils.formatDate(boundsStart));
             msg.append(" ");
         }
         if (boundsEnd != null) {
             msg.append("bis ");
-            msg.append(StringUtils.formatDate(boundsEnd.getTime()));
+            msg.append(DateUtils.formatDate(boundsEnd));
             msg.append(" ");
         }
 
@@ -252,8 +233,8 @@ public class DataSelectionConfig implements Serializable
     }
 
     static String getDayTimeBoundsString(DataSelectionConfig config) {
-        final Calendar boundsStart = config.getDayTimeBoundsStart();
-        final Calendar boundsEnd = config.getDayTimeBoundsEnd();
+        final Date boundsStart = config.getDayTimeBoundsStartDate();
+        final Date boundsEnd = config.getDayTimeBoundsEndDate();
 
         StringBuilder msg = new StringBuilder();
         msg.append("Tageszeit: ");
@@ -266,12 +247,12 @@ public class DataSelectionConfig implements Serializable
             }
             if (boundsStart != null) {
                 msg.append("von ");
-                msg.append(StringUtils.formatDayTime(boundsStart.getTime()));
+                msg.append(DateUtils.formatDayTime(boundsStart));
                 msg.append(" ");
             }
             if (boundsEnd != null) {
                 msg.append("bis ");
-                msg.append(StringUtils.formatDayTime(boundsEnd.getTime()));
+                msg.append(DateUtils.formatDayTime(boundsEnd));
                 msg.append(" ");
             }
         }
@@ -318,7 +299,7 @@ public class DataSelectionConfig implements Serializable
                 msg.append(", ");
             }
         }
-        
+
         return msg.toString();
     }
 }

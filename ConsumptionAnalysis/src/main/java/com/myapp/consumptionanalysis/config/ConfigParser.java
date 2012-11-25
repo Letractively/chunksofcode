@@ -47,8 +47,9 @@ import java.util.regex.Pattern;
 
 import org.apache.log4j.Logger;
 
-import com.myapp.consumptionanalysis.jdbc.Connect;
-import com.myapp.consumptionanalysis.jdbc.Connect.DBCol;
+import com.myapp.consumptionanalysis.sql.Connect;
+import com.myapp.consumptionanalysis.sql.Connect.DBCol;
+import com.myapp.consumptionanalysis.util.StringUtils;
 
 
 
@@ -95,17 +96,6 @@ public class ConfigParser
 
         }
     }
-
-//    public static String
-//            fixBrokenUmlauts(final String brokenString, Properties badValues) {
-//        String s = brokenString;
-//        for (String correct : new String[] { "Ä", "ä", "Ö", "ö", "Ü", "ü", "ß" }) {
-//            String bad = badValues.getProperty(correct);
-//
-//            s = brokenString.replace(bad, correct);
-//        }
-//        return s;
-//    }
 
     private static Properties read(File f) throws Exception {
         Properties result = new Properties();
@@ -177,16 +167,10 @@ public class ConfigParser
     }
 
 
-//    protected static void
-//            put(Map<String, String> replaceMap, String ue) throws UnsupportedEncodingException {
-//        String broken = new String(ue.getBytes("UTF-8"), "ISO-8859-1");
-//        replaceMap.put(broken, ue);
-//    }
-
     // may be needed publicly in the future
     private static Config
             parseConfig(String configId, Map<String, String> map) throws ConfigException {
-        final String debugString = Str.getDebugString(map, configId);
+        final String debugString = StringUtils.getDebugString(map, configId);
         ConfigParser cp = new ConfigParser(map);
 
         Exception ex = null;
@@ -219,7 +203,7 @@ public class ConfigParser
 
 
     private void fetchTableTypes(Config config) {
-        DataSelectionConfig dsc = config.getDatasource();
+        DataSelectionConfig dsc = config.getSelectionConfig();
         List<Table> tables = dsc.getTables();
         List<String> tableNames = Table.tableNames(tables);
         Connect connect = new Connect(config);
@@ -371,22 +355,21 @@ public class ConfigParser
         // every table needs the same number of value columns, so validate this here:
         validateValueColumnIntegrity(tableObjects);
 
-        Calendar dateBoundsStart = parseDateBoundary(CK_DATA_FILTER_DATE_BOUNDS, false, 1);
-        Calendar dateBoundsEnd = parseDateBoundary(CK_DATA_FILTER_DATE_BOUNDS, false, 2);
+        Date dateBoundsStart = parseDateBoundary(CK_DATA_FILTER_DATE_BOUNDS, false, 1);
+        Date dateBoundsEnd = parseDateBoundary(CK_DATA_FILTER_DATE_BOUNDS, false, 2);
 
-        Calendar dayTimeStart = parseDayTime(CK_DATA_FILTER_DAYTIME_BOUNDS, false, 1);
-        Calendar dayTimeEnd = parseDayTime(CK_DATA_FILTER_DAYTIME_BOUNDS, false, 2);
+        Date dayTimeStart = parseDayTime(CK_DATA_FILTER_DAYTIME_BOUNDS, false, 1);
+        Date dayTimeEnd = parseDayTime(CK_DATA_FILTER_DAYTIME_BOUNDS, false, 2);
 //        String filterExpr = parseProperty(CK_DATA_FILTER_SQL_FILTER, false);
 
         DataSelectionConfig dsCfg = null;
 
         if (errors.size() == errorCount) {
-            dsCfg = new DataSelectionConfig(dateBoundsStart,
+            dsCfg = new DataSelectionConfig(tableObjects,
+                                            dateBoundsStart,
                                             dateBoundsEnd,
                                             dayTimeStart,
                                             dayTimeEnd,
-//                                            filterExpr,
-                                            tableObjects,
                                             groupBy);
         }
 
@@ -517,7 +500,7 @@ public class ConfigParser
     }
 
 
-    private Calendar parseDayTime(String key, boolean nullIsInvalid, int index) {
+    private Date parseDayTime(String key, boolean nullIsInvalid, int index) {
         String asString = parseProperty(key, nullIsInvalid);
         if (asString == null) {
             return null;
@@ -534,7 +517,8 @@ public class ConfigParser
             return null;
         }
 
-        Calendar cal = newEmptyCalendar();
+        Calendar cal = Calendar.getInstance();
+        cal.setTimeInMillis(0L);
 
         String group = m.group(index);
         String[] split = group.split(":");
@@ -543,9 +527,9 @@ public class ConfigParser
         int second;
 
         try {
-            hour = Integer.parseInt(Str.getRidOfLeadingZeros(split[0]));
-            minute = Integer.parseInt(Str.getRidOfLeadingZeros(split[1]));
-            second = Integer.parseInt(Str.getRidOfLeadingZeros(split[2]));
+            hour = Integer.parseInt(StringUtils.getRidOfLeadingZeros(split[0]));
+            minute = Integer.parseInt(StringUtils.getRidOfLeadingZeros(split[1]));
+            second = Integer.parseInt(StringUtils.getRidOfLeadingZeros(split[2]));
         } catch (Exception e) {
             errors.add("Fehler beim Auswerten des DAYTIME Ausdrucks der Variable '" + key
                     + "': " + group + " - " + e);
@@ -556,10 +540,12 @@ public class ConfigParser
         cal.set(Calendar.MINUTE, minute);
         cal.set(Calendar.SECOND, second);
 
-        return cal;
+        Date time = cal.getTime();
+        log.debug("dayTimeBoundary parsed from '" + asString + "' to '" + time + "'");
+        return time;
     }
 
-    private Calendar parseDateBoundary(String key, boolean nullIsInvalid, int index) {
+    private Date parseDateBoundary(String key, boolean nullIsInvalid, int index) {
         String asString = parseProperty(key, nullIsInvalid);
         if (asString == null) {
             return null;
@@ -576,7 +562,8 @@ public class ConfigParser
         }
 
         String group = m.group(index);
-        Calendar cal = newEmptyCalendar();
+        Calendar cal = Calendar.getInstance();
+        cal.setTimeInMillis(0L);
 
         if (group.equals("TODAY")) {
             cal.setTime(new Date());
@@ -587,27 +574,22 @@ public class ConfigParser
             int month;
             int day;
             try {
-                year = Integer.parseInt(Str.getRidOfLeadingZeros(split[0]));
-                month = Integer.parseInt(Str.getRidOfLeadingZeros(split[1]));
-                day = Integer.parseInt(Str.getRidOfLeadingZeros(split[2]));
+                year = Integer.parseInt(StringUtils.getRidOfLeadingZeros(split[0]));
+                month = Integer.parseInt(StringUtils.getRidOfLeadingZeros(split[1]));
+                day = Integer.parseInt(StringUtils.getRidOfLeadingZeros(split[2]));
             } catch (Exception e) {
                 errors.add("Fehler beim Auswerten des DAYTIME Ausdrucks der Variable '"
                         + key + "': " + group + " - " + e);
                 return null;
             }
             cal.set(Calendar.YEAR, year);
-            cal.set(Calendar.MONTH, month);
+            cal.set(Calendar.MONTH, month - 1);
             cal.set(Calendar.DAY_OF_MONTH, day);
         }
 
-        return cal;
-    }
-
-
-    private static Calendar newEmptyCalendar() {
-        Calendar cal = Calendar.getInstance();
-        cal.setTimeInMillis(0L);
-        return cal;
+        Date time = cal.getTime();
+        log.debug("dateBoundary parsed from '" + asString + "' to '" + time + "'");
+        return time;
     }
 
 
@@ -647,7 +629,7 @@ public class ConfigParser
         }
 
         try {
-            return Integer.parseInt(Str.getRidOfLeadingZeros(asString));
+            return Integer.parseInt(StringUtils.getRidOfLeadingZeros(asString));
 
         } catch (NumberFormatException e) {
             errors.add(("Wert von '" + key + "' ist keine Ganzzahl! (" + asString + ")"));
@@ -674,43 +656,4 @@ public class ConfigParser
         }
         return trim;
     }
-
-//    public static void main(String args[]) throws UnsupportedEncodingException {
-//        //In some cases a hack works. But best is to prevent it from ever happening.
-//        String good = "ü";
-//        String bad = new String("ü".getBytes("UTF-8"), "ISO-8859-1");
-//
-//        //this line demonstrates what the "broken" string should look like if it is reversible.
-//        String broken = breakString(good, bad);
-//
-//        //here we show that it is fixable if broken like breakString() does it.
-//        fixString(good, broken);
-//
-//        //this line attempts to fix the string, but it is not fixable unless broken in the same way as breakString()
-//        fixString(good, bad);
-//    }
-
-//    private static String fixString(String bad) throws UnsupportedEncodingException {
-//        byte[] bytes = bad.getBytes("latin1"); //read the Java bytes as if they were latin1 (if this works, it should result in the same number of bytes as java characters; if using UTF8, it would be more bytes)
-//        String fixed = new String(bytes, "UTF8"); //take the raw bytes, and try to convert them to a string as if they were UTF8
-//        System.out.println("Good: " + good);
-//        System.out.println("Bad: " + bad);
-//        System.out.println("bytes1.length: " + bytes.length);
-//        System.out.println("fixed: " + fixed);
-//        System.out.println();
-//        return fixed;
-//    }
-
-//    private static String breakString(String good, String bad) throws UnsupportedEncodingException {
-//        byte[] bytes = good.getBytes("UTF8");
-//        String broken = new String(bytes, "latin1");
-//
-//        System.out.println("Good: " + good);
-//        System.out.println("Bad: " + bad);
-//        System.out.println("bytes1.length: " + bytes.length);
-//        System.out.println("broken: " + broken);
-//        System.out.println();
-//
-//        return broken;
-//    }
 }

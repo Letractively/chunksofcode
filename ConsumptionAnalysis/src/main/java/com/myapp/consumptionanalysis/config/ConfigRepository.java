@@ -7,6 +7,8 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
+import com.myapp.consumptionanalysis.util.NumericStringComparator;
+
 
 public final class ConfigRepository implements Serializable
 {

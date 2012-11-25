@@ -19,7 +19,7 @@ public class ColumnInfoPanel extends Panel
     public ColumnInfoPanel(String id, DisplayQueryPage queryPage2) {
         super(id);
 
-        Table anyTable = queryPage2.getConfig().getDatasource().getTables().get(0);
+        Table anyTable = queryPage2.getConfig().getSelectionConfig().getTables().get(0);
         StringBuilder msg = new StringBuilder();
 
         for (Iterator<Integer> i = anyTable.getValueColumnExpr().keySet().iterator(); i.hasNext();) {

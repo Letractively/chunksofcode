@@ -4,3 +4,5 @@ testdatabase.hostname   = derhostname
 testdatabase.portnumber = 3306
 testdatabase.username   = derusername
 testdatabase.password   = daspasswort
+
+debugsettings.displaySqlQueryInWebPage = false

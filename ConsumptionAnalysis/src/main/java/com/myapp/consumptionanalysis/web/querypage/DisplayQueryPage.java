@@ -1,10 +1,12 @@
 package com.myapp.consumptionanalysis.web.querypage;
 
-import java.util.Calendar;
+import java.util.ArrayList;
 import java.util.Date;
+import java.util.List;
 
 import org.apache.log4j.Logger;
 import org.apache.wicket.Component;
+import org.apache.wicket.markup.head.IHeaderResponse;
 import org.apache.wicket.markup.html.basic.Label;
 import org.apache.wicket.markup.html.form.Form;
 import org.apache.wicket.markup.html.link.BookmarkablePageLink;
@@ -13,12 +15,13 @@ import org.apache.wicket.request.mapper.parameter.PageParameters;
 
 import com.googlecode.wicket.jquery.ui.panel.JQueryFeedbackPanel;
 import com.myapp.consumptionanalysis.config.Config;
-import com.myapp.consumptionanalysis.config.UiSettings;
 import com.myapp.consumptionanalysis.config.ConfigRepository.ParseResultHolder;
-import com.myapp.consumptionanalysis.util.StringUtils;
+import com.myapp.consumptionanalysis.config.UiSettings;
+import com.myapp.consumptionanalysis.util.DateUtils;
 import com.myapp.consumptionanalysis.web.BasePage;
 import com.myapp.consumptionanalysis.web.Constants;
 import com.myapp.consumptionanalysis.web.HomePage;
+import com.myapp.consumptionanalysis.web.chart.test.BarChartPanel;
 import com.myapp.consumptionanalysis.web.querypage.datetime.BoundsPickerPanel;
 import com.myapp.consumptionanalysis.web.querypage.datetime.ColumnPickerPanel;
 import com.myapp.consumptionanalysis.web.querypage.datetime.DateBoundsPickerPanel;
@@ -31,23 +34,30 @@ import com.myapp.consumptionanalysis.web.querypage.emptyplaceholders.DayTimeBoun
 import com.myapp.consumptionanalysis.web.querypage.emptyplaceholders.GroupByInfoPanel;
 import com.myapp.consumptionanalysis.web.querypage.emptyplaceholders.TableInfoPanel;
 
+@SuppressWarnings("serial")
 public class DisplayQueryPage extends BasePage implements Constants
 {
 
-    private static final long serialVersionUID = - 6532890623799310807L;
-
     protected static final Logger log = Logger.getLogger(DisplayQueryPage.class);
 
-    final Config config;
-    final JQueryFeedbackPanel feedback;
-    final Label querySqlDebugLabel;
+    private final Config config;
+    private final JQueryFeedbackPanel feedback;
+    private final Label querySqlDebugLabel;
+    private final BarChartPanel chartPanel;
 
     public Config getConfig() {
         return config;
     }
 
     public Component[] getComponentsToUpdateAfterAjax() {
-        return new Component[] { feedback, querySqlDebugLabel };
+        List<Component> components = new ArrayList<>();
+        if (config.getUiSettings().isShowSqlDebug()) {
+            components.add(querySqlDebugLabel);
+        }
+        components.add(feedback);
+        components.add(chartPanel.getComponentToUpdateAfterAjax());
+        Component[] array = components.toArray(new Component[components.size()]);
+        return array;
     }
 
     public DisplayQueryPage(PageParameters parameters) {
@@ -56,14 +66,20 @@ public class DisplayQueryPage extends BasePage implements Constants
 
         // we need this to get the jqueryfeedbackpanel thing working
         getSession().bind();
-
-        
         String project = parameters.get(URL_PARAM_PROJECT).toString();
         String cfgFileName = parameters.get(URL_PARAM_CONFIG).toString();
         ParseResultHolder h = getConfigRepo().parseConfigHolder(project, cfgFileName);
-        // TODO: error handling !!!
-        
+
         config = h.getConfig();
+
+        if (config == null) {
+            querySqlDebugLabel = null;
+            feedback = null;
+            chartPanel = null;
+            setResponsePage(new ErrorPage(h, parameters));
+            return;
+        }
+
         log.debug("conf from params: " + config.getName());
 
         this.add(new Label("pageTitle", substitute("page.title", config)));
@@ -105,6 +121,14 @@ public class DisplayQueryPage extends BasePage implements Constants
 
         Component groupByPicker = setupGroupbyPicker();
         form.add(groupByPicker);
+
+        this.chartPanel = setupChartPanel();
+        add(chartPanel);
+    }
+
+    private BarChartPanel setupChartPanel() {
+        BarChartPanel bcp = new BarChartPanel("chartContainer", config);
+        return bcp;
     }
 
     private BookmarkablePageLink<Object> createTopLink() {
@@ -114,6 +138,10 @@ public class DisplayQueryPage extends BasePage implements Constants
         return link2;
     }
 
+    @Override
+    public void renderHead(IHeaderResponse response) {
+        super.renderHead(response);
+    }
 
     private BookmarkablePageLink<Object> createReloadLink(String project,
                                                           String configFileName) {
@@ -134,8 +162,6 @@ public class DisplayQueryPage extends BasePage implements Constants
         UiSettings settings = config.getUiSettings();
         if (settings.isShowSqlDebug()) {
             l = new Label("querySql", Model.of("")) {
-                private static final long serialVersionUID = - 1149693350235310645L;
-
                 @Override
                 protected void onBeforeRender() {
                     super.onBeforeRender();
@@ -155,8 +181,8 @@ public class DisplayQueryPage extends BasePage implements Constants
     final String getDateInfoString() {
         StringBuilder bui = new StringBuilder();
         bui.append("Zeitraum: ");
-        Calendar start = config.getDatasource().getDateBoundsStart();
-        Calendar end = config.getDatasource().getDateBoundsEnd();
+        Date start = config.getSelectionConfig().getDateBoundsStartDate();
+        Date end = config.getSelectionConfig().getDateBoundsEndDate();
 
         if (start == null && end == null) {
             bui.append("Alles");
@@ -164,13 +190,13 @@ public class DisplayQueryPage extends BasePage implements Constants
             if (start == null) {
                 bui.append("Beginn der Aufzeichnungen");
             } else {
-                bui.append(StringUtils.formatDate(start.getTime()));
+                bui.append(DateUtils.formatDate(start));
             }
             bui.append(" bis ");
             if (end == null) {
                 bui.append("Ende der Aufzeichnungen");
             } else {
-                bui.append(StringUtils.formatDate(end.getTime()));
+                bui.append(DateUtils.formatDate(end));
             }
         }
         return bui.toString();
@@ -199,7 +225,7 @@ public class DisplayQueryPage extends BasePage implements Constants
 
     private Component setupTablePicker() {
         if (! config.getUiSettings().isTableSelectionChangeable()
-                || config.getDatasource().getTables().size() <= 1) {
+                || config.getSelectionConfig().getTables().size() <= 1) {
             TableInfoPanel tip = new TableInfoPanel("tablePicker", this);
             return tip;
         }
@@ -210,7 +236,11 @@ public class DisplayQueryPage extends BasePage implements Constants
 
     private Component setupColumnPicker() {
         if (! config.getUiSettings().isColumnsSelectionChangeable()
-                || config.getDatasource().getTables().get(0).getValueColumnExpr().size() <= 1) {
+                || config.getSelectionConfig()
+                         .getTables()
+                         .get(0)
+                         .getValueColumnExpr()
+                         .size() <= 1) {
             ColumnInfoPanel p = new ColumnInfoPanel("columnPicker", this);
             p.setOutputMarkupId(true);
             return p;

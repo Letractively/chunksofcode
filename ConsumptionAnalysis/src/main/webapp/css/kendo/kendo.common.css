@@ -100,7 +100,7 @@
 {
     display: inline-block;
     margin: 0;
-    padding: 2px 7px 2px;
+/*     padding: 2px 7px 2px; */
     font-family: inherit;
     line-height: 1.66em;
     text-align: center;
@@ -1799,7 +1799,7 @@ span.k-dropdown
 {
     border-width: 1px;
     border-style: solid;
-    padding: 2px 22px 2px 2px;
+    padding: 0 22px 0 0;
 }
 
 .k-numeric-wrap.k-expand-padding
@@ -1967,9 +1967,9 @@ span.k-datetimepicker .k-select+.k-select
 .k-dropdown-wrap .k-input,
 .k-selectbox .k-input
 {
-    height: 1.31em;
-    line-height: 1.31em;
-    padding: 0.18em 0;
+/*     height: 1.31em; */
+    line-height: 1.02em;
+/*     padding: 0.18em 0; */
     text-indent: 4px;
     border: 0;
     margin: 0;

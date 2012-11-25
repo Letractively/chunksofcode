@@ -16,7 +16,7 @@ public class TableInfoPanel extends Panel
     public TableInfoPanel(String id, DisplayQueryPage queryPage2) {
         super(id);
 
-        String text = queryPage2.getConfig().getDatasource().getTableSelectionString();
+        String text = queryPage2.getConfig().getSelectionConfig().getTableSelectionString();
         add(new Label("tableSelectionInfo", text));
         setOutputMarkupId(true); // avoid js errors
     }

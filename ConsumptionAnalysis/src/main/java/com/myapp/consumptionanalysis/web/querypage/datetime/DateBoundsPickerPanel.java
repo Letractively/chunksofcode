@@ -1,7 +1,6 @@
 package com.myapp.consumptionanalysis.web.querypage.datetime;
 
 import java.util.ArrayList;
-import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
 
@@ -12,7 +11,8 @@ import org.apache.wicket.model.Model;
 
 import com.googlecode.wicket.jquery.ui.Options;
 import com.googlecode.wicket.jquery.ui.kendo.datetime.DatePicker;
-import com.myapp.consumptionanalysis.util.StringUtils;
+import com.myapp.consumptionanalysis.config.Constants;
+import com.myapp.consumptionanalysis.util.DateUtils;
 import com.myapp.consumptionanalysis.web.querypage.DisplayQueryPage;
 
 @SuppressWarnings("serial")
@@ -24,7 +24,7 @@ public class DateBoundsPickerPanel extends BoundsPickerPanel
     private static final Options opts;
     static {
         Options o = new Options();
-        o.set("format", Options.asString(StringUtils.YYYY_MM_DD));
+        o.set("format", Options.asString(Constants.YYYY_MM_DD));
         o.set("culture", "'de-DE'");
         opts = o;
     }
@@ -34,7 +34,7 @@ public class DateBoundsPickerPanel extends BoundsPickerPanel
     {
 
         public MyDatePicker(String id, IModel<Date> model) {
-            super(id, model, StringUtils.YYYY_MM_DD, opts);
+            super(id, model, Constants.YYYY_MM_DD, opts);
             setOutputMarkupId(true);
         }
     }
@@ -66,10 +66,10 @@ public class DateBoundsPickerPanel extends BoundsPickerPanel
     protected List<Component> ajaxButtonWasClicked() {
         List<Component> needAsyncUpdate = new ArrayList<>();
         Date start = dateStartPicker.getModelObject();
-        Date oldStart = asDate(cfgStart());
+        Date oldStart = cfgStart();
 
         Date end = dateEndPicker.getModelObject();
-        Date oldEnd = asDate(cfgEnd());
+        Date oldEnd = cfgEnd();
 
         String error = DateBoundsPickerPanel.valid(start, end);
 
@@ -86,7 +86,7 @@ public class DateBoundsPickerPanel extends BoundsPickerPanel
 
             if (dateBoundValuesDifferent(start, oldStart)) {
                 msg.append("Beginn: ");
-                msg.append(start == null ? "-" : StringUtils.formatDate(start));
+                msg.append(start == null ? "-" : DateUtils.formatDate(start));
                 msg.append(" ");
 
                 applyStartValueToConfig();
@@ -97,7 +97,7 @@ public class DateBoundsPickerPanel extends BoundsPickerPanel
                     msg.append(", ");
                 }
                 msg.append("Ende: ");
-                msg.append(end == null ? "keins" : StringUtils.formatDate(end));
+                msg.append(end == null ? "keins" : DateUtils.formatDate(end));
 
                 applyEndValueToConfig();
             }
@@ -112,8 +112,8 @@ public class DateBoundsPickerPanel extends BoundsPickerPanel
     
     @Override
     protected boolean isAjaxCheckboxCheckedInitially() {
-        boolean startConstraint = null != dataSrcCfg().getDateBoundsStart();
-        boolean endConstraint = null != dataSrcCfg().getDateBoundsEnd();
+        boolean startConstraint = null != dataSrcCfg().getDateBoundsStartDate();
+        boolean endConstraint = null != dataSrcCfg().getDateBoundsEndDate();
         return startConstraint || endConstraint;
     }
 
@@ -170,47 +170,30 @@ public class DateBoundsPickerPanel extends BoundsPickerPanel
         if (oldval == null || newval == null) {
             different = newval != oldval;
         } else {
-            Date newDate = normalizeDateBound(newval);
-            Date oldDate = normalizeDateBound(oldval);
+            Date newDate = DateUtils.normalizeDateBoundDate(newval);
+            Date oldDate = DateUtils.normalizeDateBoundDate(oldval);
             different = newDate.getTime() != oldDate.getTime();
         }
         log.debug("comparinson: " + (different ? "different" : "equal"));
         return different;
     }
 
-    private static Date normalizeDateBound(Date value) {
-        Calendar newCal = Calendar.getInstance();
-        newCal.setTime(value);
 
-        int[] valsToZeroOut = { Calendar.MINUTE, Calendar.MILLISECOND,
-                Calendar.HOUR_OF_DAY, Calendar.SECOND };
-
-        for (int i : valsToZeroOut) {
-            newCal.set(i, 0);
-        }
-        return newCal.getTime();
+    private Date cfgEnd() {
+        return dataSrcCfg().getDateBoundsEndDate();
     }
 
-
-    private Calendar cfgEnd() {
-        return dataSrcCfg().getDateBoundsEnd();
+    private Date cfgStart() {
+        return dataSrcCfg().getDateBoundsStartDate();
     }
 
-    private Calendar cfgStart() {
-        return dataSrcCfg().getDateBoundsStart();
-    }
-
-    private Model<Date> createDateBoundsModel(Calendar cal) {
-        if (cal == null) {
-            return Model.of((Date) null);
-        }
-
-        return Model.of(cal.getTime());
+    private Model<Date> createDateBoundsModel(Date cal) {
+        return Model.of(cal);
     }
 
     private static String valid(Date start, Date end) {
         String result = null;
-        if (start != null && end != null && ! start.before(end)) {
+        if (start != null && end != null && start.after(end)) {
             log.debug("start    = " + start);
             log.debug("end      = " + end);
             log.debug("result   = " + result);

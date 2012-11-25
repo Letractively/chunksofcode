@@ -13,13 +13,16 @@ import org.apache.log4j.Logger;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
+import com.myapp.consumptionanalysis.chart.barchart.BarChartDataSelector;
+import com.myapp.consumptionanalysis.chart.barchart.BarChartJavaScriptGenerator;
+import com.myapp.consumptionanalysis.chart.barchart.BarChartQueryBuilder;
 import com.myapp.consumptionanalysis.config.Config;
 import com.myapp.consumptionanalysis.config.ConfigException;
 import com.myapp.consumptionanalysis.config.ConfigRepository;
 import com.myapp.consumptionanalysis.config.Table;
-import com.myapp.consumptionanalysis.jdbc.Connect;
-import com.myapp.consumptionanalysis.jdbc.SqlWorker;
-import com.myapp.consumptionanalysis.sql.QueryBuilder;
+import com.myapp.consumptionanalysis.sql.Connect;
+import com.myapp.consumptionanalysis.sql.ResultSetHolder;
+import com.myapp.consumptionanalysis.sql.SqlWorker;
 
 public class ConfigTest
 {
@@ -62,27 +65,7 @@ public class ConfigTest
         }
 
         assertTrue(c1 != null);
-        Connect connect = new Connect(c1);
-        if (! connect.isConnectable()) {
-            return;
-        }
-
-        QueryBuilder queryBuilder = new QueryBuilder(c1);
-        final String query = queryBuilder.generateQuery();
-
-        connect.executeWorkerWithLogging(new SqlWorker() {
-            @Override
-            public void run(Connection c) throws Exception {
-                Statement statement = c.createStatement();
-                ResultSet result = statement.executeQuery(query);
-                int columnCount = result.getMetaData().getColumnCount();
-                while (result.next()) {
-                    for (int i = 1; i <= columnCount; i++) {
-                        result.getObject(i);
-                    }
-                }
-            }
-        });
+        printResultAndJs(c1);
     }
 
 
@@ -97,27 +80,8 @@ public class ConfigTest
         }
 
         assertTrue(c1 != null);
-        Connect connect = new Connect(c1);
-        if (! connect.isConnectable()) {
-            return;
-        }
-
-        QueryBuilder queryBuilder = new QueryBuilder(c1);
-        final String query = queryBuilder.generateQuery();
-
-        connect.executeWorkerWithLogging(new SqlWorker() {
-            @Override
-            public void run(Connection c) throws Exception {
-                Statement statement = c.createStatement();
-                ResultSet result = statement.executeQuery(query);
-                int columnCount = result.getMetaData().getColumnCount();
-                while (result.next()) {
-                    for (int i = 1; i <= columnCount; i++) {
-                        result.getObject(i);
-                    }
-                }
-            }
-        });
+//        fetchAndPrint(c1);
+        printResultAndJs(c1);
     }
 
     @Test
@@ -131,27 +95,8 @@ public class ConfigTest
         }
 
         assertTrue(c1 != null);
-        Connect connect = new Connect(c1);
-        if (! connect.isConnectable()) {
-            return;
-        }
-
-        QueryBuilder queryBuilder = new QueryBuilder(c1);
-        final String query = queryBuilder.generateQuery();
-
-        connect.executeWorkerWithLogging(new SqlWorker() {
-            @Override
-            public void run(Connection c) throws Exception {
-                Statement statement = c.createStatement();
-                ResultSet result = statement.executeQuery(query);
-                int columnCount = result.getMetaData().getColumnCount();
-                while (result.next()) {
-                    for (int i = 1; i <= columnCount; i++) {
-                        result.getObject(i);
-                    }
-                }
-            }
-        });
+//        fetchAndPrint(c1);
+        printResultAndJs(c1);
     }
 
     @Test
@@ -165,27 +110,8 @@ public class ConfigTest
         }
 
         assertTrue(c1 != null);
-        Connect connect = new Connect(c1);
-        if (! connect.isConnectable()) {
-            return;
-        }
-
-        QueryBuilder queryBuilder = new QueryBuilder(c1);
-        final String query = queryBuilder.generateQuery();
-
-        connect.executeWorkerWithLogging(new SqlWorker() {
-            @Override
-            public void run(Connection c) throws Exception {
-                Statement statement = c.createStatement();
-                ResultSet result = statement.executeQuery(query);
-                int columnCount = result.getMetaData().getColumnCount();
-                while (result.next()) {
-                    for (int i = 1; i <= columnCount; i++) {
-                        result.getObject(i);
-                    }
-                }
-            }
-        });
+//        fetchAndPrint(c1);
+        printResultAndJs(c1);
     }
 
 
@@ -200,5 +126,41 @@ public class ConfigTest
         List<String> hits = Table.findColumnNames("(kWh_Preis * kWh_pro15min) * 13.7603");
         String[] expected = { "kWh_Preis", "kWh_pro15min" };
         assertArrayEquals(expected, hits.toArray());
+    }
+
+
+    private void printResultAndJs(Config c1) throws Exception {
+        BarChartDataSelector selector = new BarChartDataSelector(c1);
+        ResultSetHolder dat = selector.selectData();
+        System.out.println(dat);
+
+        BarChartJavaScriptGenerator gen = new BarChartJavaScriptGenerator();
+
+        String js = gen.generateJavaScript(c1);
+        System.out.println(js);
+    }
+
+    @SuppressWarnings("unused")
+    private void fetchAndPrint(Config c1) throws Exception {
+        Connect connect = new Connect(c1);
+        if (! connect.isConnectable()) {
+            return;
+        }
+
+        BarChartQueryBuilder queryBuilder = new BarChartQueryBuilder(c1);
+        final String query = queryBuilder.generateQuery();
+        connect.executeWorkerWithLogging(new SqlWorker() {
+            @Override
+            public void run(Connection c) throws Exception {
+                Statement statement = c.createStatement();
+                ResultSet result = statement.executeQuery(query);
+                int columnCount = result.getMetaData().getColumnCount();
+                while (result.next()) {
+                    for (int i = 1; i <= columnCount; i++) {
+                        result.getObject(i);
+                    }
+                }
+            }
+        });
     }
 }
