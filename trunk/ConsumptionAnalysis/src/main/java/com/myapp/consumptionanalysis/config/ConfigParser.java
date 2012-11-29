@@ -15,7 +15,6 @@ import static com.myapp.consumptionanalysis.config.Constants.CK_TABLEDEF_DATE_CO
 import static com.myapp.consumptionanalysis.config.Constants.CK_TABLEDEF_SCHEMA;
 import static com.myapp.consumptionanalysis.config.Constants.CK_TABLEDEF_TABLE;
 import static com.myapp.consumptionanalysis.config.Constants.CK_TABLEDEF_TIME_COLUMN;
-import static com.myapp.consumptionanalysis.config.Constants.CK_TABLEDEF_VALUE_COLUMN_FACTOR;
 import static com.myapp.consumptionanalysis.config.Constants.CK_TABLEDEF_VALUE_COLUMN_PATTERN;
 import static com.myapp.consumptionanalysis.config.Constants.CK_TABLEDEF_VALUE_LABEL_PATTERN;
 import static com.myapp.consumptionanalysis.config.Constants.CK_TITLE;
@@ -434,7 +433,6 @@ public class ConfigParser
             String timeCol = parseProperty(alias + CK_TABLEDEF_TIME_COLUMN, true);
 
             Map<Integer, String> valueColumns = new HashMap<>(4);
-            Map<Integer, Double> valueFactors = new HashMap<>(4);
 
             for (int i = 1;; i++) {
                 String columnNameKey = key(alias, CK_TABLEDEF_VALUE_COLUMN_PATTERN, i);
@@ -442,21 +440,6 @@ public class ConfigParser
 
                 if (columnName != null) {
                     valueColumns.put(Integer.valueOf(i), columnName);
-                    String factorKey = key(alias, CK_TABLEDEF_VALUE_COLUMN_FACTOR, i);
-                    String factor = map.get(factorKey);
-
-                    if (factor != null) {
-                        try {
-                            Double f = Double.valueOf(factor.trim().replaceAll(",", "."));
-                            valueFactors.put(Integer.valueOf(i), f);
-                        } catch (NumberFormatException e) {
-                            errors.add("Die Variable "
-                                    + factorKey
-                                    + " fehlt oder ist keine gültige Gleitkommazahl (z.b. 2.34) - "
-                                    + e.getMessage());
-                        }
-                    }
-
                     continue;
                 }
 
@@ -475,7 +458,6 @@ public class ConfigParser
                                         schema,
                                         tabname,
                                         valueColumns,
-                                        valueFactors,
                                         dateCol,
                                         timeCol,
                                         columnLabels);

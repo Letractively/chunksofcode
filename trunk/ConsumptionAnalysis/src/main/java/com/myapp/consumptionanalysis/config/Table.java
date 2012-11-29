@@ -29,9 +29,6 @@ public final class Table implements Serializable, Comparable<Table>
     // either a column name or a literal (number) expression
     private final SortedMap<Integer, String> valueColumnExpr;
 
-    // a factor may be given to be able to mix different units
-    private final SortedMap<Integer, Double> valueFactors;
-
     // the label of the value columns, as shown in the result set
     private final SortedMap<Integer, String> columnLabels;
 
@@ -41,14 +38,12 @@ public final class Table implements Serializable, Comparable<Table>
                  String schema,
                  String tableName,
                  Map<Integer, String> valueColumnNames,
-                 Map<Integer, Double> valueFactors,
                  String dateCol,
                  String timeCol,
                  Map<Integer, String> columnLabels) throws ConfigException {
         this.schema = schema;
         this.tableName = tableName;
         this.valueColumnExpr = Collections.unmodifiableSortedMap(new TreeMap<>(valueColumnNames));
-        this.valueFactors = Collections.unmodifiableSortedMap(new TreeMap<>(valueFactors));
         this.columnLabels = Collections.unmodifiableSortedMap(new TreeMap<>(columnLabels));
         this.dateCol = dateCol;
         this.timeCol = timeCol;
@@ -102,10 +97,6 @@ public final class Table implements Serializable, Comparable<Table>
      */
     public SortedMap<Integer, String> getValueColumnExpr() {
         return valueColumnExpr;
-    }
-
-    public Double getValueFactor(Integer valueColIndex) {
-        return valueFactors.get(valueColIndex);
     }
 
     public String getDateCol() {
