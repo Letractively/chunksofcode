@@ -23,7 +23,7 @@
         in form of charts and tables.
     </description>
 
-    <groupId>com.plankenauer.fmcontrol</groupId>
+    <groupId>com.myapp.consumptionanalysis</groupId>
     <artifactId>ConsumptionAnalysis</artifactId>
     <version>1.0</version>
 
