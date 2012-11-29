@@ -28,6 +28,7 @@ import static com.myapp.consumptionanalysis.config.Constants.CK_USER_CAN_CHANGE_
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileInputStream;
+import java.io.IOException;
 import java.io.InputStreamReader;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -56,7 +57,7 @@ import com.myapp.consumptionanalysis.util.StringUtils;
 public class ConfigParser
 {
 
-    private static final Logger log = Logger.getLogger(Config.class);
+    private static final Logger log = Logger.getLogger(ConfigParser.class);
 
 
     private final Map<String, String> map;
@@ -98,16 +99,34 @@ public class ConfigParser
     }
 
     private static Properties read(File f) throws Exception {
-        Properties result = new Properties();
+        InputStreamReader isr = null;
+        
+        try {
+            
+            isr = new InputStreamReader(new FileInputStream(f), "UTF-8");
+            Properties result2 = readImpl(isr);
+            return result2;
+            
+        } finally {
+            if (isr != null){
+                try {
+                    isr.close();
+                } catch (Exception ignored) {
+                }
+            }
+        }
+    }
 
-        InputStreamReader isr = new InputStreamReader(new FileInputStream(f), "UTF-8");
+
+    private static Properties readImpl(InputStreamReader isr) throws IOException {
         BufferedReader br = new BufferedReader(isr);
-
         Matcher m = Pattern.compile("(?x) ^ \\s* ([-._a-zA-Z0-9]+) \\s* [=] \\s* (.*) $")
                            .matcher("foo");
+        
         String currentKey = null;
         boolean inMultiLineExpr = false;
         StringBuilder multiLineValue = new StringBuilder();
+        Properties result = new Properties();
 
         for (String line = null; (line = br.readLine()) != null;) {
             if (! inMultiLineExpr) {
@@ -138,7 +157,6 @@ public class ConfigParser
                 endIndex = endIndex < 0 ? 0 : endIndex;
                 multiLineValue.append(line.substring(0, endIndex));
                 continue;
-
             }
 
             // end of a multiline expr
@@ -148,7 +166,7 @@ public class ConfigParser
             inMultiLineExpr = false;
         }
 
-        log.debug("description: " + result.getProperty("description"));
+//        log.debug("description: " + result.getProperty("description"));
 
         return result;
     }
