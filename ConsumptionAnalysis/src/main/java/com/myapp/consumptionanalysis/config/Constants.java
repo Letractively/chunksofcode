@@ -71,7 +71,6 @@ public interface Constants
     String CK_TABLEDEF_DATE_COLUMN = ".date-column";
     String CK_TABLEDEF_TIME_COLUMN = ".time-column";
     String CK_TABLEDEF_VALUE_COLUMN_PATTERN = ".value-#.column";
-    String CK_TABLEDEF_VALUE_COLUMN_FACTOR = ".value-#.factor";
 
     String CK_TABLEDEF_VALUE_LABEL_PATTERN = "data.value-#.label";
     String CK_DATA_GROUP_TYPE = "data.group.type";
