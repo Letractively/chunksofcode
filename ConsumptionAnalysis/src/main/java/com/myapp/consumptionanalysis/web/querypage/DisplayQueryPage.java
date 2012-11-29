@@ -92,7 +92,7 @@ public class DisplayQueryPage extends BasePage implements Constants
 
 
         feedback = new JQueryFeedbackPanel("feedback");
-        feedback.setMaxMessages(1);
+        feedback.setMaxMessages(3);
         feedback.setOutputMarkupId(true);
         this.add(feedback);
 

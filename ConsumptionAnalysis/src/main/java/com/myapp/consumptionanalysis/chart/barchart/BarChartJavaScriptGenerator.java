@@ -2,6 +2,8 @@ package com.myapp.consumptionanalysis.chart.barchart;
 
 import static com.myapp.consumptionanalysis.web.chart.test.BarChartPanel.PLACEHOLDER_DOM_ID;
 
+import java.text.DecimalFormat;
+import java.text.NumberFormat;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.Iterator;
@@ -14,7 +16,6 @@ import com.myapp.consumptionanalysis.config.DataSelectionConfig;
 import com.myapp.consumptionanalysis.config.Table;
 import com.myapp.consumptionanalysis.sql.DataRow;
 import com.myapp.consumptionanalysis.sql.ResultSetHolder;
-import com.myapp.consumptionanalysis.util.StringUtils;
 
 public class BarChartJavaScriptGenerator
 {
@@ -30,7 +31,7 @@ public class BarChartJavaScriptGenerator
     private StringBuilder bui;
     private Config config;
     private int indent = 0;
-    private String indentString = "    ";
+    private String indentString = "  ";
 
     public String generateJavaScript(Config config2) {
         synchronized (this) {
@@ -38,21 +39,14 @@ public class BarChartJavaScriptGenerator
             bui = new StringBuilder();
             indent = 0;
 
-            bui.append("$( ");
-
-            indent++;
-            nl();
-            bui.append("function () { ");
+            bui.append("$(function () { ");
 
             indent++;
             impl();
             indent--;
 
             nl();
-            bui.append("}");
-            indent--;
-            nl();
-            bui.append("); ");
+            bui.append("}); ");
 
             if (log.isTraceEnabled()) {
                 bui.append(NL);
@@ -89,7 +83,7 @@ public class BarChartJavaScriptGenerator
         nl();
 
         comment("Definition of the chart options", true);
-        createOptionsDefinition();
+        createOptionsDefinition(selectData);
         nl();
 
         comment("Definition of where chart is rendered:", true);
@@ -153,13 +147,6 @@ public class BarChartJavaScriptGenerator
         bui.append("var pos = latestPosition;");
         nl();
         bui.append("var axes = " + JS_VAR_PLOT_OBJECT + ".getAxes();");
-//        nl();
-//        nl();
-//        bui.append("console.log('pos:   ('+pos.x+'), ('+pos.y+')');");
-//        nl();
-//        bui.append("console.log('xaxes: ('+axes.xaxis.min+'), ('+axes.xaxis.max+')');");
-//        nl();
-//        bui.append("console.log('yaxes: ('+axes.yaxis.min+'), ('+axes.yaxis.max+')');");
         nl();
         nl();
         bui.append("if (pos.x < axes.xaxis.min || pos.x > axes.xaxis.max");
@@ -172,15 +159,15 @@ public class BarChartJavaScriptGenerator
         bui.append("return;");
         indent--;
         nl();
-        bui.append("}");
+        bui.append("}"); // if
+
+
+
         nl();
         nl();
         bui.append("var i, j, dataset = " + JS_VAR_PLOT_OBJECT + ".getData();");
         nl();
         nl();
-
-
-
         bui.append("for (i = 0; i < dataset.length; ++i) {");// foreach dataset START
         indent++;
         nl();
@@ -192,7 +179,7 @@ public class BarChartJavaScriptGenerator
         bui.append("for (j = 0; j < series.data.length; ++j) {");//foreach datapoint START
         indent++;
         nl();
-        bui.append("if (series.data[j][0] > pos.x) {");
+        bui.append("if (series.data[j][0] > pos.x) {");// if
         indent++;
         nl();
         bui.append("break;");
@@ -274,10 +261,9 @@ public class BarChartJavaScriptGenerator
         }
 
         return false;
-
     }
 
-    private void printRawData(ResultSetHolder selectData) {
+    private void printRawData(final ResultSetHolder selectData) {
         DataSelectionConfig sc = config.getSelectionConfig();
         Table anyTbl = sc.getTables().get(0);
 
@@ -294,41 +280,14 @@ public class BarChartJavaScriptGenerator
             nl();
             comment("data for column '" + seriesLabel + "'", true);
             nl();
-            bui.append("var " + variableName + " = []; ");
+            bui.append("var " + variableName + " = [");
 
-            Iterator<DataRow> rowItr = selectData.iterator();
-            DataRow prev = null;
+            indent++;
+            printColumnDataSeries(selectData, detectGapsInTimeline, valColKey);
+            indent--;
 
-            for (int i = 0; rowItr.hasNext(); i++) {
-                final DataRow row = rowItr.next();
-                Date currTime = row.getTimestamp();
-
-                if (detectGapsInTimeline && prev != null) {
-                    // detect gap, we need to insert a null to register a jump
-                    // in the data series
-                    Date prevTime = prev.getTimestamp();
-                    if (gapNecessary(currTime, prevTime)) {
-                        insertGap(variableName, currTime, prevTime);
-                    }
-                }
-
-                nl();
-                if (log.isTraceEnabled()) { // embed debug info to js code
-                    String debugInfo = "row #" + StringUtils.fillWithLeadingZeros(i, 3)
-                            + " - label: " + row.getLabel();
-                    debugInfo = wrapInBlockComment(debugInfo, true);
-                    debugInfo = debugInfo + "    ";
-                    bui.append(debugInfo);
-                }
-
-                Object value = row.getValue(valColKey);
-                
-                // null check if there is only one value to show:
-                long timeAsLong = currTime == null ? 0L : currTime.getTime();
-                bui.append(variableName + ".push([" + timeAsLong + ", " + value + "]); ");
-
-                prev = row;
-            }
+            nl();
+            bui.append("]; ");
 
             if (chosen.hasNext()) {
                 nl();
@@ -336,17 +295,57 @@ public class BarChartJavaScriptGenerator
         }
     }
 
-    private void insertGap(String variableName, Date currTime, Date prevTime) {
-        comment("inserting gap, because we had a jump here.", true);
+    private void printColumnDataSeries(final ResultSetHolder selectData,
+                                       final boolean detectGapsInTimeline,
+                                       final Integer valColKey) {
+        DataRow prev = null;
+        int i = 0;
+        NumberFormat fmt = new DecimalFormat("#.###");
 
-        nl();
-        bui.append(variableName + ".push([" + (prevTime.getTime() + 1L) + ", null]); ");
-        nl();
-        bui.append(variableName + ".push([" + (currTime.getTime() - 1L) + ", null]); ");
-        nl();
+        for (Iterator<DataRow> rowItr = selectData.iterator(); rowItr.hasNext(); i++) {
+            final DataRow row = rowItr.next();
+            final Date currTime = row.getTimestamp();
+            // null check if there is no date in case of TOTAL groupby
+            final long timeAsLong = currTime == null ? 0L : currTime.getTime();
+
+            if (detectGapsInTimeline && prev != null) {
+                // detect gap, we need to insert a null to register a jump
+                // in the data series
+                Date prevTime = prev.getTimestamp();
+                if (isGapNecessary(currTime, prevTime)) {
+                    comment("inserting gap, because we had a jump here.", true);
+                    nl();
+                    bui.append("[" + (prevTime.getTime() + 1L) + ", null], ");
+                    nl();
+                    bui.append("[" + (currTime.getTime() - 1L) + ", null], ");
+                    nl();
+                }
+            }
+
+            if (i == 0 || i % 5 == 0) {
+                nl();
+            }
+
+            Object value = row.getValue(valColKey);
+            String valueString = String.valueOf(value);
+            
+            if (value != null) {
+                if (value instanceof Number) {
+                    valueString = fmt.format(value);
+                }
+            }
+
+            bui.append("[" + timeAsLong + ", " + valueString + "]");
+
+            if (rowItr.hasNext()) {
+                bui.append(", ");
+            }
+
+            prev = row;
+        }
     }
 
-    private boolean gapNecessary(Date current, Date prev) {
+    private boolean isGapNecessary(Date current, Date prev) {
         Calendar helper = Calendar.getInstance();
         helper.setTime(prev);
         int prevDay = helper.get(Calendar.DAY_OF_MONTH);
@@ -386,7 +385,7 @@ public class BarChartJavaScriptGenerator
         bui.append("'); ");
     }
 
-    private void createOptionsDefinition() {
+    private void createOptionsDefinition(ResultSetHolder selectData) {
         nl();
         bui.append(JS_VAR_OPTIONS).append(" = { ");
         indent++;
@@ -396,7 +395,58 @@ public class BarChartJavaScriptGenerator
         indent++;
 
         nl();
-        bui.append("mode: 'time' ");
+        bui.append("mode: 'time', ");
+
+        Date first = selectData.get(0).getTimestamp();
+        Date last = selectData.get(selectData.size() - 1).getTimestamp();
+
+        /**
+        Note that for the time mode "tickSize" and "minTickSize" are a bit
+        special in that they are arrays on the form "[value, unit]" where unit
+        is one of "second", "minute", "hour", "day", "month" and "year". So
+        you can specify
+          minTickSize: [1, "month"]
+        to get a tick interval size of at least 1 month and correspondingly,
+        if axis.tickSize is [2, "day"] in the tick formatter, the ticks have
+        been produced with two days in-between.
+        */
+
+        switch (config.getSelectionConfig().getGroupBy()) {
+            case HOUR:
+                nl();
+                bui.append("minTickSize: [1, 'hour'],");
+                nl();
+                bui.append("min: " + (first.getTime() - 1000) + ",");
+                nl();
+                bui.append("max: " + (last.getTime() + 1000) + "");
+                break;
+            case DAY:
+                nl();
+                bui.append("minTickSize: [1, 'day'],");
+                nl();
+                bui.append("min: " + (first.getTime() - 1000) + ",");
+                nl();
+                bui.append("max: " + (last.getTime() + 1000) + "");
+                break;
+            case MONTH:
+                nl();
+                bui.append("minTickSize: [1, 'month'],");
+                nl();
+                bui.append("min: " + (first.getTime() - 1000) + ",");
+                nl();
+                bui.append("max: " + (last.getTime() + 1000) + "");
+                break;
+            case YEAR:
+                nl();
+                bui.append("minTickSize: [1, 'year'],");
+                nl();
+                bui.append("min: " + (first.getTime() - 1000) + ",");
+                nl();
+                bui.append("max: " + (last.getTime() + 1000) + "");
+                break;
+        }
+
+
 
         indent--;
         nl();
