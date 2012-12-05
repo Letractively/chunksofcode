@@ -1,42 +1,71 @@
 
 http://ipggi.wordpress.com/2011/06/29/implement-a-sftp-service-for-ubuntudebian-with-a-chrooted-isolated-file-directory/
 
-root@testkraxn /home/tester # 
-root@testkraxn /home/tester # groupadd sftponly
+<p>
+This article describes how to setup a SFTP server installation,
+plus some advices from a security point of view.
+</p>
+
+
+<h2>Step 1: Prepare your system</h2>
+
+
+
+<p>
+    Create a group for users that are allowed to use sftp, and add some users to it.
+    Since those users communicate with the ssh server without needing a login shell,
+    we will disable shell access for them by setting /bin/false as login shell.
+</p>
+
+<pre>root@testkraxn /home/tester # groupadd sftponly
 root@testkraxn /home/tester # cat /etc/group | tail -n 1
 sftponly:x:1001:
+
 root@testkraxn /home/tester # useradd garfield -d / -g 1001 -M -N -o -u 1001
-root@testkraxn /home/tester # cat /etc/passwd | tail -n 1
-garfield:x:1001:1001::/:/bin/sh
 root@testkraxn /home/tester # passwd garfield
 Enter new UNIX password: 
 Retype new UNIX password: 
 passwd: password updated successfully
+
 root@testkraxn ~tester # chsh garfield
 Changing the login shell for garfield
 Enter the new value, or press ENTER for the default
         Login Shell [/bin/sh]: /bin/false
-root@testkraxn /home/tester #     
-root@testkraxn /home/tester # cp /etc/ssh/sshd_config /etc/ssh/sshd_config.bak
-root@testkraxn /home/tester # vim /etc/ssh/sshd_config
-*** replace line: *
-Subsystem sftp /usr/lib/openssh/sftp-server
-*** with_ *
-Subsystem sftp internal-sftp
-*** Then, append these lines at the end of the file: *
-Match group sftponly
+        
+root@testkraxn /home/tester # cat /etc/passwd | tail -n 1
+garfield:x:1001:1001::/:/bin/false
+</pre>
+
+
+<h2>Step 2: Configure the SSH Server</h2>
+
+
+
+
+<pre>root@testkraxn /home/tester # cp /etc/ssh/sshd_config /etc/ssh/sshd_config.`date +%F_%T`.backup
+root@testkraxn /home/tester # vim /etc/ssh/sshd_config</pre>
+
+<p>replace line:</p>
+<pre>Subsystem sftp /usr/lib/openssh/sftp-server</pre>
+
+<p>with</p>
+<pre>Subsystem sftp internal-sftp</pre>
+
+<p>Then, append these lines at the end of the file:</p>
+<pre>Match group sftponly
     ChrootDirectory /var/www
     X11Forwarding no
     AllowTcpForwarding no
     ForceCommand internal-sftp
-***
-*** my whole config, to be complete: ***
-root@testkraxn /home/tester # cat /etc/ssh/sshd_config | grep -vE '^\s*([#].*|)$'
+</pre>
+
+<p>my whole config, to be complete here:</p>
+
+<pre>root@killerkraxn ~ # grep -vE '^\s*(#.*|)$' /etc/ssh/sshd_config
 Port 22
 Protocol 2
 HostKey /etc/ssh/ssh_host_rsa_key
 HostKey /etc/ssh/ssh_host_dsa_key
-HostKey /etc/ssh/ssh_host_ecdsa_key
 UsePrivilegeSeparation yes
 KeyRegenerationInterval 3600
 ServerKeyBits 768
@@ -61,66 +90,139 @@ AcceptEnv LANG LC_*
 Subsystem sftp internal-sftp
 UsePAM yes
 Match group sftponly
-ChrootDirectory /var/www
-X11Forwarding no
-AllowTcpForwarding no
-ForceCommand internal-sftp
-***
-root@testkraxn /home/tester # 
-root@testkraxn /home/tester # mkdir /var/www
-root@testkraxn /home/tester # mkdir /var/www/test_readonly
-root@testkraxn /home/tester # chmod 755 /var/www/test_readonly
-root@testkraxn /home/tester # 
-root@testkraxn /home/tester # mkdir /var/www/test_readwrite
-root@testkraxn /home/tester # chmod 775 /var/www/test_readwrite
-root@testkraxn /home/tester # chown root:sftponly -R /var/www/test_readwrite 
-root@testkraxn /home/tester # 
-root@testkraxn /home/tester # mkdir /var/www/test_noaccess
-root@testkraxn /home/tester # chmod 700 /var/www/test_noaccess
-root@testkraxn /home/tester # 
-root@testkraxn /home/tester # mkdir /some-other-dir
-root@testkraxn /home/tester # chmod 755 /some-other-dir
-root@testkraxn /home/tester # 
-root@testkraxn /home/tester # echo hi-guys > /some-other-dir/test.txt
-root@testkraxn /home/tester # chmod 644 /some-other-dir/test.txt
-root@testkraxn /home/tester # 
-root@testkraxn /home/tester # mkdir /var/www/test_bindmount
-root@testkraxn /home/tester # mount --bind /some-other-dir /var/www/test_bindmount
-root@testkraxn ~tester #                                            
-root@testkraxn ~tester # service ssh restart                                                  
+    ChrootDirectory /data/sftpusers
+    X11Forwarding no
+    AllowTcpForwarding no
+    ForceCommand internal-sftp
+</pre>
 
 
+
+<h2>Step 2: Create some test directories</h2>
+
+
+<p>I use a script like this to create a new user: (run as root)</p>
+<pre>
+NEW_USER=$1
+echo crating user: $NEW_USER
+
+useradd $NEW_USER -d / -G sftponly -M -s /bin/false
+groups $NEW_USER
+
+cd /data/sftpusers
+
+echo "setting up home directories..."
+
+mkdir $NEW_USER
+chown root:$NEW_USER $NEW_USER
+chmod 750 $NEW_USER
+
+
+mkdir $NEW_USER/readonly
+chmod 755 $NEW_USER/readonly
+echo "you cannot change this file" &gt; $NEW_USER/readonly/test.txt
+chmod 644 $NEW_USER/readonly/test.txt
+
+
+mkdir $NEW_USER/readwrite
+echo "delete me if you wish" &gt; $NEW_USER/readwrite/test.txt
+chown $NEW_USER:$NEW_USER -R $NEW_USER/readwrite
+
+
+mkdir $NEW_USER/no-access
+chmod 700 $NEW_USER/no-access
+echo "you won't ever read this, douchebag!" &gt; $NEW_USER/no-access/test.txt
+
+echo "you should set a password for the user: passwd $NEW_USER"
+</pre>
+
+
+<p>If you want to provide access to other folders to the users, you can mount
+the directory into the users base dir.<br/>
+In this example, i will grant access to /media/misc/foo to the user garfield: 
+</p>
+
+<pre>
+root@testkraxn ~ # mkdir -p /data/sftpusers/garfield/media
+root@testkraxn ~ # mount --bind /media/misc/foo  /data/sftpusers/garfield/media
+</pre>
+
+<pre>Finally, the directory structure for the user looks like this:</pre>
+
+<pre>root@killerkraxn /data/sftpusers # tree
+.
+└── garfield
+    ├── no-access
+    │   └── test.txt
+    ├── readonly
+    │   └── test.txt
+    ├── readwrite
+    │   └── test.txt
+    └── misc
+        └── foo --&gt; mountpoint of /media/misc/foo
+            └── foo-contents
+</pre>
+
+
+<p>Restart the ssh server and test the setup:</p>
+
+
+<pre>root@testkraxn ~ # service ssh restart</pre>
+
+<pre>
 andre@buenosaires ~ % sftp garfield@192.168.56.102
 garfield@192.168.56.102's password: 
 Connected to 192.168.56.102.
-sftp> cd /
-sftp> pwd
+
+sftp&gt; cd /
+sftp&gt; pwd
 Remote working directory: /
-sftp> ls
-test_bindmount test_noaccess test_readonly test_readwrite  
-sftp> cd test_noaccess
-sftp> pwd
-Remote working directory: /test_noaccess
-sftp> ls
-remote readdir("/test_noaccess"): Permission denied
-sftp> cd /test_readwrite/
-sftp> mkdir foo
-sftp> ls
-foo test.txt      
-sftp> cd /test_readonly/
-sftp> mkdir foo
+
+sftp&gt; ls
+foo readonly readwrite no-access
+
+sftp&gt; cd no-access
+sftp&gt; pwd
+Remote working directory: /no-access
+
+sftp&gt; ls
+remote readdir("/no-access"): Permission denied
+
+sftp&gt; cd /readwrite
+sftp&gt; mkdir foo
+sftp&gt; ls
+foo test.txt
+
+sftp&gt; cd /readonly
+sftp&gt; mkdir foo
 Couldn't create directory: Permission denied
-sftp> ls
-test.txt  
-sftp> cd /test_bindmount/
-sftp> pwd
-Remote working directory: /test_bindmount
-sftp> ls
-test.txt  
-sftp> exit
-andre@buenosaires ~ %
+
+sftp&gt; ls
+test.txt
+
+sftp&gt; cd /misc
+sftp&gt; pwd
+Remote working directory: /misc
+sftp&gt; ls
+foo
+  
+sftp&gt; exit
+</pre>
+
+
+<p>And the users do not have access to a shell when trying to connect via ssh:</p>
+
+
+<pre>
 andre@buenosaires ~ % ssh garfield@192.168.56.102
 garfield@192.168.56.102's password: 
 This service allows sftp connections only.
 Connection to 192.168.56.102 closed.
+</pre>
+
+
+
+
+
+
 

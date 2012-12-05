@@ -1,0 +1,75 @@
+Install guest additions in a linux guest system
+
+First, we need to install the build essentials.
+This comes along with a load of packages needed to build the
+kernel module.
+On GUEST SYSTEM, type:
+
+apt-get install build-essential linux-headers-$(uname -r)
+
+Then, goto the the Virtual Box Manager's menu:
+File -> Virtual Media Manager -> CD/DVD Images and check the image called 
+VBoxGuestAdditions.iso
+
+You could also go to the running machine and select Devices -> Install Guest Additions
+
+In the guest machine's settings, mount this iso to the cdrom.
+Open a shell in the guest machine and mount the cdrom device:
+
+jiffy-local# mkdir /mnt/cdrom
+jiffy-local# mount /dev/cdrom /mnt/cdrom 
+mount: block device /dev/sr0 is write-protected, mounting read-only
+jiffy-local# cd /mnt/cdrom 
+jiffy-local# ls -l
+total 48485
+dr-xr-xr-x 3 root root     2048 2012-06-05 16:33 32Bit
+dr-xr-xr-x 2 root root     2048 2012-06-05 16:33 64Bit
+-r-xr-xr-x 1 root root      647 2011-08-16 22:00 AUTORUN.INF
+-r-xr-xr-x 1 root root     6966 2012-06-05 16:24 autorun.sh
+-r-xr-xr-x 1 root root     5523 2012-06-05 16:24 runasroot.sh
+-r-xr-xr-x 1 root root  7669196 2012-06-05 16:28 VBoxLinuxAdditions.run
+-r-xr-xr-x 1 root root 20616704 2012-06-05 16:30 VBoxSolarisAdditions.pkg
+-r-xr-xr-x 1 root root 13624760 2012-06-05 16:17 VBoxWindowsAdditions-amd64.exe
+-r-xr-xr-x 1 root root   282968 2012-06-05 16:09 VBoxWindowsAdditions.exe
+-r-xr-xr-x 1 root root  7429848 2012-06-05 16:11 VBoxWindowsAdditions-x86.exe
+
+Run the script:
+jiffy-local# head --bytes=10 VBoxLinuxAdditions.run 
+#!/bin/sh
+
+jiffy-local# /bin/sh VBoxLinuxAdditions.run 
+Verifying archive integrity... All good.
+Uncompressing VirtualBox 4.1.18 Guest Additions for Linux..........
+VirtualBox Guest Additions installer
+tar: Record size = 8 blocks
+Removing existing VirtualBox DKMS kernel modules ...done.
+Removing existing VirtualBox non-DKMS kernel modules ...done.
+Building the VirtualBox Guest Additions kernel modules
+Building the main Guest Additions module ...done.
+Building the shared folder support module ...done.
+Building the OpenGL support module ...done.
+Doing non-kernel setup of the Guest Additions ...done.
+Starting the VirtualBox Guest Additions ...done.
+Installing the Window System drivers ...fail!
+(Could not find the X.Org or XFree86 Window System.)
+jiffy-local# 
+
+In my case, the error at the end of the script's output is not relevant:
+I do not have X11 installed on the guest system.
+
+
+Since i have choosen to mount the shared folders of the machine at startup,
+and to lazy to manually configure the mounts, I am forced to reboot:
+
+jiffy-local# 
+jiffy-local# reboot
+
+Finally, the shared folder (called "unpacked") is mounted:
+
+
+jiffy-local# ls -l /media/sf_unpacked
+-rwxrwx--- 1 root vboxsf  1073741824 2012-08-02 20:51 jiffybox_j29_disk_59491.raw
+-rwxrwx--- 1 root vboxsf 12884901888 2012-08-02 20:52 jiffybox_j29_disk_59492.raw
+-rwxrwx--- 1 root vboxsf 16106127360 2012-08-02 20:54 jiffybox_j29_disk_59493.raw
+-rwxrwx--- 1 root vboxsf 10737418240 2012-08-02 20:56 jiffybox_j29_disk_59544.raw
+
