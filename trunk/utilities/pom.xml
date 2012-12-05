@@ -1,22 +1,21 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<project xmlns="http://maven.apache.org/POM/4.0.0"
-         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
 
-    <name>utilities</name>  
+    <name>utilities</name>
     <packaging>jar</packaging>
     <description>andres common utilities collection</description>
     <modelVersion>4.0.0</modelVersion>
-    
+
     <groupId>com.myapp.tools</groupId>
     <artifactId>utilities</artifactId>
     <version>0.0.3</version>
 
     <parent>
-      <groupId>com.myapp.maven</groupId>
-      <artifactId>compile-pom</artifactId>
-      <version>1.0</version>
+        <groupId>com.myapp.maven</groupId>
+        <artifactId>compile-pom</artifactId>
+        <version>1.0</version>
     </parent>
 
     <properties>
@@ -52,9 +51,14 @@
             <version>0.9.18</version>
         </dependency>
         <dependency>
-          <groupId>commons-codec</groupId>
-          <artifactId>commons-codec</artifactId>
-          <version>1.4</version>
+            <groupId>commons-codec</groupId>
+            <artifactId>commons-codec</artifactId>
+            <version>1.4</version>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.shiro</groupId>
+            <artifactId>shiro-core</artifactId>
+            <version>1.0.0-incubating</version>
         </dependency>
         <dependency>
             <groupId>xerces</groupId>
@@ -66,7 +70,7 @@
     <build>
         <directory>${basedir}/target</directory>
         <outputDirectory>${basedir}/target/classes</outputDirectory>
-        <finalName>${artifactId}-${version}</finalName>
+        <finalName>${project.artifactId}-${project.version}</finalName>
         <testOutputDirectory>${basedir}/target/test-classes</testOutputDirectory>
         <sourceDirectory>${basedir}/src</sourceDirectory>
         <testSourceDirectory>${basedir}/test</testSourceDirectory>
@@ -81,7 +85,7 @@
                     <include>**/*.xml</include>
                 </includes>
             </resource>
-            
+
             <!-- put images in the jar -->
             <resource>
                 <directory>${basedir}/img</directory>
@@ -90,17 +94,10 @@
                     <include>**/*.gif</include>
                 </includes>
             </resource>
-             
+
             <!-- put source files into jar -->
-            <!-- 
-            <resource>
-                <directory>${basedir}/src</directory>
-                <filtering>false</filtering>
-                <includes>
-                    <include>**/*.java</include>
-                </includes>
-            </resource>
-            -->
+            <!-- <resource> <directory>${basedir}/src</directory> <filtering>false</filtering> 
+                <includes> <include>**/*.java</include> </includes> </resource> -->
         </resources>
 
         <testResources>
@@ -108,10 +105,10 @@
                 <directory>${basedir}/test-resources</directory>
             </testResource>
         </testResources>
-        
-        
-        <plugins>         
-           <plugin>
+
+
+        <plugins>
+            <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-resources-plugin</artifactId>
 
@@ -135,47 +132,28 @@
                     </execution>
                 </executions>
             </plugin>
-                        
-            <!-- create jar file:  -->
+
+            <!-- create jar file: -->
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-jar-plugin</artifactId>
+                <version>2.4</version>
                 <configuration>
                     <archive>
                         <manifestFile>${basedir}/resources/META-INF/MANIFEST.MF</manifestFile>
                     </archive>
                 </configuration>
             </plugin>
-                        
-            <!-- assemble dependencies into jar file:  -->
-            <!--
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-assembly-plugin</artifactId>
-                <executions>
-                    <execution>
-                        <id>create-my-bundle</id>
-                        <phase>package</phase>
-                        <goals>
-                            <goal>single</goal>
-                        </goals>
-                        <configuration>
-                            <descriptorRefs>
-                                <descriptorRef>jar-with-dependencies</descriptorRef>
-                            </descriptorRefs>
-                            <archive>
-                                <manifestFile>
-                                    ${basedir}/resources/META-INF/MANIFEST.MF
-                                </manifestFile>
-                            </archive>
-                        </configuration>
-                    </execution>
-                </executions>
-            </plugin>
-            -->
 
-            <!-- copy jars into target/lib folder  -->
-            <plugin> 
+            <!-- assemble dependencies into jar file: -->
+            <!-- <plugin> <groupId>org.apache.maven.plugins</groupId> <artifactId>maven-assembly-plugin</artifactId> 
+                <executions> <execution> <id>create-my-bundle</id> <phase>package</phase> 
+                <goals> <goal>single</goal> </goals> <configuration> <descriptorRefs> <descriptorRef>jar-with-dependencies</descriptorRef> 
+                </descriptorRefs> <archive> <manifestFile> ${basedir}/resources/META-INF/MANIFEST.MF 
+                </manifestFile> </archive> </configuration> </execution> </executions> </plugin> -->
+
+            <!-- copy jars into target/lib folder -->
+            <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-dependency-plugin</artifactId>
                 <executions>
