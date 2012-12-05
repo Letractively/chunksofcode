@@ -61,7 +61,7 @@ LOGFILE="${BACKUP_ROOT}/logs/backup_$(date +%Y-%m-%d_%H-%M-%S).log"
    #
 BACKUP_SOURCE_DIRS=(
     "/media/datadisk/personal"
-    "/home/andre/workspace"
+    "/home/andrer/workspace"
     "/media/datadisk/verena"
     "/media/warez/virtualbox"
     "/media/datadisk/books"

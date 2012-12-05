@@ -1,6 +1,7 @@
 #!/bin/bash
 
 TARGET_DIMENSION="1024x1024" # maximum dim
+TARGET_QUALITY="85" # jpeg compression rate
 
 thisDir=$( cd `dirname "$0"`; pwd  )
 
@@ -10,7 +11,7 @@ convertTarget="$thisDir/CONVERTED"
 mkdir $convertTarget
 
 tmpDir="$thisDir/TMP"
-mkdir $convertTarget
+mkdir $tmpDir
 
 
 # copy the files from external hdd:
@@ -59,7 +60,7 @@ cat "$results" | while read img; do
     fi
 
     # XXX note the ">", see: http://www.imagemagick.org/script/command-line-processing.php#geometry
-    convert -resize "$TARGET_DIMENSION>" "$img" "$targetFile"
+    convert -resize "$TARGET_DIMENSION>" -quality "$TARGET_QUALITY%" "$img" "$targetFile"
     
     if [ "$(echo "$i % 100" | bc)" == "0" ]; then
         echo "$i / $totalCount files converted."
