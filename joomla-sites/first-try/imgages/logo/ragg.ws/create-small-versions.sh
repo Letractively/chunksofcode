@@ -1,29 +1,88 @@
 #!/bin/bash
 
+
+# author: andre ragg
+
+
 # "here" is the location of this script file:
 here=$(cd "`dirname "$0"`"; pwd)
 
+# "target" is the place where the resized images will be saved:
+target="$here/small-versions"
 
-target="$here/target"
+
+# first, purge or create the target dir:
+
 if [ -d "$target" ]; then
-    rm -r "$target"/* 
+    echo "wiping everything inside $target ..."
+    count=$(rm -vr "$target"/* 2>/dev/null | wc -l)
+    echo "$count elements removed."
+    
 else
+    echo "creating $target ..."
     mkdir "$target"
+    
+    if [ "$?" != "0" ]; then
+        echo "ERROR: $? could not create $target"
+        exit 101
+    fi
 fi
 
-# create small versions in 16 pixel steps:
-for i in 16 32 48 64 80 96 112 128 144 160 176 192 208 224 240 256; do
-    shrinkFactor=$(echo "scale=5; ($i/256)*100" | bc)
-    echo "$i - $shrinkFactor"
+echo
+
+
+# this function encapsulates the decision if the image will be scaled
+# to an given size, hopefully fine granulated.
+function worthToScale() {
+    size=$1
+
+    if [ $size -le 128 ]; then
+        return 0
+        
+    elif [ $size -le 256 ]; then
+        mod32=$(echo "$size % 32" | bc)
+        
+        if [ $mod32 -eq 0 ]; then
+            return 0
+        fi
+        
+    elif [ $size -le 512 ]; then
+        mod64=$(echo "$size % 64" | bc)
+        
+        if [ $mod64 -eq 0 ]; then
+            return 0
+        fi
+    fi
     
-    # look for the orig files (XXX: recognized by "256" in the filename)
-    find "$here" -maxdepth 1 -type f -name "*256*" -not -ipath "*/.svn/*" \
-    | while read image; do
-        # shrink image file
-        imgName=$(basename $image)
-        newName=$(echo $imgName | sed s/256/$i/g )
+    return 1
+}
+
+
+# look for the orig files (XXX: recognized by ".origin." in the filename)
+find "$here" -name "*.origin.*" -type f -not -path "*/$target/*" | while read image; do
+    echo "generating resized versions for: $image";
+
+    # generate a small image from the orignial, using 16 pixels per step
+    for (( i=1; i * 16 <= 512; i++ )); do
+        newSize=$(echo "scale=4; $i * 16" | bc)
+        
+        if ! worthToScale $newSize; then
+            continue
+        fi
+
+        # how many percent do we want to zoom: (XXX: 256 is the original size)
+        shrinkFactor=$(echo "scale=4; ($newSize / 256) * 100" | bc)
+        
+        # compute the target file name by replacing "256" with the new size:
+        newName=$(basename $image | sed -e "s/\.origin\./.$newSize./g")
+        
+        echo "step $i - ${newSize}px - $shrinkFactor % - $newName"
+        
+        # shrink image file by calling convert:
         convert -resize "$shrinkFactor%" "$image" "$target/$newName"
     done
+
+    echo
 done
 
 
