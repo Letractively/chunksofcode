@@ -75,8 +75,6 @@ public final class CryptUtils {
         return bui.toString();
     }
 
-
-
     static final byte bitsToByte(Bit[] bits) {
         byte b = 0x0;
 
