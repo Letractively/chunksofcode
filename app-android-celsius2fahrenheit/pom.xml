@@ -28,7 +28,7 @@
 		add-ons  docs  google-market_billing  google-market_licensing  platforms  platform-tools  samples  SDK Readme.txt  temp  tools
 		-->
 		
-        <!--sdk.path>/opt/android-sdk</sdk.path> -->
+        <!--android.sdk.path>/opt/android-sdk</android.sdk.path-->
 	</properties>
 
 	<dependencies>
