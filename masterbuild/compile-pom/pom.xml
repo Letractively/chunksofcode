@@ -15,6 +15,7 @@
     <groupId>com.myapp.maven</groupId>
     <artifactId>super-pom</artifactId>
     <version>1.0</version>
+    <relativePath>../super-pom</relativePath>
   </parent>
 
   <properties>  
@@ -27,21 +28,13 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-compiler-plugin</artifactId>
+                <version>3.0</version>
                 <configuration>
                     <debug>true</debug>
                     <source>${compiler.source.version}</source>
                     <target>${compiler.target.version}</target>
                     <encoding>${default.encoding}</encoding>
                 </configuration>
-            </plugin>
-
-            <plugin>
-              <groupId>org.apache.maven.plugins</groupId>
-              <artifactId>maven-eclipse-plugin</artifactId>
-              <configuration>
-                  <downloadSources>true</downloadSources>
-                  <downloadJavaDocs>true</downloadJavaDocs>
-              </configuration>
             </plugin>
             
             <plugin>
@@ -78,17 +71,6 @@
                 </execution>
               </executions>
           </plugin>
-
-      <!--
-      <plugin>
-        <groupId>org.apache.maven.plugins</groupId>
-        <artifactId>maven-javadoc-plugin</artifactId>
-        <!- -version>2.8.1</version- ->
-        <configuration>
-          <show>protected</show>
-        </configuration>
-      </plugin>
-      -->
 
         </plugins>
     </build>
