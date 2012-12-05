@@ -47,6 +47,8 @@ public class RenamerTest {
         try {
             final IRenamer r = Renamer.getInstance();
             DummyRenamable fritz = new DummyRenamable("fritz");
+            r.clear();
+            assertTrue(r.isEmpty());
 
             {
                 saveState();
