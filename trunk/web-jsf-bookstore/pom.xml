@@ -64,7 +64,7 @@
 
         <defaultGoal>install</defaultGoal>
 
-        <finalName>${pom.artifactId}</finalName>
+        <finalName>${project.artifactId}</finalName>
 
         <plugins>
             <plugin>
@@ -72,7 +72,7 @@
                 <artifactId>maven-war-plugin</artifactId>
                 <version>2.0</version>
                 <configuration>
-                    <webappDirectory>${project.build.directory}/${pom.artifactId}</webappDirectory>
+                    <webappDirectory>${project.build.directory}/${project.artifactId}</webappDirectory>
                     <webResources>
                         <resource>
                             <directory>${basedir}/web</directory>
