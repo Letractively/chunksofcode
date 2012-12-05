@@ -11,6 +11,7 @@ import com.myapp.util.log.unixcolors.LogFileSelector;
 import com.myapp.videotools.Util;
 import com.myapp.videotools.cli.CommandLineInterface;
 
+@SuppressWarnings("unused")
 public class RunMain {
     
     public static void main(String[] foo) {
