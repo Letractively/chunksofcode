@@ -25,7 +25,7 @@
   </dependencies>
   
   <build>
-    <finalName>${pom.artifactId}-${pom.version}</finalName>
+    <finalName>${project.artifactId}-${project.version}</finalName>
     <directory>${basedir}/target</directory>
     <sourceDirectory>${basedir}/src</sourceDirectory>
     <outputDirectory>${basedir}/target/classes</outputDirectory>
@@ -33,7 +33,9 @@
     
     <plugins>
       <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-jar-plugin</artifactId>
+        <version>2.4</version>
         <configuration>
           <archive>
             <manifestFile>${basedir}/resources/META-INF/MANIFEST.MF</manifestFile>

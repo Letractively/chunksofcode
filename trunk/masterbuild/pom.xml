@@ -11,38 +11,42 @@
   <groupId>com.myapp.tools</groupId>
   <artifactId>masterbuild</artifactId>
   <version>0.0.1</version>
-  
+
   <modules>
-    <module>./super-pom</module>
+  
     <module>./compile-pom</module>
-    
-    <module>../app-android-celsius2fahrenheit</module>
-    <module>../app-android-schnellen</module>
+    <module>./super-pom</module>
+
     <module>../app-game-pong</module>
     <module>../app-rubic-cube</module>
     <module>../app-soundsorter</module>
     <module>../app-videotools</module>
+    <module>../ConsumptionAnalysis</module>
     <module>../lifesimulator</module>
+    <module>../MavenSvnRevPluginTest</module>
     <module>../mines</module>
     <module>../renamer</module>
     <module>../schnellen-core</module>
     <module>../tool-desktop-startup</module>
     <module>../tool-httpproxy</module>
+    <module>../tool-multigrep</module>
     <module>../utilities</module>
-    <module>../web-dwr-shop</module>
     <module>../web-dwr-shop-annotated</module>
+    <module>../web-dwr-shop</module>
     <module>../web-dwr-simple</module>
     <module>../web-file-exchange</module>
     <module>../web-jsf2-getstarted</module>
     <module>../web-jsf-bookstore</module>
     <module>../web-jsp-bookstore</module>
     <module>../web-struts-tagdemo</module>
+    <module>../app-android-celsius2fahrenheit</module>
     <module>../web-wings-mines</module>
-
-    <!--    
+    <module>../app-android-schnellen</module>
+<!--
     <module>../hack-alpha-centauri-rip</module>
     <module>../hack.pagerip.literotica</module>
-    -->
+-->
+
   </modules>
   
 </project>
