@@ -12,6 +12,7 @@ whith the containing Fields, manages the time of the game and calculates
 the actual state of the game. 
 @author andre
  */
+@SuppressWarnings("deprecation")
 public class Game
         implements Iterable<Field> {
 

@@ -11,17 +11,13 @@ import org.wings.SDimension;
 import org.wings.SFont;
 import org.wings.SFrame;
 import org.wings.SGridLayout;
-import org.wings.SLabel;
 import org.wings.SList;
 import org.wings.SMenu;
 import org.wings.SMenuBar;
 import org.wings.SMenuItem;
 import org.wings.SOptionPane;
 import org.wings.SPanel;
-import org.wings.STextArea;
 import org.wings.STextField;
-
-//import sun.nio.cs.HistoricallyNamedCharset;
 
 import com.myapp.mines.controller.GameController;
 import com.myapp.mines.db.HighscoreDB;
@@ -35,6 +31,7 @@ a concrete view/controller implementation using wings
 to interact with the user
 @author andre
  */
+@SuppressWarnings("deprecation")
 public class WingsGameView extends GameController {
 
     

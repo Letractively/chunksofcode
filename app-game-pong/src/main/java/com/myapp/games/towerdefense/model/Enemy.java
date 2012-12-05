@@ -4,8 +4,6 @@ import java.awt.Point;
 import java.util.Iterator;
 import java.util.List;
 
-import com.myapp.games.towerdefense.model.Enemy.LifeEnergy;
-
 public class Enemy {
 
 
