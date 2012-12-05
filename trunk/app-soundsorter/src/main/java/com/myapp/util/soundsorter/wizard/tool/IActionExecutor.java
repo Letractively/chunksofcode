@@ -17,6 +17,7 @@ public interface IActionExecutor {
      * @param destinationDir the target directory where to copy to
      * @return
      */
-    public abstract int handleFiles(File interpretDir, File destinationDir);
+    public abstract int handleFiles(File interpretDir, 
+                                    File destinationDir) throws Exception;
 
 }
