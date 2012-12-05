@@ -1,7 +1,5 @@
 package com.myapp.util.security.aes;
 
-import static org.junit.Assert.*;
-
 import java.util.Properties;
 
 import org.junit.Test;

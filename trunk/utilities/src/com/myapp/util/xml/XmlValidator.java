@@ -11,6 +11,7 @@ import com.sun.org.apache.xerces.internal.parsers.SAXParser;
 
 
 
+@SuppressWarnings("restriction")
 public class XmlValidator {
     
     

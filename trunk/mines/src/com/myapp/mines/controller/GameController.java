@@ -15,6 +15,7 @@ is implemented in this base class which is designed to inherit view
 implementations from.
 @author andre
  */
+@SuppressWarnings("deprecation")
 public abstract class GameController
         implements ActionListener,
                    IGameViewCtrl {

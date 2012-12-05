@@ -381,14 +381,15 @@ public class UploadServlet extends HttpServlet {
     
              final int bytesPerSecond = 100 * 1024;
              byte[] buffer = new byte[bytesPerSecond];
+             int written = 0;
              
-             for (int read = -1, written = 0; (read = inputStream.read(buffer)) > 0;) {
+             for (int read = -1; (read = inputStream.read(buffer)) > 0;) {
                  outputStream.write(buffer, 0, read);
                  written += read;
                  Thread.sleep(1000);
              }
             
-            log.info("Uploaded file '"+saveLocation+"'.");
+            log.info("Uploaded file '"+saveLocation+"' bytes: '"+written+"'.");
             
         } finally {
             if (inputStream != null) {

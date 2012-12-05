@@ -3,6 +3,7 @@ package com.myapp.tools.web.httpproxy;
 import com.myapp.util.log.Log;
 import java.net.*;
 
+@SuppressWarnings("deprecation")
 public class ProxyStarter
         extends Thread {
 

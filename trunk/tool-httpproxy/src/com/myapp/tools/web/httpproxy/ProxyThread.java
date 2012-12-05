@@ -16,6 +16,7 @@ import com.myapp.util.log.Log;
  *
  * @author andre
  */
+@SuppressWarnings("deprecation")
 public class ProxyThread
         extends Thread {
 

@@ -69,6 +69,7 @@ final class Gui {
         IGameContext g = context.game();
         IColors cs = g.colors();
         IRound rnd = g.round();
+        @SuppressWarnings("unused") // TODO: continue here
         int promise = cs.getSpellersPromise();
         String playerName = context.frontend().getName();
         int minimumOffer = cs.getMinimumOfferValue(playerName);
@@ -86,7 +87,8 @@ final class Gui {
         while (minimumOffer <= 5) {
             itemList.add(Integer.toString(minimumOffer++));
         }
-        
+
+        @SuppressWarnings("unused") // TODO: continue here
         final CharSequence[] items = itemList.toArray(new CharSequence[0]);
         final int[] offer = {-1};
         

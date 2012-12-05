@@ -58,6 +58,7 @@ public final class GameActivity extends Activity implements IPlayerFrontend {
             throw new RuntimeException("error during onCreate", t);
         }
 
+        @SuppressWarnings("unused") // TODO: continue here
         View v = findViewById(R.layout.game);
         super.onCreate(savedInstanceState);
         Log.d(TAG, "onCreate() EXITING");
@@ -127,6 +128,7 @@ public final class GameActivity extends Activity implements IPlayerFrontend {
     
 
     @Override
+    @SuppressWarnings("unused") // TODO: continue here
     public int offerPunch() {
         IColors cs = game().colors();
         int promise = cs.getSpellersPromise();
@@ -144,6 +146,7 @@ public final class GameActivity extends Activity implements IPlayerFrontend {
     }  
 
     @Override
+    @SuppressWarnings("unused") // TODO: continue here
     public void fireGameEvent(Event id) {
         IRound cr = game().round();
         IColors cs = game().colors();

@@ -1,7 +1,5 @@
 package com.myapp.tools.web.httpproxy;
 
-import com.myapp.tools.web.httpproxy.format.JavaScriptCodeFormatter;
-import com.myapp.util.log.Log;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
@@ -16,12 +14,16 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.zip.GZIPInputStream;
 
+import com.myapp.tools.web.httpproxy.format.JavaScriptCodeFormatter;
+import com.myapp.util.log.Log;
+
 /**
  * backs the data being transferred during a http request or response. offers
  * various methods to extract metadata.
  * 
  * @author andre
  */
+@SuppressWarnings("deprecation")
 public class HTTPData {
     
     public enum ContentTypes {

@@ -5,13 +5,11 @@ import java.awt.Graphics;
 import java.awt.Point;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
-import java.awt.event.MouseListener;
 import java.util.List;
 
 import com.myapp.games.framework.awt.AWTGameRenderer;
 import com.myapp.games.towerdefense.model.AStar;
 import com.myapp.games.towerdefense.model.AStarDebugger;
-import com.myapp.games.towerdefense.model.DamageManager;
 import com.myapp.games.towerdefense.model.Enemy;
 import com.myapp.games.towerdefense.model.Grid;
 import com.myapp.games.towerdefense.model.Projectile;

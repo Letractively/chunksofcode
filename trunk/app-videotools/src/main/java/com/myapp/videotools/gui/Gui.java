@@ -223,8 +223,9 @@ public class Gui {
             errMsg("invalid path! (neither dir nor file) you selected: '"+path+"'");
         }
         
-        String[] args = commands.toArray(new String[commands.size()]);
         System.out.println("commands: "+commands);
+        
+//        String[] args = commands.toArray(new String[commands.size()]);
 //        CommandLineInterface cli = new CommandLineInterface();
 //        cli.process(args);
     }
