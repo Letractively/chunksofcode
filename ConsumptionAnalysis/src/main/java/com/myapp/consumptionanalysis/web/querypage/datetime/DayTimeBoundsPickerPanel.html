@@ -1,0 +1,26 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+    "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+    
+<html 
+    xmlns="http://www.w3.org/1999/xhtml" 
+    xmlns:wicket="http://wicket.sourceforge.net/" 
+    xml:lang="en" 
+    lang="en">  
+<head>
+    <wicket:head>
+       <script type="text/javascript" src="./js/cultures/kendo.culture.de-DE.js"></script>
+    </wicket:head>
+</head>
+<body>
+    <wicket:panel>
+        <td>Filtere</td>
+        <td><input wicket:id="dayTimeBoundsEnabled" type="checkbox" /></td>
+        <td>Tageszeit</td>
+        <td>von</td>
+        <td><input wicket:id="dayTimeStartPicker" type="text" /></td>
+        <td>bis</td>
+        <td><input wicket:id="dayTimeEndPicker" type="text" /></td>
+        <td><button wicket:id="applyButton">Anwenden</button></td>
+    </wicket:panel>
+</body>
+</html>
