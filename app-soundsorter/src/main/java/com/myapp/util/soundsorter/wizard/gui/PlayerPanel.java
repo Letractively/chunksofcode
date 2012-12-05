@@ -155,6 +155,10 @@ class PlayerPanel extends JPanel implements INextDirChosenListener ,ActionListen
     }
     
     private void playRandomSongRandomPosition() {
+        player.stop();
+        if (listModel.isEmpty()) {
+            return;
+        }
         int randomSongIndex = listModel.getSize() - 1;
         double salt = RANDOM.nextDouble();
         randomSongIndex = Double.valueOf(randomSongIndex * salt).intValue();

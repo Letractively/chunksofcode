@@ -34,12 +34,12 @@ public class ActionExecutor implements IActionExecutor {
     
     
     @Override
-    public int handleFiles(File interpretDir, File destinationDir) {
+    public int handleFiles(File interpretDir, File destinationDir) throws Exception {
         if ( ! interpretDir.exists())
-            throw new RuntimeException("interpretDir: " + interpretDir);
+            throw new Exception("interpretDir not found: " + interpretDir);
         
         if ( ! destinationDir.exists())
-            throw new RuntimeException("destinationDir: " + destinationDir);
+            throw new Exception("destinationDir not found: " + destinationDir);
         
         
         String src = interpretDir.getAbsolutePath();
@@ -52,7 +52,8 @@ public class ActionExecutor implements IActionExecutor {
         target += interpretDir.getName(); 
         
         if (new File(target).exists())
-            throw new RuntimeException("destinationDir: " + destinationDir);
+            throw new Exception(
+                "directory "+interpretDir.getName()+" already exists in " + destinationDir.getAbsolutePath());
         
         String[] commands = {
              "mv", 

@@ -11,6 +11,7 @@ import java.io.File;
 import javax.swing.BorderFactory;
 import javax.swing.JComponent;
 import javax.swing.JLabel;
+import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.SwingConstants;
 import javax.swing.border.EmptyBorder;
@@ -80,10 +81,28 @@ final class DestinationButton extends JPanel implements INextDirChosenListener
                 e.consume();
                 File src = app.getCurrentUnsortedDir();
                 File dst = meta.getPhysicalLocation();
-                int status = app.getActionExecutor().handleFiles(src, dst);
+                Integer status = null;
+                Exception caught = null;
                 
-                if (status != 0) {
-                    //TODO error handling
+                try {
+                    status = app.getActionExecutor().handleFiles(src, dst);
+                } catch (Exception e1) {
+                    e1.printStackTrace();
+                    caught = e1;
+                }
+                
+                if (status == null || status != 0 || caught != null) {
+                    String message = "Something went wrong: " + 
+                        "Status="+status+" " +
+                    	"src="+src+", " +
+                    	"dst="+dst+", " +
+                    	"caught="+caught;
+                    
+                    JOptionPane.showMessageDialog(null, 
+                         message
+                       , "An error occured!"
+                       , JOptionPane.ERROR_MESSAGE  
+                    );
                 }
                 
                 app.loadNextDir();
