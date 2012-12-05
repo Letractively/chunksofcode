@@ -78,7 +78,7 @@ final class ViewDefinition {
         }
         if (! in_array($this -> year_i, $years)) {
             $this -> year_i = $years[0]; // fallback to most recent year
-            if (is_int($years[1])) {
+            if ($years[1] && is_int($years[1])) {
                 $this -> year_i = $years[0]; // minus one, if available
             }
         }
