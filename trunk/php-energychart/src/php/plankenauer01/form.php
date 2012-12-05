@@ -26,7 +26,7 @@
     <!-- end of the viewtype radio buttons -->
 
     <!-- data source checkboxes: -->
-    Database:
+    Database/Table:
 <?php HtmlUtil :: render_checkboxes_input(
            $viewDef -> getAvailableDatabases(), $viewDef -> getDatabases());
 ?>
