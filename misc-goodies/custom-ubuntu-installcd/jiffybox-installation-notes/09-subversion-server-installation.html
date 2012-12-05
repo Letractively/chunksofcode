@@ -1,0 +1,179 @@
+
+<h2>Step 1: Prepare your system</h2>
+
+<p>
+    Install subversion, if not yet done:
+</p>
+
+<pre>root@testkraxn ~ # which svn
+svn not found
+root@testkraxn ~ # apt-get update
+root@testkraxn ~ # apt-get install subversion
+        The following NEW packages will be installed:
+          libapr1 libaprutil1 libdb4.8 libneon27-gnutls libsvn1 subversion
+        Do you want to continue [Y/n]? y
+</pre>
+
+<p>
+Create a single user and run the subversion server as that user. <br/>
+Be sure to make the repository in the filesystem owned by the subversion user as well.<br/>
+From a security point of view, this keeps the repo data well isolated and protected by 
+filesystem permissions, changeable by only the Subversion server process itself.
+</p>
+
+<pre>root@testkraxn ~ # useradd -d /home/subversion -m subversion
+root@testkraxn ~ # usermod -a -G subversion subversion
+root@testkraxn ~ # chsh subversion # to whatever you prefer
+</pre>
+
+<pre>root@testkraxn ~ # cd ~subversion
+root@testkraxn ~ # mkdir ~subversion/svn-data
+root@testkraxn ~ # chown subversion:subversion -R ~subversion/svn-data
+root@testkraxn ~ # ln -s /home/subversion/svn-data /svn
+</pre>
+<p>
+    Place a link in the filesystem so we can later access with svn://host:1111/svn/projectX
+</p>
+<pre>root@testkraxn ~ # ln -s /home/subversion/svn-data /svn</pre>
+
+
+
+
+<h2>Step 2: Create a repository</h2>
+
+<pre>
+root@testkraxn ~subversion # su subversion
+subversion@testkraxn ~ % cd svn-data
+subversion@testkraxn ~/svn-data % svnadmin create projectX
+</pre>
+
+<p>Edit your svnserve.conf like this:</p>
+<pre>subversion@testkraxn ~/svn-data % vim projectX/conf/svnserve.conf
+subversion@testkraxn ~/svn-data % grep -vE '^\s*(#.*|)$' projectX/conf/svnserve.conf
+[general]
+anon-access = none
+auth-access = write
+password-db = passwd
+[sasl]
+</pre>
+
+<p>Place your svn users here:</p>
+<pre>subversion@testkraxn ~/svn-data % vim projectX/conf/passwd
+subversion@testkraxn ~/svn-data % grep -vE '^\s*(#.*|)$' projectX/conf/passwd
+[users]
+andre = asdf27
+</pre>
+
+
+
+<h2>Step 3: Start and test the svn server daemon process</h2>
+
+<pre>subversion@testkraxn ~/svn-data % svnserve -d
+subversion@testkraxn ~/svn-data % sudo su
+root@testkraxn ~ # nmap -sS localhost
+PORT     STATE SERVICE
+22/tcp   open  ssh
+3690/tcp open  svn        &lt;-- you should see this line
+</pre>
+
+<p>Now you should be able to checkout on localhost and from other hosts:</p>
+
+<pre>subversion@testkraxn ~/svn-data/projectX % cd /tmp
+subversion@testkraxn /tmp % svn co svn://localhost/svn/projectX projectX
+subversion@testkraxn /tmp % cd projectX
+subversion@testkraxn /tmp/projectX % svn info
+Repository Root: svn://localhost/svn/projectX
+subversion@testkraxn /tmp/projectX % echo hello &gt; test.txt
+subversion@testkraxn /tmp/projectX % svn add test.txt
+A         test.txt
+subversion@testkraxn /tmp/projectX % svn ci -m "hello world test"
+subversion@testkraxn /tmp/projectX % svn update
+At revision 1.</pre>
+
+<p>or from another host:</p>
+<pre>anotheruser@anotherhost ~ % svn co svn://vbox0/svn/projectX projectX
+A    projectX/test.txt
+Checked out revision 1.
+</pre>
+
+
+<h2>Step 4: Configure svn over ssh</h2>
+<p>
+This will improve security and convenience, since the users do not need
+a separate svn user and they can authenticate with a keyfile instead of typing
+and storing their passwords.
+</p>
+<p>
+The following requirements must be given:
+</p>
+<ul>
+    <li>The authentication must use the systems unix user acconts.
+    We do not want to manage a new user/password mapping for everybody.</li>
+    <li>In the configuration, we need to be able control the following:
+        <ul>
+            <li>Put users into groups and enable group based authentication rules.</li>
+            <li>Specify separate permissions for every directory.</li>
+        </ul>
+    </li>
+</ul>
+
+<h4>Example:</h4>
+<p>
+On our system, we have two users:
+</p>
+<pre>
+    tester (the one that has readwrite access)
+    leser (the one that cannot commit)
+</pre>
+<p>Both accounts are existing on the machine and are able to login via ssh.</p>
+
+<p>
+Set file system permissions. Users not in group subversion are locked out:
+</p>
+<pre>root@testkraxn /etc/ssh # cd ~subversion
+root@testkraxn ~subversion # ls -l
+drwxrwxr-x 3 subversion subversion 4096 Dec  3 14:58 svn-data/
+root@testkraxn ~subversion # chown subversion:subversion -R svn-data # to be sure :D
+root@testkraxn ~subversion # chmod o-rwx -R svn-data
+root@testkraxn ~subversion # ls -l
+drwxrwx--- 3 subversion subversion 4096 Dec  3 14:58 svn-data/
+</pre>
+
+
+<p>Put users to group "subversion". This will allow to access the svn repository.</p>
+<pre>root@testkraxn /etc/ssh # usermod -G subversion tester
+root@testkraxn /etc/ssh # groups tester
+tester : tester subversion
+</pre>
+
+
+<p>Edit your authz file like this:</p>
+<pre>subversion@testkraxn ~/svn-data % cat projectX/conf/authz
+
+[aliases]
+[groups]
+committergroup = tester
+readgroup = leser, tester
+
+[/] # relative to project root
+# allow nothing by default:
+* =
+@readgroup = r
+@committergroup = rw
+
+[/tags]
+* =
+committergroup = rw
+</pre>
+
+
+<p>
+After this, you should be able to use the svn repo like this:</p>
+<pre>andrer@caracas ~ svn co svn+ssh://tester@vbox0/svn/projectX/trunk rw
+Checked out revision 7.</pre>
+
+
+<a href="http://civicactions.com/blog/2010/may/25/how_set_svn_repository_7_simple_steps">Tutorial</a><br/>
+<a href="http://ubuntuforums.org/showthread.php?p=7438340">another Reference</a>
+
+
