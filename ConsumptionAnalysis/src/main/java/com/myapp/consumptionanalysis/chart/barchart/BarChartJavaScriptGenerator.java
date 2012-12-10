@@ -300,7 +300,7 @@ public class BarChartJavaScriptGenerator
                                        final Integer valColKey) {
         DataRow prev = null;
         int i = 0;
-        NumberFormat fmt = new DecimalFormat("#.###");
+//        NumberFormat fmt = new DecimalFormat("#.###");
 
         for (Iterator<DataRow> rowItr = selectData.iterator(); rowItr.hasNext(); i++) {
             final DataRow row = rowItr.next();
@@ -329,11 +329,11 @@ public class BarChartJavaScriptGenerator
             Object value = row.getValue(valColKey);
             String valueString = String.valueOf(value);
             
-            if (value != null) {
-                if (value instanceof Number) {
-                    valueString = fmt.format(value);
-                }
-            }
+//            if (value != null) {
+//                if (value instanceof Number) {
+//                    valueString = fmt.format(value);
+//                }
+//            }
 
             bui.append("[" + timeAsLong + ", " + valueString + "]");
 
